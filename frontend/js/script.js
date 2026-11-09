@@ -21,10 +21,10 @@ const DEF = {
     unlocked: 1,
 
     form: {
-        id: '6410000001',
-        fac: 'วิทยาศาสตร์',
+        id: '',
+        fac: '',
         major: 'วิทยาการคอมพิวเตอร์',
-        gpax: '3.10'
+        gpax: ''
     },
 
     cur: '61',
@@ -338,6 +338,7 @@ function rowHtml(section, item, index, list, defaultValue) {
       <select data-t="val"
               data-k="${key}"
               aria-label="${isGroup ? 'ผล' : item}">
+         <option value="" ${value === '' ? 'selected' : ''}>กรุณาเลือก</option>
          ${list.map(option => `
             <option ${option === value ? 'selected' : ''}>
                ${option}
@@ -372,7 +373,7 @@ function evaluate() {
 
    curriculum.core.forEach((item, index) => {
       const code = codeOf('g', item, index);
-      const grade = valOf('g', index, 'B');
+      const grade = valOf('g', index, '');
 
       if (!(grade in GRADE)) {
          results.push({
@@ -402,7 +403,7 @@ function evaluate() {
 
    curriculum.now.forEach((item, index) => {
       const code = codeOf('s', item, index);
-      const status = valOf('s', index, 'กำลังศึกษา');
+      const status = valOf('s', index, '');
 
       courseDetails.push(code + ' (' + status + ')');
 
@@ -460,14 +461,14 @@ function buildEligibilityRequest() {
 
    curriculum.core.forEach((item, index) => {
       const course = codeOf('g', item, index);
-      grades[course] = valOf('g', index, 'B');
+      grades[course] = valOf('g', index, '');
    });
 
    curriculum.now.forEach((item, index) => {
       const course = codeOf('s', item, index);
 
       courseStatuses[course] =
-         valOf('s', index, 'กำลังศึกษา');
+         valOf('s', index, '');
    });
 
    return {
@@ -571,18 +572,31 @@ function initCheck() {
    let ok = false;
    let busy = false;
    let resultMessage = '';
+   let profileReady = false;
+   let studentId = '';
+   // Discard legacy sample data and data belonging to a different account.
+   if (S.eligibilityVersion !== 2 || S.eligibilityOwner !== S.user) {
+      S.form = fresh().form;
+      S.val = {};
+      S.alt = {};
+      S.ack = [false, false, false];
+      S.unlocked = 1;
+      S.eligibilityVersion = 2;
+      S.eligibilityOwner = S.user;
+   }
 
    if (!Object.prototype.hasOwnProperty.call(CUR, S.cur)) {
       S.cur = '61';
    }
 
-   $('#f_id').value = S.form.id;
+   $('#f_id').value = '';
+   $('#f_id').readOnly = true;
    $('#f_gpax').value = S.form.gpax;
    $('#f_prog').value = S.cur;
 
    const sync = () => {
       $('#btnCheck').disabled =
-         busy || !S.ack.every(value => value === true);
+         busy || !profileReady || !S.ack.every(value => value === true);
    };
 
    function draw() {
@@ -590,7 +604,7 @@ function initCheck() {
 
       $('#coreRows').innerHTML = curriculum.core
          .map((item, index) =>
-            rowHtml('g', item, index, GRADE_OPTS, 'B')
+            rowHtml('g', item, index, GRADE_OPTS, '')
          )
          .join('');
 
@@ -601,7 +615,7 @@ function initCheck() {
                item,
                index,
                STAT_OPTS,
-               'กำลังศึกษา'
+               ''
             )
          )
          .join('');
@@ -617,12 +631,53 @@ function initCheck() {
 
    draw();
 
+   async function loadProfile() {
+      const errorBox = $('#formError');
+      try {
+         const auth = JSON.parse(sessionStorage.getItem('u1-auth') || 'null');
+         if (!auth || auth.username !== S.user || auth.role !== 'STUDENT' || !auth.userId) {
+            throw new Error('กรุณาเข้าสู่ระบบด้วยบัญชีนักศึกษาใหม่');
+         }
+         const response = await fetch('http://localhost:8080/api/students/me', {
+            headers: { 'X-User-Id': String(auth.userId) }
+         });
+         if (!response.ok) throw new Error('ไม่สามารถโหลดข้อมูลนักศึกษาจากฐานข้อมูลได้');
+         const profile = await response.json();
+         if (!/^\d{10}$/.test(profile.studentId || '') || !profile.faculty) {
+            throw new Error('ข้อมูลรหัสนักศึกษาหรือคณะในฐานข้อมูลไม่ครบ');
+         }
+         studentId = profile.studentId;
+         S.form.id = studentId;
+         S.form.fac = profile.faculty;
+         S.form.major = profile.major || '';
+         $('#f_id').value = studentId;
+         $('#f_fac').value = S.form.fac;
+         $('#f_major').value = S.form.major;
+         profileReady = true;
+         save();
+      } catch (error) {
+         errorBox.textContent = error.message;
+         errorBox.hidden = false;
+         $('#f_id').setAttribute('aria-invalid', 'true');
+      }
+      sync();
+   }
+   loadProfile();
+
    const form = $('#vForm');
+
+   function clearFieldError(target) {
+      if (target.matches('input, select')) {
+         target.removeAttribute('aria-invalid');
+         target.removeAttribute('aria-describedby');
+      }
+   }
 
    /* เก็บค่าจากช่องกรอกข้อมูล */
    form.addEventListener('input', event => {
+      clearFieldError(event.target);
       if (event.target.id === 'f_id') {
-         S.form.id = event.target.value;
+         event.target.value = studentId;
       }
 
       if (event.target.id === 'f_gpax') {
@@ -635,6 +690,7 @@ function initCheck() {
    /* เก็บค่าจากตัวเลือกและ checkbox */
    form.addEventListener('change', event => {
       const target = event.target;
+      clearFieldError(target);
       const data = target.dataset;
 
       if (data.t === 'cur') {
@@ -654,8 +710,29 @@ function initCheck() {
 
    /* ตรวจข้อมูลเบื้องต้นให้ตรงกับ Backend */
    function validateInput() {
+      $$('#vForm [aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+      const errors = [];
+      const mark = (element, message) => {
+         element.setAttribute('aria-invalid', 'true');
+         element.setAttribute('aria-describedby', 'formError');
+         errors.push(message);
+      };
+      if (!profileReady) mark($('#f_id'), 'กรุณาเข้าสู่ระบบและโหลดข้อมูลนักศึกษาให้สำเร็จ');
       const id = String(S.form.id ?? '').trim();
       const gpax = String(S.form.gpax ?? '').trim();
+
+      if (!id || !/^\d{10}$/.test(id)) mark($('#f_id'), 'รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก');
+      if (!gpax) mark($('#f_gpax'), 'กรุณากรอกข้อมูลให้ครบถ้วน: GPA');
+      else if (!/^(?:[0-3](?:\.\d{1,2})?|4(?:\.0{1,2})?)$/.test(gpax)) {
+         mark($('#f_gpax'), 'GPA ต้องเป็นตัวเลข 0.00–4.00 และมีทศนิยมไม่เกิน 2 ตำแหน่ง');
+      }
+      $$('#vForm select[data-t="val"]').forEach(select => {
+         if (!select.value) mark(select, 'กรุณาเลือกเกรดหรือสถานะรายวิชาให้ครบถ้วน');
+      });
+      if (errors.length) {
+         $('#vForm [aria-invalid="true"]').focus();
+         return [...new Set(errors)].join(' / ');
+      }
 
       if (!id || !gpax) {
          return 'กรุณากรอกข้อมูลให้ครบถ้วน';
@@ -695,7 +772,8 @@ function initCheck() {
       }
 
       // อ่านค่าปัจจุบันจากหน้าฟอร์ม
-      S.form.id = $('#f_id').value;
+      S.form.id = studentId;
+      $('#f_id').value = studentId;
       S.form.gpax = $('#f_gpax').value;
       S.cur = $('#f_prog').value;
 
@@ -726,13 +804,28 @@ function initCheck() {
       );
 
       try {
+         const auth = JSON.parse(
+            sessionStorage.getItem('u1-auth') || 'null'
+         );
+
+         if (
+            !auth ||
+            auth.role !== 'STUDENT' ||
+            auth.userId == null
+         ) {
+            throw new Error(
+               'ไม่พบข้อมูลผู้ใช้ที่เข้าสู่ระบบ'
+            );
+         }
+
          const response = await fetch(
             ELIGIBILITY_API,
             {
                method: 'POST',
 
                headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'X-User-Id': String(auth.userId)
                },
 
                body: JSON.stringify(
@@ -772,6 +865,34 @@ function initCheck() {
          }
 
          res = convertApiResponse(data);
+
+         // API currently supplies messages, not structured field names.
+         // Highlight matching fields; retain all messages even if unmapped.
+         if (!data.valid) {
+            const markApi = element => {
+               element.setAttribute('aria-invalid', 'true');
+               element.setAttribute('aria-describedby', 'formError');
+            };
+            data.errors.forEach(message => {
+               if (message.includes('รหัสนักศึกษา')) markApi($('#f_id'));
+               if (message.includes('GPA')) markApi($('#f_gpax'));
+               if (message.includes('หลักสูตร')) markApi($('#f_prog'));
+               const curriculum = CUR[S.cur];
+               [['g', curriculum.core], ['s', curriculum.now]].forEach(([section, courses]) => {
+                  courses.forEach((item, index) => {
+                     if (message.includes(codeOf(section, item, index))) {
+                        const field = document.querySelector(`select[data-t="val"][data-k="${K(section, index)}"]`);
+                        if (field) markApi(field);
+                     }
+                  });
+               });
+            });
+            errorBox.textContent = data.errors.join(' / ') || data.message;
+            errorBox.hidden = false;
+            show('vForm');
+            $('#vForm [aria-invalid="true"]')?.focus();
+            return;
+         }
 
          ok =
             response.status === 200 &&

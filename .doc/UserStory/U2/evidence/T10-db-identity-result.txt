@@ -1,0 +1,2 @@
+﻿id	student_id	eligible	checked_at
+33	6609650003	true	2026-10-26 23:07:36.957188

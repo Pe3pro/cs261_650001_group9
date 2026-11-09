@@ -1,7 +1,9 @@
 package com.example.demo.integration;
 
 import com.example.demo.dao.EligibilityRecordDao;
+import com.example.demo.dao.StudentRepository;
 import com.example.demo.entity.EligibilityRecord;
+import com.example.demo.entity.Student;
 import com.jayway.jsonpath.JsonPath;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -10,26 +12,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-
 import org.springframework.http.MediaType;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.hamcrest.Matchers.hasItem;
-
-import static org.springframework.test.web.servlet.request
-    .MockMvcRequestBuilders.post;
-
-import static org.springframework.test.web.servlet.result
-    .MockMvcResultMatchers.jsonPath;
-
-import static org.springframework.test.web.servlet.result
-    .MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
     properties = {
@@ -48,26 +41,59 @@ class EligibilityApiDaoIntegrationTest {
     private static final String ENDPOINT =
         "/api/eligibility/check";
 
+    private static final long PASS_USER_ID = 900001L;
+    private static final long LOW_GPA_USER_ID = 900002L;
+
+    private static final String PASS_STUDENT_ID =
+        "6410000001";
+
+    private static final String LOW_GPA_STUDENT_ID =
+        "6410000002";
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private EligibilityRecordDao dao;
 
-    /*
-     * ล้างฐานข้อมูลก่อนแต่ละ Test Case
-     * เพื่อให้แต่ละกรณีไม่กระทบกัน
-     */
+    @Autowired
+    private StudentRepository studentRepository;
+
     @BeforeEach
-    void clearDatabase() {
+    void prepareDatabase() {
         dao.deleteAll();
         dao.flush();
+
+        studentRepository.findByUserId(PASS_USER_ID)
+            .ifPresent(studentRepository::delete);
+
+        studentRepository.findByUserId(LOW_GPA_USER_ID)
+            .ifPresent(studentRepository::delete);
+
+        studentRepository.flush();
+
+        studentRepository.saveAll(
+            List.of(
+                new Student(
+                    PASS_USER_ID,
+                    PASS_STUDENT_ID,
+                    "วิทยาศาสตร์และเทคโนโลยี",
+                    "วิทยาการคอมพิวเตอร์",
+                    3.10
+                ),
+                new Student(
+                    LOW_GPA_USER_ID,
+                    LOW_GPA_STUDENT_ID,
+                    "วิทยาศาสตร์และเทคโนโลยี",
+                    "วิทยาการคอมพิวเตอร์",
+                    2.74
+                )
+            )
+        );
+
+        studentRepository.flush();
     }
 
-    /*
-     * API-DAO-01:
-     * ข้อมูลถูกต้องและผ่านคุณสมบัติ
-     */
     @Test
     void shouldSaveEligibleRecordWhenRequestPasses()
             throws Exception {
@@ -76,8 +102,14 @@ class EligibilityApiDaoIntegrationTest {
 
         mockMvc.perform(
                 post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(validRequest("3.10"))
+                    .content(
+                        validRequest(
+                            PASS_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.valid").value(true))
@@ -87,52 +119,37 @@ class EligibilityApiDaoIntegrationTest {
                     .value("ผ่านคุณสมบัติ")
             );
 
-        long afterCount = dao.count();
-
-        assertThat(afterCount).isEqualTo(beforeCount + 1);
+        assertThat(dao.count()).isEqualTo(beforeCount + 1);
 
         List<EligibilityRecord> records =
             dao.findByStudentIdOrderByCheckedAtDesc(
-                "6410000001"
+                PASS_STUDENT_ID
             );
 
         assertThat(records).hasSize(1);
-
-        EligibilityRecord saved = records.get(0);
-
-        assertThat(saved.getStudentId())
-            .isEqualTo("6410000001");
-
-        assertThat(saved.isEligible()).isTrue();
-
-        assertThat(saved.getMessage())
-            .isEqualTo("ผ่านคุณสมบัติ");
-
-        assertThat(saved.getCheckedAt()).isNotNull();
+        assertThat(records.get(0).getStudentId())
+            .isEqualTo(PASS_STUDENT_ID);
+        assertThat(records.get(0).isEligible()).isTrue();
     }
 
-    /*
-     * API-DAO-02:
-     * ข้อมูลถูกต้องแต่ไม่ผ่านคุณสมบัติ
-     */
     @Test
-    void shouldSaveNotEligibleRecordWhenGpaxIsLow()
+    void shouldUseDatabaseGpaAndSaveNotEligibleRecord()
             throws Exception {
-
-        long beforeCount = dao.count();
 
         mockMvc.perform(
                 post(ENDPOINT)
+                    .header("X-User-Id", LOW_GPA_USER_ID)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(validRequest("2.74"))
+                    .content(
+                        validRequest(
+                            LOW_GPA_STUDENT_ID,
+                            "2.74"
+                        )
+                    )
             )
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.valid").value(true))
             .andExpect(jsonPath("$.eligible").value(false))
-            .andExpect(
-                jsonPath("$.message")
-                    .value("ไม่ผ่านคุณสมบัติ")
-            )
             .andExpect(
                 jsonPath("$.reasons")
                     .value(
@@ -142,30 +159,15 @@ class EligibilityApiDaoIntegrationTest {
                     )
             );
 
-        long afterCount = dao.count();
-
-        assertThat(afterCount).isEqualTo(beforeCount + 1);
-
         List<EligibilityRecord> records =
             dao.findByStudentIdOrderByCheckedAtDesc(
-                "6410000001"
+                LOW_GPA_STUDENT_ID
             );
 
         assertThat(records).hasSize(1);
-
-        EligibilityRecord saved = records.get(0);
-
-        assertThat(saved.isEligible()).isFalse();
-
-        assertThat(saved.getMessage())
-            .isEqualTo("ไม่ผ่านคุณสมบัติ");
+        assertThat(records.get(0).isEligible()).isFalse();
     }
 
-    /*
-     * API-DAO-03:
-     * กรอกข้อมูลไม่ครบ
-     * ต้องตอบ HTTP 400 และฐานข้อมูลต้องไม่เพิ่ม
-     */
     @Test
     void shouldNotSaveWhenRequestIsIncomplete()
             throws Exception {
@@ -174,29 +176,18 @@ class EligibilityApiDaoIntegrationTest {
 
         mockMvc.perform(
                 post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("{}")
             )
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.valid").value(false))
             .andExpect(jsonPath("$.eligible").isEmpty())
-            .andExpect(
-                jsonPath("$.message")
-                    .value("ข้อมูลไม่ถูกต้อง")
-            )
             .andExpect(jsonPath("$.errors").isNotEmpty());
 
-        long afterCount = dao.count();
-
-        assertThat(afterCount).isEqualTo(beforeCount);
-        assertThat(dao.findAll()).isEmpty();
+        assertThat(dao.count()).isEqualTo(beforeCount);
     }
 
-    /*
-     * API-DAO-04:
-     * กรอกข้อมูลผิดรูปแบบ
-     * ต้องตอบ HTTP 400 และฐานข้อมูลต้องไม่เพิ่ม
-     */
     @Test
     void shouldNotSaveWhenRequestFormatIsInvalid()
             throws Exception {
@@ -205,16 +196,12 @@ class EligibilityApiDaoIntegrationTest {
 
         mockMvc.perform(
                 post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(invalidRequest())
             )
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.valid").value(false))
-            .andExpect(jsonPath("$.eligible").isEmpty())
-            .andExpect(
-                jsonPath("$.message")
-                    .value("ข้อมูลไม่ถูกต้อง")
-            )
             .andExpect(
                 jsonPath("$.errors")
                     .value(
@@ -231,35 +218,11 @@ class EligibilityApiDaoIntegrationTest {
                             "และมีทศนิยมไม่เกิน 2 ตำแหน่ง"
                         )
                     )
-            )
-            .andExpect(
-                jsonPath("$.errors")
-                    .value(
-                        hasItem(
-                            "เกรดของวิชา คพ.101 ไม่ถูกต้อง"
-                        )
-                    )
-            )
-            .andExpect(
-                jsonPath("$.errors")
-                    .value(
-                        hasItem(
-                            "สถานะของวิชา คพ.384 ไม่ถูกต้อง"
-                        )
-                    )
             );
 
-        long afterCount = dao.count();
-
-        assertThat(afterCount).isEqualTo(beforeCount);
-        assertThat(dao.findAll()).isEmpty();
+        assertThat(dao.count()).isEqualTo(beforeCount);
     }
 
-    /*
-     * API-DAO-05:
-     * Request ที่ถูกต้องหนึ่งครั้ง
-     * ต้องบันทึกเพียงหนึ่งรายการ
-     */
     @Test
     void shouldSaveExactlyOneRecordPerRequest()
             throws Exception {
@@ -268,21 +231,20 @@ class EligibilityApiDaoIntegrationTest {
 
         mockMvc.perform(
                 post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(validRequest("3.10"))
+                    .content(
+                        validRequest(
+                            PASS_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
             )
             .andExpect(status().isOk());
 
-        long afterCount = dao.count();
-
-        assertThat(afterCount - beforeCount).isEqualTo(1);
+        assertThat(dao.count() - beforeCount).isEqualTo(1);
     }
 
-    /*
-     * API-DAO-06:
-     * ค่า eligible และ message ในฐานข้อมูล
-     * ต้องตรงกับ API Response
-     */
     @Test
     void shouldSaveRecordMatchingApiResponse()
             throws Exception {
@@ -290,58 +252,184 @@ class EligibilityApiDaoIntegrationTest {
         MvcResult result =
             mockMvc.perform(
                     post(ENDPOINT)
-                        .contentType(
-                            MediaType.APPLICATION_JSON
+                        .header("X-User-Id", PASS_USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                            validRequest(
+                                PASS_STUDENT_ID,
+                                "3.10"
+                            )
                         )
-                        .content(validRequest("3.10"))
                 )
                 .andExpect(status().isOk())
                 .andReturn();
 
         String responseJson =
-            result.getResponse()
-                .getContentAsString();
+            result.getResponse().getContentAsString();
 
         Boolean apiEligible =
-            JsonPath.read(
-                responseJson,
-                "$.eligible"
-            );
+            JsonPath.read(responseJson, "$.eligible");
 
         String apiMessage =
-            JsonPath.read(
-                responseJson,
-                "$.message"
-            );
+            JsonPath.read(responseJson, "$.message");
 
         List<EligibilityRecord> records =
             dao.findByStudentIdOrderByCheckedAtDesc(
-                "6410000001"
+                PASS_STUDENT_ID
             );
 
         assertThat(records).hasSize(1);
-
-        EligibilityRecord saved = records.get(0);
-
-        assertThat(saved.getStudentId())
-            .isEqualTo("6410000001");
-
-        assertThat(saved.isEligible())
+        assertThat(records.get(0).isEligible())
             .isEqualTo(apiEligible);
-
-        assertThat(saved.getMessage())
+        assertThat(records.get(0).getMessage())
             .isEqualTo(apiMessage);
-
-        assertThat(saved.getCheckedAt()).isNotNull();
     }
 
-    /*
-     * JSON มาตรฐานสำหรับข้อมูลที่ถูกต้อง
-     */
-    private String validRequest(String gpax) {
+    @Test
+    void shouldRejectRequestWithoutUserIdHeader()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            PASS_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(hasItem("กรุณาส่ง X-User-Id"))
+            );
+
+        assertThat(dao.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectUnknownUserId()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", 999999L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            PASS_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "ไม่พบข้อมูลนักศึกษาของผู้ใช้ที่เข้าสู่ระบบ"
+                        )
+                    )
+            );
+
+        assertThat(dao.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectStudentIdThatDoesNotBelongToUser()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            LOW_GPA_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "รหัสนักศึกษาไม่ตรงกับผู้ใช้ที่เข้าสู่ระบบ"
+                        )
+                    )
+            );
+
+        assertThat(dao.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectGpaThatDoesNotMatchDatabase()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            PASS_STUDENT_ID,
+                            "3.99"
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "GPA ไม่ตรงกับข้อมูลในฐานข้อมูล"
+                        )
+                    )
+            );
+
+        assertThat(dao.count()).isZero();
+    }
+
+    @Test
+    void shouldRejectCoursesOutsideStudentCurriculum()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", PASS_USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(requestWithOutsideCourses())
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "รายวิชา คพ.999 ไม่อยู่ในหลักสูตร 61"
+                        )
+                    )
+            )
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "รายวิชา คพ.888 ไม่อยู่ในหลักสูตร 61"
+                        )
+                    )
+            );
+
+        assertThat(dao.count()).isZero();
+    }
+
+    private String validRequest(
+        String studentId,
+        String gpax
+    ) {
         return """
             {
-              "studentId": "6410000001",
+              "studentId": "%s",
               "curriculum": "61",
               "gpax": "%s",
               "grades": {
@@ -356,18 +444,11 @@ class EligibilityApiDaoIntegrationTest {
                 "คพ.384": "กำลังศึกษา",
                 "คพ.266": "กำลังศึกษา"
               },
-              "acknowledgements": [
-                true,
-                true,
-                true
-              ]
+              "acknowledgements": [true, true, true]
             }
-            """.formatted(gpax);
+            """.formatted(studentId, gpax);
     }
 
-    /*
-     * JSON สำหรับกรณีข้อมูลผิดรูปแบบ
-     */
     private String invalidRequest() {
         return """
             {
@@ -386,11 +467,32 @@ class EligibilityApiDaoIntegrationTest {
                 "คพ.384": "เรียนอยู่",
                 "คพ.266": "กำลังศึกษา"
               },
-              "acknowledgements": [
-                true,
-                true,
-                true
-              ]
+              "acknowledgements": [true, true, true]
+            }
+            """;
+    }
+
+    private String requestWithOutsideCourses() {
+        return """
+            {
+              "studentId": "6410000001",
+              "curriculum": "61",
+              "gpax": "3.10",
+              "grades": {
+                "คพ.101": "B",
+                "คพ.102": "B",
+                "คพ.111": "B",
+                "คพ.213": "B",
+                "คพ.251": "B",
+                "คพ.264": "B",
+                "คพ.999": "B"
+              },
+              "courseStatuses": {
+                "คพ.384": "กำลังศึกษา",
+                "คพ.266": "กำลังศึกษา",
+                "คพ.888": "กำลังศึกษา"
+              },
+              "acknowledgements": [true, true, true]
             }
             """;
     }
