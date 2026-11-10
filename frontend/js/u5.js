@@ -16,9 +16,9 @@
 
    /* บัญชีทดลอง (ตรงกับ DemoDataSeeder) ใช้ username นี้ login ที่ login.html รหัสผ่าน 1234 */
    const DEMO_USERS = [
-      { id: 1, role: 'STAFF', name: 'สมศรี ทำงานดี', username: 'staff01' },
-      { id: 2, role: 'ADVISOR', name: 'อ.ดร.วิชัย สอนดี', username: 'advisor01' },
-      { id: 3, role: 'STUDENT', name: 'สมชาย ใจดี', username: '6609650001' }
+      { id: 1, role: 'STAFF', name: 'S staff', username: 'staff01' },
+      { id: 2, role: 'ADVISOR', name: 'A advisor', username: 'advisor01' },
+      { id: 3, role: 'STUDENT', name: 'A arizona', username: '6609650001' }
    ];
    const ROLE_TH = { STAFF: 'เจ้าหน้าที่', ADVISOR: 'อาจารย์', STUDENT: 'นศ.' };
 

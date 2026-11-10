@@ -148,7 +148,7 @@ class AuthApiDaoIntegrationTest {
     @DisplayName("IT-AD-L03 อาจารย์ที่มีในระบบ (TU ตอบ employee): 200 ADVISOR · role ไม่ถูกเปลี่ยน · ไม่มีแถว students")
     void existingAdvisorKeepsRole() throws Exception {
         User advisor = users.save(new User("wichai.s", "อ.วิชัย เดิม", "wichai.s@tu.ac.th", Role.ADVISOR));
-        when(tuApiClient.verify("wichai.s", "pw")).thenReturn(tuEmployee("wichai.s", "อ.ดร.วิชัย สอนดี"));
+        when(tuApiClient.verify("wichai.s", "pw")).thenReturn(tuEmployee("wichai.s", "A advisor"));
 
         login("wichai.s", "pw")
                 .andExpect(status().isOk())
@@ -157,7 +157,7 @@ class AuthApiDaoIntegrationTest {
 
         User after = users.findByUsername("wichai.s").orElseThrow();
         assertThat(after.getRole()).isEqualTo(Role.ADVISOR);
-        assertThat(after.getFullName()).isEqualTo("อ.ดร.วิชัย สอนดี");
+        assertThat(after.getFullName()).isEqualTo("A advisor");
         assertThat(users.count()).isEqualTo(1);
         assertThat(students.count()).isZero();
     }
@@ -213,13 +213,13 @@ class AuthApiDaoIntegrationTest {
     @Test
     @DisplayName("IT-AD-L07 บัญชีทดลอง staff01 / 1234: 200 STAFF · อ่านจาก users · ไม่เรียก TU REST API")
     void demoStaffLogsInFromDatabaseOnly() throws Exception {
-        User staff = users.save(new User("staff01", "สมศรี ทำงานดี", "staff01@tu.ac.th", Role.STAFF));
+        User staff = users.save(new User("staff01", "S staff", "staff01@tu.ac.th", Role.STAFF));
 
         login("staff01", "1234")
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.role").value("STAFF"))
                 .andExpect(jsonPath("$.userId").value(staff.getId().intValue()))
-                .andExpect(jsonPath("$.fullName").value("สมศรี ทำงานดี"));
+                .andExpect(jsonPath("$.fullName").value("S staff"));
 
         verify(tuApiClient, never()).verify(anyString(), anyString());
         assertThat(users.count()).isEqualTo(1);

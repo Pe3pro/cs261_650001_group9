@@ -43,7 +43,7 @@ class AuthControllerTest {
     @DisplayName("API-L01 login ถูกต้อง ได้ 200 พร้อม token, userId และ role")
     void success() throws Exception {
         when(service.login(new LoginRequest("6609650001", "secret"))).thenReturn(new LoginResponse(
-                "token-1", "Bearer", Instant.parse("2026-10-19T04:00:00Z"), 3L, "6609650001", "สมชาย ใจดี", Role.STUDENT));
+                "token-1", "Bearer", Instant.parse("2026-10-19T04:00:00Z"), 3L, "6609650001", "A arizona", Role.STUDENT));
 
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(body("6609650001", "secret")))
                 .andExpect(status().isOk())
@@ -52,7 +52,7 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.expiresAt").exists())
                 .andExpect(jsonPath("$.userId").value(3))
                 .andExpect(jsonPath("$.username").value("6609650001"))
-                .andExpect(jsonPath("$.fullName").value("สมชาย ใจดี"))
+                .andExpect(jsonPath("$.fullName").value("A arizona"))
                 .andExpect(jsonPath("$.role").value("STUDENT"))
                 .andExpect(jsonPath("$.password").doesNotExist());
     }

@@ -12,16 +12,16 @@ const read = f => fs.readFileSync(path.join(testDir, '..', f), 'utf8');
 const script = read('js/u5.js');
 
 const USERS = {
-    staff: { id: 1, role: 'STAFF', name: 'สมศรี ทำงานดี', username: 'staff01' },
-    advisor: { id: 2, role: 'ADVISOR', name: 'อ.ดร.วิชัย สอนดี', username: 'advisor01' },
-    student: { id: 3, role: 'STUDENT', name: 'สมชาย ใจดี', username: '6609650001' }
+    staff: { id: 1, role: 'STAFF', name: 'S staff', username: 'staff01' },
+    advisor: { id: 2, role: 'ADVISOR', name: 'A advisor', username: 'advisor01' },
+    student: { id: 3, role: 'STUDENT', name: 'A arizona', username: '6609650001' }
 };
 
 const APP = {
-    id: 50, studentId: '6609650001', studentName: 'สมชาย ใจดี', email: 'somchai@dome.tu.ac.th',
+    id: 50, studentId: '6609650001', studentName: 'A arizona', email: 'arizona@dome.tu.ac.th',
     faculty: 'วิทยาศาสตร์และเทคโนโลยี', major: 'วิทยาการคอมพิวเตอร์', gpa: 3.1,
     formName: 'คำร้องขอฝึกสหกิจศึกษา 2/2569', status: 'SUBMITTED', submittedAt: '2026-10-15T10:24:00',
-    answers: [{ label: 'ชื่อ-นามสกุล', value: 'สมชาย ใจดี' }, { label: 'เบอร์โทรศัพท์', value: '0812345678' }],
+    answers: [{ label: 'ชื่อ-นามสกุล', value: 'A arizona' }, { label: 'เบอร์โทรศัพท์', value: '0812345678' }],
     documents: [{ id: 7, fileName: 'transcript.pdf', status: 'UPLOADED' }], approvals: []
 };
 
@@ -58,7 +58,7 @@ async function open(file, user, routes = {}, login = null) {
 const listRoutes = {
     'GET /api/applications?status=SUBMITTED': [200, [APP]],
     'GET /api/applications/50/detail': [200, APP],
-    'POST /api/approvals/50/decision': [200, { id: 900, applicationId: 50, approvalLevel: 'STAFF', decision: 'APPROVE', approverName: 'สมศรี ทำงานดี', comment: null, decidedAt: '2026-10-17T10:00:00', applicationStatus: 'UNDER_REVIEW' }]
+    'POST /api/approvals/50/decision': [200, { id: 900, applicationId: 50, approvalLevel: 'STAFF', decision: 'APPROVE', approverName: 'S staff', comment: null, decidedAt: '2026-10-17T10:00:00', applicationStatus: 'UNDER_REVIEW' }]
 };
 
 async function openDetailAsStaff(routes = listRoutes) {
@@ -75,7 +75,7 @@ describe('U5:T7 หน้าตรวจคำร้อง (staff-review.html)',
         expect(calls[0].path).toBe('/api/applications?status=SUBMITTED');
         expect(calls[0].headers['X-User-Id']).toBe('1');
         expect(doc.querySelectorAll('#appRows tr').length).toBe(1);
-        expect(doc.querySelector('#appRows').textContent).toContain('สมชาย ใจดี');
+        expect(doc.querySelector('#appRows').textContent).toContain('A arizona');
     });
 
     test('UI-03 ไม่มีคำร้องในสถานะนั้น แสดงข้อความว่าง', async () => {
@@ -174,12 +174,12 @@ describe('U5:T7 หน้าตรวจคำร้อง (staff-review.html)',
 
     test('UI-36 login จาก login.html แล้ว (มีแต่ username) หา id ด้วย GET /api/users/{username} แล้วใช้ id นั้นใน X-User-Id', async () => {
         const { doc, calls } = await open('staff-review.html', null, {
-            ...listRoutes, 'GET /api/users/staff01': [200, { id: 1, username: 'staff01', name: 'สมศรี ทำงานดี', role: 'STAFF' }]
+            ...listRoutes, 'GET /api/users/staff01': [200, { id: 1, username: 'staff01', name: 'S staff', role: 'STAFF' }]
         }, 'staff01');
         expect(calls[0].path).toBe('/api/users/staff01');
         expect(calls[1].path).toBe('/api/applications?status=SUBMITTED');
         expect(calls[1].headers['X-User-Id']).toBe('1');
-        expect(doc.querySelector('#who').textContent).toBe('เจ้าหน้าที่ สมศรี ทำงานดี');
+        expect(doc.querySelector('#who').textContent).toBe('เจ้าหน้าที่ S staff');
     });
 
     test('UI-38 username ที่ไม่มีในระบบ แสดงข้อความจาก server และปุ่มกลับไปหน้า Login', async () => {

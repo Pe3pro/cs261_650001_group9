@@ -39,14 +39,14 @@ class LoginRepositoryTest {
         User advisor = users.saveAndFlush(new User("advisor01", "ชื่อเก่า", "old@tu.ac.th", Role.ADVISOR));
 
         User found = users.findByUsername("advisor01").orElseThrow();
-        found.setFullName("อ.ดร.วิชัย สอนดี");
+        found.setFullName("A advisor");
         found.setEmail("wichai@tu.ac.th");
         users.saveAndFlush(found);
 
         User again = users.findByUsername("advisor01").orElseThrow();
         assertThat(again.getId()).isEqualTo(advisor.getId());
         assertThat(again.getRole()).isEqualTo(Role.ADVISOR);
-        assertThat(again.getFullName()).isEqualTo("อ.ดร.วิชัย สอนดี");
+        assertThat(again.getFullName()).isEqualTo("A advisor");
         assertThat(again.getEmail()).isEqualTo("wichai@tu.ac.th");
         assertThat(users.count()).isEqualTo(1);
     }
@@ -75,7 +75,7 @@ class LoginRepositoryTest {
     @Test
     @DisplayName("DAO-L05 ผู้ใช้ไม่ต้องมีรหัสผ่านในฐานข้อมูล (password_hash ว่างได้)")
     void noPasswordStored() {
-        User saved = users.saveAndFlush(new User("somsri.t", "สมศรี ทำงานดี", null, Role.STAFF));
+        User saved = users.saveAndFlush(new User("somsri.t", "S staff", null, Role.STAFF));
 
         assertThat(saved.getPasswordHash()).isNull();
     }

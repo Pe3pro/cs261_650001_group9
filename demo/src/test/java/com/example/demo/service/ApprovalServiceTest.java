@@ -60,8 +60,8 @@ class ApprovalServiceTest {
     private AccessGuard guard;
     private ApprovalService service;
 
-    private final User staff = user(1L, "สมศรี ทำงานดี", Role.STAFF);
-    private final User advisor = user(2L, "อ.ดร.วิชัย สอนดี", Role.ADVISOR);
+    private final User staff = user(1L, "S staff", Role.STAFF);
+    private final User advisor = user(2L, "A advisor", Role.ADVISOR);
     private final User otherAdvisor = user(4L, "อ.ดร.สมปอง คนอื่น", Role.ADVISOR);
 
     @BeforeEach
@@ -117,7 +117,7 @@ class ApprovalServiceTest {
 
         assertThat(res.applicationStatus()).isEqualTo(ApplicationStatus.UNDER_REVIEW);
         assertThat(res.approvalLevel()).isEqualTo(ApprovalLevel.STAFF);
-        assertThat(res.approverName()).isEqualTo("สมศรี ทำงานดี");
+        assertThat(res.approverName()).isEqualTo("S staff");
         assertThat(res.decidedAt()).isEqualTo(LocalDateTime.of(2026, 10, 16, 11, 0));
         assertThat(app.getStatus()).isEqualTo(ApplicationStatus.UNDER_REVIEW);
         verify(applications).save(app);

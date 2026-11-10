@@ -90,7 +90,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("SV-L02 บุคลากร (employee) login ครั้งแรก: role STAFF และไม่สร้าง Student")
     void firstLoginEmployee() {
-        when(tu.verify("somsri.t", "secret")).thenReturn(tuOk("employee", "somsri.t", "สมศรี ทำงานดี"));
+        when(tu.verify("somsri.t", "secret")).thenReturn(tuOk("employee", "somsri.t", "S staff"));
 
         LoginResponse r = service.login(new LoginRequest("somsri.t", "secret"));
 
@@ -103,22 +103,22 @@ class AuthServiceTest {
     void existingUserKeepsRole() {
         User advisor = existing(2L, "wichai.s", "ชื่อเก่า", Role.ADVISOR);
         when(users.findByUsername("wichai.s")).thenReturn(Optional.of(advisor));
-        when(tu.verify("wichai.s", "secret")).thenReturn(tuOk("employee", "wichai.s", "อ.ดร.วิชัย สอนดี"));
+        when(tu.verify("wichai.s", "secret")).thenReturn(tuOk("employee", "wichai.s", "A advisor"));
 
         LoginResponse r = service.login(new LoginRequest("wichai.s", "secret"));
 
         assertThat(r.userId()).isEqualTo(2L);
         assertThat(r.role()).isEqualTo(Role.ADVISOR);
-        assertThat(advisor.getFullName()).isEqualTo("อ.ดร.วิชัย สอนดี");
+        assertThat(advisor.getFullName()).isEqualTo("A advisor");
         assertThat(advisor.getEmail()).isEqualTo("wichai.s@dome.tu.ac.th");
     }
 
     @Test
     @DisplayName("SV-L04 นักศึกษาเดิมที่มี Student อยู่แล้ว ไม่สร้างซ้ำ")
     void existingStudentNotDuplicated() {
-        when(users.findByUsername("6609650001")).thenReturn(Optional.of(existing(3L, "6609650001", "สมชาย ใจดี", Role.STUDENT)));
+        when(users.findByUsername("6609650001")).thenReturn(Optional.of(existing(3L, "6609650001", "A arizona", Role.STUDENT)));
         when(students.findByUserId(3L)).thenReturn(Optional.of(new Student(3L, "6609650001", "วิทย์", "คอม", 3.1)));
-        when(tu.verify("6609650001", "secret")).thenReturn(tuOk("student", "6609650001", "สมชาย ใจดี"));
+        when(tu.verify("6609650001", "secret")).thenReturn(tuOk("student", "6609650001", "A arizona"));
 
         service.login(new LoginRequest("6609650001", "secret"));
 
@@ -178,7 +178,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("SV-L09 บัญชีทดลอง staff01 + รหัสทดลอง: login ได้โดยไม่เรียก TU REST API")
     void demoAccount() {
-        when(users.findByUsername("staff01")).thenReturn(Optional.of(existing(1L, "staff01", "สมศรี ทำงานดี", Role.STAFF)));
+        when(users.findByUsername("staff01")).thenReturn(Optional.of(existing(1L, "staff01", "S staff", Role.STAFF)));
 
         LoginResponse r = service.login(new LoginRequest("staff01", "1234"));
 

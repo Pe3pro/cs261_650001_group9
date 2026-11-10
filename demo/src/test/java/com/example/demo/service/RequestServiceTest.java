@@ -38,6 +38,7 @@ import com.example.demo.dto.RequestResponse;
 import com.example.demo.entity.Application;
 import com.example.demo.entity.ApplicationStatus;
 import com.example.demo.entity.Document;
+import com.example.demo.entity.EligibilityRecord;
 import com.example.demo.entity.FieldType;
 import com.example.demo.entity.FormField;
 import com.example.demo.entity.FormResponse;
@@ -69,7 +70,7 @@ class RequestServiceTest {
     private NotificationService notifications;
     private AccessGuard guard;
 
-    private final User userA = user(3L, "6609650001", "somchai@dome.tu.ac.th");
+    private final User userA = user(3L, "6609650001", "arizona@dome.tu.ac.th");
     private final Student studentA = student(1L, 3L, "6609650001");
     private FormTemplate f1;
     private List<FormField> f1Fields;
@@ -101,6 +102,9 @@ class RequestServiceTest {
         when(fields.findByFormTemplateIdOrderByDisplayOrderAsc(10L)).thenReturn(f1Fields);
         when(applications.save(any(Application.class))).thenAnswer(inv -> withId(inv.getArgument(0), 500L));
         when(applications.saveAndFlush(any(Application.class))).thenAnswer(inv -> inv.getArgument(0));
+        // U2: ผ่านการตรวจสอบคุณสมบัติแล้ว (ค่าเริ่มต้นของทุกเคส)
+        when(eligibility.findByStudentIdOrderByCheckedAtDesc(anyString())).thenReturn(List.of(
+                new EligibilityRecord("6609650001", true, "ผ่านคุณสมบัติ", LocalDateTime.of(2026, 10, 17, 10, 0))));
     }
 
     private RequestService service(Clock clock) {
@@ -114,8 +118,8 @@ class RequestServiceTest {
         app.changeStatus(status);
         when(applications.findById(500L)).thenReturn(Optional.of(app));
         when(responses.findByApplicationId(500L)).thenReturn(List.of(
-                new FormResponse(500L, 101L, "สมชาย ใจดี"), new FormResponse(500L, 102L, "0812345678"),
-                new FormResponse(500L, 103L, "somchai@dome.tu.ac.th"), new FormResponse(500L, 104L, "99 ม.ธ. รังสิต")));
+                new FormResponse(500L, 101L, "A arizona"), new FormResponse(500L, 102L, "0812345678"),
+                new FormResponse(500L, 103L, "arizona@dome.tu.ac.th"), new FormResponse(500L, 104L, "99 ม.ธ. รังสิต")));
         when(documents.findByApplicationId(500L)).thenReturn(
                 List.of(new Document(500L, "transcript.pdf", "transcripts/a.pdf", 512_000L)));
         return app;
@@ -154,7 +158,7 @@ class RequestServiceTest {
         Application app = completeApplication(ApplicationStatus.DRAFT);
         // ก) ขาดเบอร์โทร
         when(responses.findByApplicationId(500L)).thenReturn(List.of(
-                new FormResponse(500L, 101L, "สมชาย ใจดี"), new FormResponse(500L, 103L, "somchai@dome.tu.ac.th"),
+                new FormResponse(500L, 101L, "A arizona"), new FormResponse(500L, 103L, "arizona@dome.tu.ac.th"),
                 new FormResponse(500L, 104L, "99 ม.ธ. รังสิต")));
         assertThatThrownBy(() -> service(NOW).submit(500L, 3L))
                 .isInstanceOf(FieldValidationException.class)
@@ -189,8 +193,8 @@ class RequestServiceTest {
     @Test
     @DisplayName("U3-SVC-05 แก้ไขคำร้องสถานะ SUBMITTED หรือ APPROVED: ปฏิเสธการแก้ไข (409)")
     void rejectEditAfterSubmit() {
-        FormAnswersRequest change = new FormAnswersRequest(Map.of("field_1", "สมชาย ใจดี", "field_2", "0899999999",
-                "field_3", "somchai@dome.tu.ac.th", "field_4", "99 ม.ธ. รังสิต"));
+        FormAnswersRequest change = new FormAnswersRequest(Map.of("field_1", "A arizona", "field_2", "0899999999",
+                "field_3", "arizona@dome.tu.ac.th", "field_4", "99 ม.ธ. รังสิต"));
         for (ApplicationStatus status : List.of(ApplicationStatus.SUBMITTED, ApplicationStatus.APPROVED)) {
             completeApplication(status);
             assertThatThrownBy(() -> service(NOW).saveAnswers(500L, change, 3L))
@@ -201,7 +205,7 @@ class RequestServiceTest {
     }
 
     @Test
-    @DisplayName("U3-SVC-06 ส่งคำร้องที่แก้ไขแล้วจาก NEED_CORRECTION (CORRECTION_REQUIRED): เป็น SUBMITTED อีกครั้ง")
+    @DisplayName("U3-SVC-06 ส่งคำร้องที่แก้ไขแล้วจาก NEED_CORRECTION: เป็น SUBMITTED อีกครั้ง")
     void resubmitAfterCorrection() {
         Application app = completeApplication(ApplicationStatus.NEED_CORRECTION);
 
@@ -309,7 +313,7 @@ class RequestServiceTest {
     }
 
     private static User user(Long id, String username, String mail) {
-        return withId(new User(username, "สมชาย ใจดี", mail, Role.STUDENT), id);
+        return withId(new User(username, "A arizona", mail, Role.STUDENT), id);
     }
 
     private static Student student(Long id, Long userId, String code) {
@@ -325,5 +329,28 @@ class RequestServiceTest {
 
     private static FormField field(Long id, int order, String label, FieldType type) {
         return withId(new FormField(10L, label, type, true, order), id);
+    }
+
+    @Test
+    @DisplayName("ยังไม่เคยตรวจ U2 → ยื่นคำร้องไม่ได้ (403 NOT_ELIGIBLE)")
+    void rejectWhenNeverCheckedEligibility() {
+        when(eligibility.findByStudentIdOrderByCheckedAtDesc(anyString())).thenReturn(List.of());
+
+        assertThatThrownBy(() -> service(NOW).create(new RequestCreateRequest(10L), 3L))
+                .isInstanceOf(ApiException.class)
+                .extracting("status", "code").containsExactly(403, "NOT_ELIGIBLE");
+        verify(applications, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("ผลตรวจ U2 ล่าสุดไม่ผ่าน → ยื่นคำร้องไม่ได้ (403 NOT_ELIGIBLE)")
+    void rejectWhenLatestEligibilityFailed() {
+        when(eligibility.findByStudentIdOrderByCheckedAtDesc(anyString())).thenReturn(List.of(
+                new EligibilityRecord("6609650001", false, "ไม่ผ่านคุณสมบัติ", LocalDateTime.of(2026, 10, 17, 10, 0))));
+
+        assertThatThrownBy(() -> service(NOW).create(new RequestCreateRequest(10L), 3L))
+                .isInstanceOf(ApiException.class)
+                .extracting("status", "code").containsExactly(403, "NOT_ELIGIBLE");
+        verify(applications, never()).save(any());
     }
 }

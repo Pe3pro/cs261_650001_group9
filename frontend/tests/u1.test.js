@@ -14,9 +14,9 @@ const script = read('js/login.js');
 
 const OK_STUDENT = {
     accessToken: 'token-1', tokenType: 'Bearer', expiresAt: '2099-01-01T00:00:00Z',
-    userId: 3, username: '6609650001', fullName: 'สมชาย ใจดี', role: 'STUDENT'
+    userId: 3, username: '6609650001', fullName: 'A arizona', role: 'STUDENT'
 };
-const OK_STAFF = { ...OK_STUDENT, userId: 1, username: 'staff01', fullName: 'สมศรี ทำงานดี', role: 'STAFF' };
+const OK_STAFF = { ...OK_STUDENT, userId: 1, username: 'staff01', fullName: 'S staff', role: 'STAFF' };
 const ERR = (code, message) => ({ code, message });
 
 /* reply = [status, body] | 'DOWN' | (body) => [status, body] */
@@ -85,7 +85,7 @@ describe('U1 login.html', () => {
         expect(calls[0].headers['Content-Type']).toBe('application/json');
         expect(calls[0].body).toEqual({ username: '6609650001', password: 'secret' });
         expect(ss('u1-auth')).toMatchObject({ accessToken: 'token-1', userId: 3, role: 'STUDENT' });
-        expect(ss('u5-user')).toEqual({ id: 3, role: 'STUDENT', name: 'สมชาย ใจดี', username: '6609650001' });
+        expect(ss('u5-user')).toEqual({ id: 3, role: 'STUDENT', name: 'A arizona', username: '6609650001' });
         expect(ss('coop-state').user).toBe('6609650001');
         expect(nav).toEqual(['check.html']);
     });

@@ -1059,6 +1059,7 @@ function initSubmit() {
       fail1: 'คำร้องไม่ผ่านการตรวจสอบ 1 รายการ กรุณาแก้ไขข้อมูล',
       duplicate: 'คุณมีคำร้องประเภทนี้ที่อยู่ระหว่างดำเนินการแล้ว',
       deadline: 'เกินระยะเวลาที่กำหนด ไม่สามารถยื่นคำร้องได้',
+      notEligible: 'คุณยังไม่ผ่านการตรวจสอบคุณสมบัติ ไม่สามารถยื่นคำร้องได้ กรุณาตรวจสอบคุณสมบัติก่อน',
       network: 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง',
       login: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง'
    };
@@ -1078,6 +1079,17 @@ function initSubmit() {
    let reqId = null;        // เลขที่คำร้องที่กำลังกรอก (DRAFT / NEED_CORRECTION)
    let busy = false;        // กันกดส่งซ้ำ
    let locked = false;      // ยื่นไม่ได้ (ยื่นซ้ำ / หมดเขต / ยื่นสำเร็จแล้ว)
+
+   /* Flow ใหม่ (U3/T13, T14): ผ่าน U2 → จัดอันดับบริษัท (U4) → ยื่นคำร้อง (U3)
+      backend U4 ล็อกอันดับทันทีที่คำร้องเป็น SUBMITTED/UNDER_REVIEW/APPROVED (409 RANKING_LOCKED)
+      จึงเปิดเมนูจับคู่บริษัทตั้งแต่เข้าหน้ายื่นคำร้อง ไม่ต้องรอยื่นเสร็จ */
+   S.unlocked = Math.max(S.unlocked, NEED.ranking);
+   save();
+   $$('nav a[href="ranking.html"]').forEach(link => {
+      link.classList.remove('disabled');
+      link.removeAttribute('aria-disabled');
+      link.removeAttribute('tabindex');
+   });
 
    $('#s_id').value = S.form.id;
    $('#s_fac').value = S.form.fac;
@@ -1148,6 +1160,7 @@ function initSubmit() {
       locked = true;
       note(text);
       $('#btnSend').disabled = true;
+      if ($('#s_rank')) $('#s_rank').hidden = true;   // ยื่นไม่ได้แล้ว ไม่ต้องเตือนให้จัดอันดับก่อนยื่น
    }
 
    /* U5: ช่องแนบไฟล์ที่เจ้าหน้าที่เพิ่มในแบบฟอร์ม (ช่องไฟล์ช่องแรกใช้ช่อง Transcript เดิม #s_tr) */
@@ -1259,6 +1272,7 @@ function initSubmit() {
       $('#sNext').hidden = !ok;
       $('#sRetry').hidden = !buttons.retry;
       $('#sEdit').hidden = !buttons.edit;
+      $('#sCheck').hidden = !buttons.check;
    }
 
    function backToForm(message) {
@@ -1278,6 +1292,10 @@ function initSubmit() {
       if (code === 'DEADLINE_PASSED') {
          locked = true;
          return result(false, MSG.deadline, true, 'แนบไฟล์แล้ว');
+      }
+      if (code === 'NOT_ELIGIBLE') {
+         lock(MSG.notEligible);
+         return result(false, MSG.notEligible, false, '-', { check: true });
       }
       if (code === 'DUPLICATE_REQUEST' || (res.status === 409 && code === 'INVALID_STATUS')) {
          locked = true;
@@ -1307,6 +1325,23 @@ function initSubmit() {
       return out;
    }
 
+   /* Flow: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่น เพราะยื่นแล้ว backend U4 ล็อกอันดับ (409 RANKING_LOCKED)
+      คืน true ถ้าจัดครบ RANK_COUNT อันดับแล้ว · API อันดับตอบอย่างอื่น (เช่น 403) → ปล่อยให้ API ของ U3 ตัดสินตอนส่ง */
+   const RANK_COUNT = 5;
+   async function rankingReady() {
+      const r = await call('/api/students/me/company-ranking');
+      if (r.status !== 200 || !Array.isArray(r.data)) return true;
+      return r.data.length >= RANK_COUNT;
+   }
+
+   function needRanking() {
+      backToForm('กรุณาจัดอันดับบริษัทให้ครบ ' + RANK_COUNT + ' อันดับก่อนยื่นคำร้อง (ยื่นแล้วจะแก้ไขอันดับไม่ได้)');
+      const link = document.createElement('a');
+      link.href = 'ranking.html';
+      link.textContent = 'ไปจัดอันดับบริษัท';
+      $('#s_err').append(' ', link);
+   }
+
    /* ส่งคำร้อง: สร้าง (ถ้ายังไม่มี) → บันทึกคำตอบ → แนบไฟล์ (ถ้าเลือก) → ยื่น
       ไม่ได้แนบไฟล์ → ให้ API ตรวจและตอบ 400 MISSING_DOCUMENT */
    async function send() {
@@ -1329,6 +1364,7 @@ function initSubmit() {
       setStepper(2);
       show('vLoad');
       try {
+         if (!(await rankingReady())) return needRanking();
          if (!form) {
             const pub = await call('/api/forms/published');
             if (pub.status !== 200) return fail(pub);
@@ -1386,8 +1422,9 @@ function initSubmit() {
       show('vForm');
    };
 
+   /* หลังยื่นสำเร็จ อันดับบริษัทถูกล็อกแล้ว ปุ่มนี้ไปดูอันดับที่บันทึกไว้ (แก้ไม่ได้) */
    $('#sNext').onclick = () => {
-      S.unlocked = 3;
+      S.unlocked = Math.max(S.unlocked, NEED.ranking);
       save();
    };
 
