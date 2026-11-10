@@ -10,8 +10,11 @@
 
    - หน้าเว็บเรียก backend จริงที่ http://localhost:8080 (ไม่จำลอง API)
    - ใช้บัญชีทดลองของ DemoDataSeeder login ผ่าน login.html (รหัสผ่านทดลอง U3_DEMO_PASS ค่าเริ่มต้น 1234)
-     ตาราง T13 → บัญชีที่ใช้: นศ. A (ยังไม่มีคำร้อง) = 6609650003 / 6609650004 · นศ. B = 6609650002
-     · นศ. C (ถูกส่งกลับให้แก้) = 6609650001 (สคริปต์ให้เจ้าหน้าที่ส่งกลับก่อนผ่าน API ของ U5)
+     บทบาทในตาราง T13 → บัญชี seed ที่ใช้ (ตัวอักษรในวงเล็บคือชื่อใน DemoDataSeeder):
+       บทบาท A (ยังไม่มีคำร้อง) = F 6609650006 (INT-01, 04) / G 6609650007 (INT-02, 06, 08)
+       บทบาท B (มีคำร้อง SUBMITTED) = B 6609650002 (อ่านอย่างเดียว)
+       บทบาท C (ถูกส่งกลับให้แก้) = F 6609650006 ใช้คำร้องที่ยื่นใน INT-01 ให้เจ้าหน้าที่ส่งกลับผ่าน API ของ U5
+     ไม่แตะ C/D (ข้อมูล U4) และไม่เปลี่ยนคำร้องของ A/B (ข้อมูลร่วม U4/U5)
    - INT-06 สร้างแบบฟอร์ม F2 ที่หมดเขตในอีก ~20 วินาทีตามเวลา server แล้วรอให้เลยเวลา
    - INT-08 หยุด backend ด้วย U3_STOP_CMD แล้วเปิดกลับด้วย U3_START_CMD
      (ค่าเริ่มต้น docker compose stop app / start app)
@@ -180,17 +183,17 @@ async function main() {
 
    /* ---------- U3-INT-07 แก้ไขคำร้องที่ถูกส่งกลับ (TC2) ---------- */
    await run('U3-INT-07', async () => {
-      const id = (await api('GET', '/api/requests/me', ACC.s1.id)).data[0].id;
+      const id = ctx.idC;   // คำร้องของ F ที่ยื่นใน U3-INT-01 (ไม่ใช้คำร้อง seed ของ A เพราะเป็นข้อมูลร่วม U4/U5)
       const ret = await api('POST', '/api/approvals/' + id + '/decision', ACC.staff.id,
          { decision: 'RETURN', comment: 'กรุณาแนบ Transcript ฉบับล่าสุด และตรวจเบอร์โทร' });
       assert.equal(ret.status, 200, 'เจ้าหน้าที่ส่งกลับไม่ได้ ' + JSON.stringify(ret.data));
       const p = await newPage(browser, base);
-      await loginStudent(p, ACC.s1.username);
+      await loginStudent(p, ACC.s3.username);
       const note = await text(p.page, '#s_note');
       await p.page.fill('#s_tel', '0899999999');
       await clickSend(p.page);
       const alert = await text(p.page, '#sAlert');
-      const db = await api('GET', '/api/requests/' + id, ACC.s1.id);
+      const db = await api('GET', '/api/requests/' + id, ACC.s3.id);
       await shot(p.page, 'T17-INT-07-correction.png', 'U3-INT-07 แก้ไขคำร้องที่ถูกส่งกลับ', p.log);
       await p.ctx.close();
       const calls = p.log.filter(x => x.url.includes('/api/requests'));

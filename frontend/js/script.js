@@ -1079,6 +1079,17 @@ function initSubmit() {
    let busy = false;        // กันกดส่งซ้ำ
    let locked = false;      // ยื่นไม่ได้ (ยื่นซ้ำ / หมดเขต / ยื่นสำเร็จแล้ว)
 
+   /* Flow ที่ทีมตกลง: ผ่าน U2 → จัดอันดับบริษัท (U4) → ยื่นคำร้อง (U3)
+      backend U4 ล็อกอันดับทันทีที่คำร้องเป็น SUBMITTED/UNDER_REVIEW/APPROVED (409 RANKING_LOCKED)
+      จึงเปิดเมนูจับคู่บริษัทตั้งแต่เข้าหน้ายื่นคำร้อง ไม่ต้องรอยื่นเสร็จ */
+   S.unlocked = Math.max(S.unlocked, NEED.ranking);
+   save();
+   $$('nav a[href="ranking.html"]').forEach(link => {
+      link.classList.remove('disabled');
+      link.removeAttribute('aria-disabled');
+      link.removeAttribute('tabindex');
+   });
+
    $('#s_id').value = S.form.id;
    $('#s_fac').value = S.form.fac;
    $('#s_major').value = S.form.major;
@@ -1148,6 +1159,7 @@ function initSubmit() {
       locked = true;
       note(text);
       $('#btnSend').disabled = true;
+      if ($('#s_rank')) $('#s_rank').hidden = true;   // ยื่นไม่ได้แล้ว ไม่ต้องเตือนให้จัดอันดับก่อนยื่น
    }
 
    /* U5: ช่องแนบไฟล์ที่เจ้าหน้าที่เพิ่มในแบบฟอร์ม (ช่องไฟล์ช่องแรกใช้ช่อง Transcript เดิม #s_tr) */
@@ -1391,8 +1403,9 @@ function initSubmit() {
       show('vForm');
    };
 
+   /* หลังยื่นสำเร็จ อันดับบริษัทถูกล็อกแล้ว ปุ่มนี้ไปดูอันดับที่บันทึกไว้ (แก้ไม่ได้) */
    $('#sNext').onclick = () => {
-      S.unlocked = 3;
+      S.unlocked = Math.max(S.unlocked, NEED.ranking);
       save();
    };
 

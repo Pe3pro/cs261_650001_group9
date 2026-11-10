@@ -205,7 +205,7 @@ class RequestServiceTest {
     }
 
     @Test
-    @DisplayName("U3-SVC-06 ส่งคำร้องที่แก้ไขแล้วจาก NEED_CORRECTION (CORRECTION_REQUIRED): เป็น SUBMITTED อีกครั้ง")
+    @DisplayName("U3-SVC-06 ส่งคำร้องที่แก้ไขแล้วจาก NEED_CORRECTION: เป็น SUBMITTED อีกครั้ง")
     void resubmitAfterCorrection() {
         Application app = completeApplication(ApplicationStatus.NEED_CORRECTION);
 

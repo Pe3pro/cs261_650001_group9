@@ -81,7 +81,8 @@ public class DemoDataSeeder implements CommandLineRunner {
         Student sb = students.save(withAdvisor(new Student(b.getId(), "6609650002", "วิทยาศาสตร์และเทคโนโลยี",
                 "วิทยาการคอมพิวเตอร์", 3.45), advisor));
 
-        // U3: นักศึกษา C และ D ยังไม่มีคำร้อง ใช้ทดลองยื่นคำร้องใหม่ (login 6609650003 / 6609650004 ด้วยรหัสผ่านทดลอง)
+        // นักศึกษา C และ D ยังไม่มีคำร้อง · ผลตรวจคุณสมบัติของ C/D ให้ RankingDemoSeeder (U4) เป็นคนใส่
+        // (C ผ่าน → จัดอันดับได้ · D ไม่ผ่าน → 403) U3 จึงไม่ใช้ C/D ยื่นคำร้อง เพื่อไม่ให้ demo ของ U4 พัง
         User c = users.save(new User("6609650003", "C center", "center@dome.tu.ac.th", Role.STUDENT));
         students.save(withAdvisor(new Student(c.getId(), "6609650003", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.25),
                 advisor));
@@ -89,16 +90,28 @@ public class DemoDataSeeder implements CommandLineRunner {
         students.save(withAdvisor(new Student(d.getId(), "6609650004", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 2.95),
                 advisor));
 
-        // U2 → U3: ต้องผ่านการตรวจสอบคุณสมบัติก่อนจึงยื่นคำร้องได้ (RequestService.requireEligible)
-        // A–D ผ่านแล้ว (สคริปต์ tools/u3-t17/t19/t20 ใช้ยื่นคำร้องทั้ง 4 บัญชี)
-        LocalDateTime checkedAt = LocalDateTime.now().minusDays(3);
-        for (String sid : List.of("6609650001", "6609650002", "6609650003", "6609650004")) {
-            eligibility.save(new EligibilityRecord(sid, true, "ผ่านคุณสมบัติ", checkedAt));
-        }
-        // นักศึกษา E ยังไม่เคยตรวจ U2 ใช้ demo กรณียื่นคำร้องแล้วถูกบล็อก 403 NOT_ELIGIBLE
+        // U3: นักศึกษา E ยังไม่เคยตรวจคุณสมบัติ (U2) → ยื่นคำร้องได้ 403 NOT_ELIGIBLE (ยังไม่เคยตรวจ = ไม่ผ่าน เหมือน U4)
         User e = users.save(new User("6609650005", "E essen", "essen@dome.tu.ac.th", Role.STUDENT));
         students.save(withAdvisor(new Student(e.getId(), "6609650005", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.00),
                 advisor));
+        // U3: นักศึกษาตัวอย่างของ U3 โดยเฉพาะ (ผ่านคุณสมบัติ ยังไม่มีคำร้อง) ใช้ใน Postman และ tools/u3-t17/t19/t20
+        // F (userId 8) ยื่นสำเร็จ / ส่งกลับแก้ · G (userId 9) ยื่นหลังหมดเขต · H (userId 10) ยื่นใหม่หลังถูกปฏิเสธ (UAT)
+        User f = users.save(new User("6609650006", "F frankfurt", "frankfurt@dome.tu.ac.th", Role.STUDENT));
+        students.save(withAdvisor(new Student(f.getId(), "6609650006", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.30),
+                advisor));
+        User g = users.save(new User("6609650007", "G geneva", "geneva@dome.tu.ac.th", Role.STUDENT));
+        students.save(withAdvisor(new Student(g.getId(), "6609650007", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.05),
+                advisor));
+        User h = users.save(new User("6609650008", "H hamburg", "hamburg@dome.tu.ac.th", Role.STUDENT));
+        students.save(withAdvisor(new Student(h.getId(), "6609650008", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.15),
+                advisor));
+
+        // U2 → U3: ต้องผ่านการตรวจสอบคุณสมบัติก่อนจึงยื่นคำร้องได้ (RequestService.requireEligible)
+        // A, B (มีคำร้องจาก seed) และ F, G, H (นักศึกษาของ U3) ผ่านแล้ว · ไม่ใส่ให้ C/D/E
+        LocalDateTime checkedAt = LocalDateTime.now().minusDays(3);
+        for (String sid : List.of("6609650001", "6609650002", "6609650006", "6609650007", "6609650008")) {
+            eligibility.save(new EligibilityRecord(sid, true, "ผ่านคุณสมบัติ", checkedAt));
+        }
 
         FormTemplate form = new FormTemplate("คำร้องขอฝึกสหกิจศึกษา 2/2569", 1, staff.getId());
         form.setDescription("กรอกข้อมูลให้ครบและแนบ Transcript (PDF)");

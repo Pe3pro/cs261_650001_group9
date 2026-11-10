@@ -121,7 +121,7 @@ const settle = page => page.waitForFunction(() => document.querySelector('#vLoad
 const T = [];
 const test = (id, name, fn) => T.push({ id, name, fn });
 
-test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → หน้ากำลังตรวจสอบ → หน้าผลสีเขียว + ปุ่มไปจับคู่บริษัท', async b => {
+test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → หน้ากำลังตรวจสอบ → หน้าผลสีเขียว + ปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('transcript.pdf');
@@ -134,7 +134,7 @@ test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → ห�
    assert.equal(await p.visible('#sNext'), true);
    assert.deepEqual(p.posts(), SUBMIT_CALLS);
    assert.ok(p.calls.every(c => c.userId === '3'), 'ทุก request ต้องส่ง X-User-Id');
-   return 'หน้ากำลังตรวจสอบ → ผลสีเขียว "' + await p.text('#sAlert') + '" มีปุ่มไปจับคู่บริษัท · เรียก ' + p.posts().join(' → ');
+   return 'หน้ากำลังตรวจสอบ → ผลสีเขียว "' + await p.text('#sAlert') + '" มีปุ่มดูอันดับบริษัท · เรียก ' + p.posts().join(' → ');
 });
 
 for (const [id, name, field] of [['UI-02', '(TC2) ไม่กรอกชื่อ', 's_name'], ['UI-03', 'ไม่กรอกเบอร์โทร', 's_tel'],
@@ -184,7 +184,7 @@ test('UI-08', 'เบอร์โทรผิดรูปแบบ (12ab) → �
    return 'แจ้ง "' + await p.text('#s_err') + '" ไม่เรียก API';
 });
 
-test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้งไม่พบไฟล์ มีปุ่มแก้ไข/ตรวจสอบอีกครั้ง ไม่มีปุ่มไปจับคู่บริษัท', async b => {
+test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้งไม่พบไฟล์ มีปุ่มแก้ไข/ตรวจสอบอีกครั้ง ไม่มีปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b, { 'POST /api/requests/500/submit': [400, ERR('MISSING_DOCUMENT', 'กรุณาแนบไฟล์ Transcript (PDF) ก่อนส่งคำร้อง')] });
    await p.fillAll();
    await p.send();
@@ -194,10 +194,10 @@ test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้
    assert.equal(await p.visible('#sEdit'), true);
    assert.equal(await p.visible('#sRetry'), true);
    assert.equal(await p.visible('#sNext'), false);
-   return 'ผลสีแดง "' + await p.text('#sTr small') + '" มีปุ่มแก้ไขข้อมูล + ตรวจสอบอีกครั้ง ไม่มีปุ่มไปจับคู่บริษัท';
+   return 'ผลสีแดง "' + await p.text('#sTr small') + '" มีปุ่มแก้ไขข้อมูล + ตรวจสอบอีกครั้ง ไม่มีปุ่มดูอันดับบริษัท';
 });
 
-test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้งต้องเป็น PDF ไม่มีปุ่มไปจับคู่บริษัท', async b => {
+test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้งต้องเป็น PDF ไม่มีปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('photo.exe', Buffer.from('MZ fake exe'));
@@ -206,7 +206,7 @@ test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้ง�
    assert.equal(await p.text('#sTr small'), 'Transcript ต้องเป็นไฟล์ PDF เท่านั้น');
    assert.equal(await p.visible('#sNext'), false);
    assert.deepEqual(p.posts(), []);
-   return 'ผลสีแดง "' + await p.text('#sTr small') + '" ไม่อัปโหลด ไม่มีปุ่มไปจับคู่บริษัท';
+   return 'ผลสีแดง "' + await p.text('#sTr small') + '" ไม่อัปโหลด ไม่มีปุ่มดูอันดับบริษัท';
 });
 
 test('UI-11', 'กดแก้ไขข้อมูล → กลับหน้ากรอกข้อมูล ข้อมูลเดิมครบ แถบขั้นตอนกลับขั้นที่ 1', async b => {
@@ -295,17 +295,18 @@ test('UI-16', 'กดส่งซ้ำรัว ๆ → ส่งไปที�
    return 'กด 5 ครั้งติดกัน → POST /api/requests 1 ครั้ง และ POST /submit 1 ครั้ง (ปุ่มถูกปิดระหว่างรอ)';
 });
 
-test('UI-17', 'กดไปหน้าถัดไป → ไปหน้าจับคู่บริษัท เมนูจับคู่บริษัทกดได้', async b => {
+test('UI-17', 'ยื่นสำเร็จ → กดดูอันดับบริษัท ไปหน้าจับคู่บริษัท (อันดับถูกล็อกแล้ว แก้ไม่ได้)', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('transcript.pdf');
    await p.send();
+   assert.equal(await p.text('#sNext'), 'ดูอันดับบริษัท');
    await p.$('#sNext').click();
    await p.page.waitForURL('**/ranking.html');
    assert.equal((await p.state()).unlocked, 3);
    const link = p.page.locator('nav a[href="ranking.html"]');
    assert.equal(await link.getAttribute('aria-disabled'), null);
-   return 'ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
+   return 'ปุ่ม "ดูอันดับบริษัท" → ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
 });
 
 test('UI-18', 'กดยกเลิก → กลับไปหน้าตรวจสอบคุณสมบัติ', async b => {
@@ -353,6 +354,24 @@ test('UI-21', '(เพิ่มเติม · T11 UI-04) บันทึกร�
    assert.equal(await p.$('#s_name').inputValue(), 'A arizona');
    assert.equal(await p.$('#s_tel').inputValue(), '0812345678');
    return 'โหลดหน้าใหม่แล้วชื่อและเบอร์โทรที่กรอกไว้ยังอยู่ (เก็บใน sessionStorage)';
+});
+
+test('UI-22', '(Flow จัดอันดับก่อนยื่น) เข้าหน้ายื่นคำร้อง → เมนูจับคู่บริษัทกดได้ทันที และมีข้อความเตือนให้จัดอันดับก่อนส่ง', async b => {
+   const p = await open(b);
+   const link = p.page.locator('nav a[href="ranking.html"]');
+   assert.equal(await link.getAttribute('aria-disabled'), null);
+   assert.equal(await link.evaluate(a => a.classList.contains('disabled')), false);
+   assert.equal((await p.state()).unlocked, 3);
+   assert.equal(await p.visible('#s_rank'), true);
+   assert.match(await p.text('#s_rank'), /ยื่นคำร้องแล้วจะแก้ไขอันดับบริษัทไม่ได้/);
+   return 'เมนูจับคู่บริษัทไม่ถูกปิด · coop-state.unlocked = 3 · แสดง "' + await p.text('#s_rank') + '"';
+});
+
+test('UI-23', '(Flow จัดอันดับก่อนยื่น) มีคำร้องที่ยื่นแล้ว → ไม่แสดงข้อความเตือนให้จัดอันดับก่อนส่ง', async b => {
+   const p = await open(b, { 'GET /api/requests/me': [200, [req('SUBMITTED', { submittedAt: '2026-10-20T10:00:00' })]] });
+   assert.equal(await p.$('#btnSend').isDisabled(), true);
+   assert.equal(await p.visible('#s_rank'), false);
+   return 'ปุ่มส่งถูกปิด · ซ่อนข้อความเตือนเรื่องจัดอันดับ';
 });
 
 /* ---------- main ---------- */

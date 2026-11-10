@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "U3 Submit — ยื่นคำร้องขอฝึกสหกิจศึกษา",
-    "description": "ใช้กับฐานข้อมูลใหม่ที่มีข้อมูลจาก DemoDataSeeder (docker compose down -v แล้ว docker compose up -d --build)\nuserId: 1 เจ้าหน้าที่ · 3 นศ. 6609650001 · 4 นศ. B 6609650002 · 5 นศ. A 6609650003 · 6 นศ. D 6609650004\nRun collection ตามลำดับ (Runner) · ไฟล์อัปโหลดอยู่ที่ .doc/postman/u3-files/ ตั้ง Settings → General → Working directory ของ Postman เป็นโฟลเดอร์ .doc/postman",
+    "description": "ใช้กับฐานข้อมูลใหม่ที่มีข้อมูลจาก DemoDataSeeder (docker compose down -v แล้ว docker compose up -d --build)\nuserId: 1 เจ้าหน้าที่ · 3 นศ. A 6609650001 · 4 นศ. B 6609650002 · 8 นศ. F 6609650006 · 9 นศ. G 6609650007 (F, G (และ H ที่ใช้ใน UAT) เป็นนักศึกษาตัวอย่างของ U3 โดยเฉพาะ ไม่ชนกับ C/D ของ U4 · E ยังไม่เคยตรวจคุณสมบัติ)\nRun collection ตามลำดับ (Runner) · ไฟล์อัปโหลดอยู่ที่ .doc/postman/u3-files/ ตั้ง Settings → General → Working directory ของ Postman เป็นโฟลเดอร์ .doc/postman",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -9,13 +9,13 @@
       "name": "1 ยื่นสำเร็จ / ข้อมูลไม่ครบ (TC1, TC2)",
       "item": [
         {
-          "name": "00 ข้อมูลนักศึกษา A (GET /api/students/me)",
+          "name": "00 ข้อมูลนักศึกษา F (GET /api/students/me)",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -37,7 +37,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('studentId = 6609650003', () => pm.expect(pm.response.json().studentId).to.eql(\"6609650003\"));"
+                  "pm.test('studentId = 6609650006', () => pm.expect(pm.response.json().studentId).to.eql(\"6609650006\"));"
                 ]
               }
             }
@@ -50,7 +50,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -120,13 +120,13 @@
           ]
         },
         {
-          "name": "U3-API-01 นศ. A สร้างคำร้อง → 201 DRAFT",
+          "name": "U3-API-01 นศ. F สร้างคำร้อง → 201 DRAFT",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               },
               {
                 "key": "Content-Type",
@@ -163,13 +163,13 @@
           ]
         },
         {
-          "name": "U3-API-04 กรอกฟอร์ม ไม่มีเบอร์โทร + อีเมล arizona@ → 400 พร้อมรายชื่อช่อง",
+          "name": "U3-API-04 กรอกฟอร์ม ไม่มีเบอร์โทร + อีเมล frankfurt@ → 400 พร้อมรายชื่อช่อง",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               },
               {
                 "key": "Content-Type",
@@ -190,7 +190,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answers\": {\n    \"field_1\": \"C center\",\n    \"field_3\": \"arizona@\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
+              "raw": "{\n  \"answers\": {\n    \"field_1\": \"F frankfurt\",\n    \"field_3\": \"frankfurt@\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
             }
           },
           "event": [
@@ -215,7 +215,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               },
               {
                 "key": "Content-Type",
@@ -236,7 +236,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answers\": {\n    \"field_1\": \"C center\",\n    \"field_2\": \"0812345678\",\n    \"field_3\": \"center@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
+              "raw": "{\n  \"answers\": {\n    \"field_1\": \"F frankfurt\",\n    \"field_2\": \"0812345678\",\n    \"field_3\": \"frankfurt@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
             }
           },
           "event": [
@@ -259,7 +259,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -295,7 +295,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -341,7 +341,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -387,7 +387,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -434,7 +434,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -476,7 +476,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -506,13 +506,13 @@
           ]
         },
         {
-          "name": "U3-API-09 นศ. A สร้างคำร้องใหม่ทั้งที่มีคำร้องค้าง → 409 DUPLICATE_REQUEST",
+          "name": "U3-API-09 นศ. F สร้างคำร้องใหม่ทั้งที่มีคำร้องค้าง → 409 DUPLICATE_REQUEST",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               },
               {
                 "key": "Content-Type",
@@ -583,7 +583,7 @@
           ]
         },
         {
-          "name": "U3-API-08 นศ. B เปิดคำร้องของ นศ. A → 403",
+          "name": "U3-API-08 นศ. B เปิดคำร้องของ นศ. F → 403",
           "request": {
             "method": "GET",
             "header": [
@@ -623,7 +623,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -692,7 +692,7 @@
                 "exec": [
                   "pm.test('status 200', () => pm.response.to.have.status(200));",
                   "const row = pm.response.json().find(a => a.id === Number(pm.collectionVariables.get('reqId')));",
-                  "pm.test('มีคำร้องของ 6609650003', () => pm.expect(row && row.studentId).to.eql('6609650003'));"
+                  "pm.test('มีคำร้องของ 6609650006', () => pm.expect(row && row.studentId).to.eql('6609650006'));"
                 ]
               }
             }
@@ -779,13 +779,13 @@
           ]
         },
         {
-          "name": "U3-UI-08 นศ. A เห็นเหตุผลที่ถูกส่งกลับ",
+          "name": "U3-UI-08 นศ. F เห็นเหตุผลที่ถูกส่งกลับ",
           "request": {
             "method": "GET",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -822,7 +822,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               },
               {
                 "key": "Content-Type",
@@ -843,7 +843,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answers\": {\n    \"field_1\": \"C center\",\n    \"field_2\": \"0899999999\",\n    \"field_3\": \"center@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
+              "raw": "{\n  \"answers\": {\n    \"field_1\": \"F frankfurt\",\n    \"field_2\": \"0899999999\",\n    \"field_3\": \"frankfurt@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
             }
           },
           "event": [
@@ -866,7 +866,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "5"
+                "value": "8"
               }
             ],
             "url": {
@@ -908,7 +908,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               }
             ],
             "url": {
@@ -1026,13 +1026,13 @@
           ]
         },
         {
-          "name": "นศ. D สร้างคำร้อง (ก่อนหมดเขต)",
+          "name": "นศ. G สร้างคำร้อง (ก่อนหมดเขต)",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               },
               {
                 "key": "Content-Type",
@@ -1068,13 +1068,13 @@
           ]
         },
         {
-          "name": "นศ. D กรอกฟอร์ม",
+          "name": "นศ. G กรอกฟอร์ม",
           "request": {
             "method": "PUT",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               },
               {
                 "key": "Content-Type",
@@ -1095,7 +1095,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"answers\": {\n    \"field_1\": \"D dubai\",\n    \"field_2\": \"0812345678\",\n    \"field_3\": \"center@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
+              "raw": "{\n  \"answers\": {\n    \"field_1\": \"G geneva\",\n    \"field_2\": \"0812345678\",\n    \"field_3\": \"frankfurt@dome.tu.ac.th\",\n    \"field_4\": \"99 ม.ธ. รังสิต\"\n  }\n}"
             }
           },
           "event": [
@@ -1111,13 +1111,13 @@
           ]
         },
         {
-          "name": "นศ. D แนบ transcript.pdf",
+          "name": "นศ. G แนบ transcript.pdf",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               }
             ],
             "url": {
@@ -1162,7 +1162,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               }
             ],
             "url": {
@@ -1209,7 +1209,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               }
             ],
             "url": {
@@ -1245,7 +1245,7 @@
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               }
             ],
             "url": {
@@ -1367,7 +1367,7 @@
       "name": "5 ยังไม่ผ่านเกณฑ์ (U2)",
       "item": [
         {
-          "name": "นศ. D ตรวจคุณสมบัติ (U2) ไม่ผ่าน GPA 2.50",
+          "name": "นศ. G ตรวจคุณสมบัติ (U2) ไม่ผ่าน GPA 2.50",
           "request": {
             "method": "POST",
             "header": [
@@ -1389,7 +1389,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"studentId\": \"6609650004\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"2.50\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}"
+              "raw": "{\n  \"studentId\": \"6609650007\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"2.50\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}"
             }
           },
           "event": [
@@ -1406,13 +1406,13 @@
           ]
         },
         {
-          "name": "U3-API-02 นศ. D (ยังไม่ผ่านเกณฑ์) สร้างคำร้อง → 403 NOT_ELIGIBLE",
+          "name": "U3-API-02 นศ. G (ยังไม่ผ่านเกณฑ์) สร้างคำร้อง → 403 NOT_ELIGIBLE",
           "request": {
             "method": "POST",
             "header": [
               {
                 "key": "X-User-Id",
-                "value": "6"
+                "value": "9"
               },
               {
                 "key": "Content-Type",
