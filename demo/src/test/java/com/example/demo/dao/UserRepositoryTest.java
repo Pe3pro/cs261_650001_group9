@@ -22,8 +22,8 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        repository.save(new User("staff01", "สมศรี ทำงานดี", "staff01@tu.ac.th", Role.STAFF));
-        repository.save(new User("advisor01", "อ.วิชัย", "advisor01@tu.ac.th", Role.ADVISOR));
+        repository.save(new User("staff01", "S staff", "staff01@tu.ac.th", Role.STAFF));
+        repository.save(new User("advisor01", "A advisor", "advisor01@tu.ac.th", Role.ADVISOR));
         repository.save(new User("advisor02", "อ.มานี", "advisor02@tu.ac.th", Role.ADVISOR));
         User retired = new User("advisor03", "อ.เกษียณ", "advisor03@tu.ac.th", Role.ADVISOR);
         retired.setActive(false);

@@ -30,13 +30,13 @@ class UserControllerTest {
     @Test
     @DisplayName("API-23 username ของเจ้าหน้าที่ ได้ id และ role STAFF")
     void staff() throws Exception {
-        when(service.findByUsername("staff01")).thenReturn(new UserResponse(1L, "staff01", "สมศรี ทำงานดี", Role.STAFF));
+        when(service.findByUsername("staff01")).thenReturn(new UserResponse(1L, "staff01", "S staff", Role.STAFF));
 
         mvc.perform(get("/api/users/staff01"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.role").value("STAFF"))
-                .andExpect(jsonPath("$.name").value("สมศรี ทำงานดี"));
+                .andExpect(jsonPath("$.name").value("S staff"));
     }
 
     @Test

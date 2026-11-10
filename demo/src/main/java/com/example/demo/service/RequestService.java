@@ -308,7 +308,7 @@ public class RequestService {
     private void requireEligible(Student student) {
         List<EligibilityRecord> records =
                 eligibilityRecordDao.findByStudentIdOrderByCheckedAtDesc(student.getStudentId());
-        if (!records.isEmpty() && !records.get(0).isEligible()) {
+        if (records.isEmpty() || !records.get(0).isEligible()) {
             throw new ApiException(403, "NOT_ELIGIBLE", "คุณยังไม่ผ่านการตรวจสอบคุณสมบัติ ไม่สามารถยื่นคำร้องได้");
         }
     }

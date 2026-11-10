@@ -101,12 +101,12 @@ class ApplicationReviewRepositoryTest {
     @Test
     @DisplayName("DAO-A06 อ่านคำตอบในแบบฟอร์มของคำร้อง")
     void answersOfApplication() {
-        responses.save(new FormResponse(early.getId(), 100L, "สมชาย ใจดี"));
+        responses.save(new FormResponse(early.getId(), 100L, "A arizona"));
         responses.save(new FormResponse(early.getId(), 101L, "0812345678"));
-        responses.save(new FormResponse(late.getId(), 100L, "สมหญิง รักเรียน"));
+        responses.save(new FormResponse(late.getId(), 100L, "B berlin"));
 
         assertThat(responses.findByApplicationId(early.getId()))
-                .extracting(FormResponse::getValue).containsExactlyInAnyOrder("สมชาย ใจดี", "0812345678");
+                .extracting(FormResponse::getValue).containsExactlyInAnyOrder("A arizona", "0812345678");
     }
 
     @Test

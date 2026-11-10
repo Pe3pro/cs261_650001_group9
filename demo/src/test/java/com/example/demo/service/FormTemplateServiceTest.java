@@ -49,7 +49,7 @@ class FormTemplateServiceTest {
         templates = mock(FormTemplateRepository.class);
         fields = mock(FormFieldRepository.class);
         AccessGuard guard = mock(AccessGuard.class);
-        User staff = new User("staff01", "สมศรี ทำงานดี", null, Role.STAFF);
+        User staff = new User("staff01", "S staff", null, Role.STAFF);
         ReflectionTestUtils.setField(staff, "id", 1L);
         when(guard.require(1L, Role.STAFF, Role.ADMIN)).thenReturn(staff);
         when(guard.require(3L, Role.STAFF, Role.ADMIN)).thenThrow(ApiException.forbidden());

@@ -42,14 +42,14 @@ class ApplicationReviewControllerTest {
     @DisplayName("API-10 เจ้าหน้าที่ดูคำร้องรอตรวจ ได้ 200 พร้อมชื่อนักศึกษาและเอกสาร")
     void listSubmitted() throws Exception {
         when(service.getByStatus(ApplicationStatus.SUBMITTED, 1L)).thenReturn(List.of(
-                new ApplicationReviewResponse(50L, "6609650001", "สมชาย ใจดี", ApplicationStatus.SUBMITTED,
+                new ApplicationReviewResponse(50L, "6609650001", "A arizona", ApplicationStatus.SUBMITTED,
                         LocalDateTime.of(2026, 10, 15, 10, 24), transcript, null, null)));
 
         mvc.perform(get("/api/applications").param("status", "SUBMITTED").header("X-User-Id", "1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].studentId").value("6609650001"))
-                .andExpect(jsonPath("$[0].studentName").value("สมชาย ใจดี"))
+                .andExpect(jsonPath("$[0].studentName").value("A arizona"))
                 .andExpect(jsonPath("$[0].documents[0].fileName").value("transcript.pdf"));
     }
 
@@ -74,9 +74,9 @@ class ApplicationReviewControllerTest {
     @DisplayName("API-13 ดูรายละเอียดคำร้อง ได้คำตอบในแบบฟอร์มเรียงตามช่อง")
     void detail() throws Exception {
         when(service.getDetail(50L, 1L)).thenReturn(new ApplicationDetailResponse(50L, "6609650001",
-                "สมชาย ใจดี", "somchai@dome.tu.ac.th", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.10,
+                "A arizona", "arizona@dome.tu.ac.th", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.10,
                 "คำร้องขอฝึกสหกิจศึกษา 2/2569", ApplicationStatus.SUBMITTED, LocalDateTime.of(2026, 10, 15, 10, 24),
-                List.of(new AnswerResponse("ชื่อ-นามสกุล", "สมชาย ใจดี"),
+                List.of(new AnswerResponse("ชื่อ-นามสกุล", "A arizona"),
                         new AnswerResponse("เบอร์โทรศัพท์", "0812345678")),
                 transcript, List.of()));
 

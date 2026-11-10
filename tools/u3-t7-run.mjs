@@ -50,12 +50,16 @@ const FORM = {
 const PUBLISHED = { form: FORM, serverTime: '2026-10-20T10:00:00', deadlinePassed: false };
 const req = (status, extra = {}) => ({ id: 500, studentId: '6609650001', formTemplateId: 10, status, answers: {}, documents: [], ...extra });
 const ERR = (code, message) => ({ code, message });
-const PROFILE = { studentId: '6609650001', fullName: 'สมชาย ใจดี', email: 'somchai@dome.tu.ac.th',
+/* อันดับบริษัท (U4) ที่บันทึกแล้ว: ครบ 5 อันดับ = ยื่นได้ */
+const RANKED = n => Array.from({ length: n }, (_, i) => ({ rank: i + 1, companyId: i + 1, companyName: 'บริษัท ' + (i + 1) }));
+const RANKED5 = RANKED(5);
+const PROFILE = { studentId: '6609650001', fullName: 'A arizona', email: 'arizona@dome.tu.ac.th',
    faculty: 'วิทยาศาสตร์และเทคโนโลยี', major: 'วิทยาการคอมพิวเตอร์', gpa: 3.1 };
 const OK_ROUTES = {
    'GET /api/students/me': [200, PROFILE],
    'GET /api/forms/published': [200, PUBLISHED],
    'GET /api/requests/me': [200, []],
+   'GET /api/students/me/company-ranking': [200, RANKED5],
    'POST /api/requests': [201, req('DRAFT')],
    'PUT /api/requests/500/form': [200, req('DRAFT')],
    'POST /api/requests/500/documents': [201, { id: 7, fileName: 'transcript.pdf', status: 'UPLOADED' }],
@@ -101,9 +105,9 @@ async function open(browser, overrides = {}, state = {}) {
       cls: s => $(s).getAttribute('class'),
       set: (id, v) => $('#' + id).fill(v),
       fillAll: async () => {
-         await p.set('s_name', 'สมชาย ใจดี');
+         await p.set('s_name', 'A arizona');
          await p.set('s_tel', '0812345678');
-         await p.set('s_mail', 'somchai@dome.tu.ac.th');
+         await p.set('s_mail', 'arizona@dome.tu.ac.th');
          await p.set('s_addr', '99 ม.ธ. รังสิต');
       },
       attach: (name, buffer = PDF) => $('#s_tr').setInputFiles({ name, mimeType: 'application/pdf', buffer }),
@@ -121,7 +125,7 @@ const settle = page => page.waitForFunction(() => document.querySelector('#vLoad
 const T = [];
 const test = (id, name, fn) => T.push({ id, name, fn });
 
-test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → หน้ากำลังตรวจสอบ → หน้าผลสีเขียว + ปุ่มไปจับคู่บริษัท', async b => {
+test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → หน้ากำลังตรวจสอบ → หน้าผลสีเขียว + ปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('transcript.pdf');
@@ -134,7 +138,7 @@ test('UI-01', '(TC1) กรอกครบ + PDF แล้วส่ง → ห�
    assert.equal(await p.visible('#sNext'), true);
    assert.deepEqual(p.posts(), SUBMIT_CALLS);
    assert.ok(p.calls.every(c => c.userId === '3'), 'ทุก request ต้องส่ง X-User-Id');
-   return 'หน้ากำลังตรวจสอบ → ผลสีเขียว "' + await p.text('#sAlert') + '" มีปุ่มไปจับคู่บริษัท · เรียก ' + p.posts().join(' → ');
+   return 'หน้ากำลังตรวจสอบ → ผลสีเขียว "' + await p.text('#sAlert') + '" มีปุ่มดูอันดับบริษัท · เรียก ' + p.posts().join(' → ');
 });
 
 for (const [id, name, field] of [['UI-02', '(TC2) ไม่กรอกชื่อ', 's_name'], ['UI-03', 'ไม่กรอกเบอร์โทร', 's_tel'],
@@ -163,10 +167,10 @@ test('UI-06', 'กรอกแต่ช่องว่าง → แจ้ง "�
    return 'แจ้ง "' + await p.text('#s_err') + '" (ตัดช่องว่างก่อนตรวจ) ไม่เรียก API';
 });
 
-test('UI-07', 'อีเมลผิดรูปแบบ (somchai@) → แจ้งอีเมลไม่ถูกต้อง ไม่ส่งคำร้อง', async b => {
+test('UI-07', 'อีเมลผิดรูปแบบ (arizona@) → แจ้งอีเมลไม่ถูกต้อง ไม่ส่งคำร้อง', async b => {
    const p = await open(b);
    await p.fillAll();
-   await p.set('s_mail', 'somchai@');
+   await p.set('s_mail', 'arizona@');
    await p.$('#btnSend').click();
    assert.equal(await p.text('#s_err'), 'รูปแบบอีเมลไม่ถูกต้อง');
    assert.equal(await p.$('#s_mail').getAttribute('aria-invalid'), 'true');
@@ -184,7 +188,7 @@ test('UI-08', 'เบอร์โทรผิดรูปแบบ (12ab) → �
    return 'แจ้ง "' + await p.text('#s_err') + '" ไม่เรียก API';
 });
 
-test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้งไม่พบไฟล์ มีปุ่มแก้ไข/ตรวจสอบอีกครั้ง ไม่มีปุ่มไปจับคู่บริษัท', async b => {
+test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้งไม่พบไฟล์ มีปุ่มแก้ไข/ตรวจสอบอีกครั้ง ไม่มีปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b, { 'POST /api/requests/500/submit': [400, ERR('MISSING_DOCUMENT', 'กรุณาแนบไฟล์ Transcript (PDF) ก่อนส่งคำร้อง')] });
    await p.fillAll();
    await p.send();
@@ -194,10 +198,10 @@ test('UI-09', 'ไม่แนบ Transcript → ผลสีแดง แจ้
    assert.equal(await p.visible('#sEdit'), true);
    assert.equal(await p.visible('#sRetry'), true);
    assert.equal(await p.visible('#sNext'), false);
-   return 'ผลสีแดง "' + await p.text('#sTr small') + '" มีปุ่มแก้ไขข้อมูล + ตรวจสอบอีกครั้ง ไม่มีปุ่มไปจับคู่บริษัท';
+   return 'ผลสีแดง "' + await p.text('#sTr small') + '" มีปุ่มแก้ไขข้อมูล + ตรวจสอบอีกครั้ง ไม่มีปุ่มดูอันดับบริษัท';
 });
 
-test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้งต้องเป็น PDF ไม่มีปุ่มไปจับคู่บริษัท', async b => {
+test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้งต้องเป็น PDF ไม่มีปุ่มดูอันดับบริษัท', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('photo.exe', Buffer.from('MZ fake exe'));
@@ -206,7 +210,7 @@ test('UI-10', 'ไฟล์ไม่ใช่ PDF (photo.exe) → แจ้ง�
    assert.equal(await p.text('#sTr small'), 'Transcript ต้องเป็นไฟล์ PDF เท่านั้น');
    assert.equal(await p.visible('#sNext'), false);
    assert.deepEqual(p.posts(), []);
-   return 'ผลสีแดง "' + await p.text('#sTr small') + '" ไม่อัปโหลด ไม่มีปุ่มไปจับคู่บริษัท';
+   return 'ผลสีแดง "' + await p.text('#sTr small') + '" ไม่อัปโหลด ไม่มีปุ่มดูอันดับบริษัท';
 });
 
 test('UI-11', 'กดแก้ไขข้อมูล → กลับหน้ากรอกข้อมูล ข้อมูลเดิมครบ แถบขั้นตอนกลับขั้นที่ 1', async b => {
@@ -216,9 +220,9 @@ test('UI-11', 'กดแก้ไขข้อมูล → กลับหน้
    await p.$('#btnSend').click();
    await p.$('#sEdit').click();
    assert.equal(await p.visible('#vForm'), true);
-   assert.equal(await p.$('#s_name').inputValue(), 'สมชาย ใจดี');
+   assert.equal(await p.$('#s_name').inputValue(), 'A arizona');
    assert.equal(await p.$('#s_tel').inputValue(), '0812345678');
-   assert.equal(await p.$('#s_mail').inputValue(), 'somchai@dome.tu.ac.th');
+   assert.equal(await p.$('#s_mail').inputValue(), 'arizona@dome.tu.ac.th');
    assert.equal(await p.$('#s_addr').inputValue(), '99 ม.ธ. รังสิต');
    assert.equal(await p.$('.steps .st').first().getAttribute('class'), 'st cur');
    return 'กลับหน้ากรอกข้อมูล ข้อมูล 4 ช่องอยู่ครบ แถบขั้นตอนอยู่ขั้นที่ 1';
@@ -295,17 +299,18 @@ test('UI-16', 'กดส่งซ้ำรัว ๆ → ส่งไปที�
    return 'กด 5 ครั้งติดกัน → POST /api/requests 1 ครั้ง และ POST /submit 1 ครั้ง (ปุ่มถูกปิดระหว่างรอ)';
 });
 
-test('UI-17', 'กดไปหน้าถัดไป → ไปหน้าจับคู่บริษัท เมนูจับคู่บริษัทกดได้', async b => {
+test('UI-17', 'ยื่นสำเร็จ → กดดูอันดับบริษัท ไปหน้าจับคู่บริษัท (อันดับถูกล็อกแล้ว แก้ไม่ได้)', async b => {
    const p = await open(b);
    await p.fillAll();
    await p.attach('transcript.pdf');
    await p.send();
+   assert.equal(await p.text('#sNext'), 'ดูอันดับบริษัทที่เลือก');
    await p.$('#sNext').click();
    await p.page.waitForURL('**/ranking.html');
    assert.equal((await p.state()).unlocked, 3);
    const link = p.page.locator('nav a[href="ranking.html"]');
    assert.equal(await link.getAttribute('aria-disabled'), null);
-   return 'ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
+   return 'ปุ่ม "ดูอันดับบริษัทที่เลือก" → ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
 });
 
 test('UI-18', 'กดยกเลิก → กลับไปหน้าตรวจสอบคุณสมบัติ', async b => {
@@ -322,7 +327,7 @@ test('UI-19', '(เพิ่มเติม · T13 INT-08) server ไม่ท�
    await p.send();
    assert.equal(await p.visible('#vForm'), true);
    assert.equal(await p.text('#s_err'), 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
-   assert.equal(await p.$('#s_name').inputValue(), 'สมชาย ใจดี');
+   assert.equal(await p.$('#s_name').inputValue(), 'A arizona');
    assert.equal(await p.$('#btnSend').isDisabled(), false);
    return 'แจ้ง "' + await p.text('#s_err') + '" ข้อมูลที่กรอกยังอยู่ กดส่งใหม่ได้';
 });
@@ -330,7 +335,7 @@ test('UI-19', '(เพิ่มเติม · T13 INT-08) server ไม่ท�
 test('UI-20', '(เพิ่มเติม · T11 UI-08) คำร้องถูกส่งกลับ (NEED_CORRECTION) → แสดงเหตุผล แก้แล้วส่งใหม่เลขที่เดิม', async b => {
    const back = req('NEED_CORRECTION', {
       correctionReason: 'กรุณาแนบ Transcript ฉบับล่าสุด',
-      answers: { field_1: 'สมชาย ใจดี', field_2: '0812345678', field_3: 'somchai@dome.tu.ac.th', field_4: '99 ม.ธ. รังสิต' }
+      answers: { field_1: 'A arizona', field_2: '0812345678', field_3: 'arizona@dome.tu.ac.th', field_4: '99 ม.ธ. รังสิต' }
    });
    const p = await open(b, { 'GET /api/requests/me': [200, [back]] });
    assert.match(await p.text('#s_note'), /กรุณาแนบ Transcript ฉบับล่าสุด/);
@@ -346,13 +351,59 @@ test('UI-20', '(เพิ่มเติม · T11 UI-08) คำร้องถ�
 
 test('UI-21', '(เพิ่มเติม · T11 UI-04) บันทึกร่าง → ปิดหน้าแล้วเปิดใหม่ ข้อมูลยังอยู่', async b => {
    const p = await open(b);
-   await p.set('s_name', 'สมชาย ใจดี');
+   await p.set('s_name', 'A arizona');
    await p.set('s_tel', '0812345678');
    await p.page.reload();
    await p.page.evaluate(() => window.U3Submit.ready);
-   assert.equal(await p.$('#s_name').inputValue(), 'สมชาย ใจดี');
+   assert.equal(await p.$('#s_name').inputValue(), 'A arizona');
    assert.equal(await p.$('#s_tel').inputValue(), '0812345678');
    return 'โหลดหน้าใหม่แล้วชื่อและเบอร์โทรที่กรอกไว้ยังอยู่ (เก็บใน sessionStorage)';
+});
+
+test('UI-22', '(Flow จัดอันดับก่อนยื่น) เข้าหน้ายื่นคำร้อง → เมนูจับคู่บริษัทกดได้ทันที และมีข้อความเตือนให้จัดอันดับก่อนส่ง', async b => {
+   const p = await open(b);
+   const link = p.page.locator('nav a[href="ranking.html"]');
+   assert.equal(await link.getAttribute('aria-disabled'), null);
+   assert.equal(await link.evaluate(a => a.classList.contains('disabled')), false);
+   assert.equal((await p.state()).unlocked, 3);
+   assert.equal(await p.visible('#s_rank'), true);
+   assert.match(await p.text('#s_rank'), /จัดอันดับบริษัทให้ครบ 5 อันดับก่อนยื่น\s+ยื่นแล้วแก้ไม่ได้/);
+   return 'เมนูจับคู่บริษัทไม่ถูกปิด · coop-state.unlocked = 3 · แสดง "' + await p.text('#s_rank') + '"';
+});
+
+test('UI-23', '(Flow จัดอันดับก่อนยื่น) มีคำร้องที่ยื่นแล้ว → ไม่แสดงข้อความเตือนให้จัดอันดับก่อนส่ง', async b => {
+   const p = await open(b, { 'GET /api/requests/me': [200, [req('SUBMITTED', { submittedAt: '2026-10-20T10:00:00' })]] });
+   assert.equal(await p.$('#btnSend').isDisabled(), true);
+   assert.equal(await p.visible('#s_rank'), false);
+   return 'ปุ่มส่งถูกปิด · ซ่อนข้อความเตือนเรื่องจัดอันดับ';
+});
+
+test('UI-24', '(Flow จัดอันดับก่อนยื่น) ยังจัดอันดับไม่ครบ 5 อันดับ → แจ้งเตือนพร้อมลิงก์ไปหน้าจัดอันดับ และไม่ส่งคำร้อง', async b => {
+   const p = await open(b, { 'GET /api/students/me/company-ranking': [200, RANKED(3)] });
+   await p.fillAll();
+   await p.attach('transcript.pdf');
+   await p.send();
+   const err = await p.text('#s_err');
+   assert.match(err, /กรุณาจัดอันดับบริษัทให้ครบ 5 อันดับก่อนยื่นคำร้อง/);
+   assert.equal(await p.$('#s_err a[href="ranking.html"]').count(), 1);
+   assert.ok(p.keys().includes('GET /api/students/me/company-ranking'));
+   assert.deepEqual(p.posts(), []);
+   assert.equal(await p.visible('#vForm'), true);
+   return 'จัดอันดับไว้ 3 อันดับ → แจ้ง "' + err + '" มีลิงก์ไป ranking.html · ไม่เรียก POST/PUT ใด ๆ อยู่หน้ากรอกข้อมูล';
+});
+
+test('UI-25', '(Flow จัดอันดับก่อนยื่น) ยังไม่เคยจัดอันดับ → แจ้งเตือนและไม่ส่ง · จัดครบแล้วส่งได้ตามปกติ', async b => {
+   const p = await open(b, { 'GET /api/students/me/company-ranking': [200, []] });
+   await p.fillAll();
+   await p.attach('transcript.pdf');
+   await p.send();
+   assert.match(await p.text('#s_err'), /จัดอันดับบริษัทให้ครบ 5 อันดับ/);
+   assert.deepEqual(p.posts(), []);
+   p.routes['GET /api/students/me/company-ranking'] = [200, RANKED5];
+   await p.send();
+   assert.equal(await p.cls('#sAlert'), 'alert ok');
+   assert.deepEqual(p.posts(), SUBMIT_CALLS);
+   return 'ไม่มีอันดับ → แจ้งเตือน ไม่ส่ง · จัดครบ 5 อันดับแล้วกดส่งอีกครั้ง → ' + p.posts().join(' → ') + ' สำเร็จ';
 });
 
 /* ---------- main ---------- */

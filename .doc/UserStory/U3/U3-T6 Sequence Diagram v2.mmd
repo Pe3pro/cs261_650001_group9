@@ -1,0 +1,53 @@
+sequenceDiagram
+    autonumber
+    actor S as Student
+    participant FE as Frontend (submit.html)
+    participant C as RequestController
+    participant SV as RequestService / DocumentService
+    participant R as Repository (DAO)
+    participant DB as MySQL
+    participant FS as PDF Storage
+    participant M as Email
+
+    S->>FE: เปิดหน้ายื่นคำร้อง
+    FE->>C: GET /api/students/me · GET /api/forms/published
+    C->>SV: ข้อมูลนักศึกษา + แบบฟอร์มที่เปิดใช้
+    SV->>R: findByUserId / findPublished
+    R->>DB: SELECT students, form_templates
+    C-->>FE: 200 ข้อมูลนักศึกษา, แบบฟอร์ม, deadline
+
+    S->>FE: กรอกข้อมูล แนบ PDF แล้วกดส่ง (ยืนยัน)
+    FE->>C: POST /api/requests
+    C->>SV: create()
+    SV->>R: ตรวจคุณสมบัติ U2 (eligibility_records) · คำร้องค้าง
+    alt ยังไม่ผ่าน / ยังไม่เคยตรวจ U2
+        C-->>FE: 403 NOT_ELIGIBLE
+    else มีคำร้องที่ยังไม่จบ
+        C-->>FE: 409 DUPLICATE_REQUEST
+    end
+    R->>DB: INSERT applications (DRAFT)
+    C-->>FE: 201 {id}
+
+    FE->>C: PUT /api/requests/{id}/form
+    C->>SV: saveAnswers() ตรวจช่องบังคับ / รูปแบบ
+    R->>DB: INSERT / UPDATE form_responses
+    C-->>FE: 200 (ข้อมูลผิด → 400 พร้อมรายชื่อช่อง)
+
+    FE->>C: POST /api/requests/{id}/documents (multipart)
+    C->>SV: upload() ตรวจ PDF ≤ 10 MB
+    SV->>FS: Store PDF
+    FS-->>SV: storage key
+    SV->>R: save document metadata
+    R->>DB: INSERT documents
+    C-->>FE: 201 (ไม่ใช่ PDF → 400 INVALID_FILE)
+
+    FE->>C: POST /api/requests/{id}/submit
+    C->>SV: submit() ตรวจ deadline (เวลา server) · ต้องมี PDF (ไม่มี → 400 MISSING_DOCUMENT) · สถานะ DRAFT / NEED_CORRECTION
+    alt หมดเขต
+        C-->>FE: 409 DEADLINE_PASSED
+    end
+    SV->>R: status = SUBMITTED, submitted_at
+    R->>DB: UPDATE applications
+    SV->>M: แจ้งเจ้าหน้าที่ + Email ยืนยันถึงนักศึกษา
+    C-->>FE: 200 SUBMITTED
+    FE-->>S: แสดงผลสำเร็จพร้อมเลขที่คำร้อง

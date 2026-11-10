@@ -73,7 +73,7 @@ class U3RequestRepositoryTest {
     }
 
     private void saveFourAnswers(Long applicationId) {
-        String[] values = { "สมหญิง รักเรียน", "0812345678", "somying@dome.tu.ac.th", "99 ม.ธ. รังสิต" };
+        String[] values = { "B berlin", "0812345678", "berlin@dome.tu.ac.th", "99 ม.ธ. รังสิต" };
         for (int i = 0; i < values.length; i++) {
             answers.save(new FormResponse(applicationId, f1Fields.get(i).getId(), values[i]));
         }
@@ -139,7 +139,7 @@ class U3RequestRepositoryTest {
         assertThat(read).extracting(FormResponse::getFormFieldId)
                 .containsExactlyInAnyOrderElementsOf(f1Fields.stream().map(FormField::getId).toList());
         assertThat(read).extracting(FormResponse::getValue)
-                .contains("สมหญิง รักเรียน", "0812345678", "somying@dome.tu.ac.th", "99 ม.ธ. รังสิต");
+                .contains("B berlin", "0812345678", "berlin@dome.tu.ac.th", "99 ม.ธ. รังสิต");
     }
 
     @Test

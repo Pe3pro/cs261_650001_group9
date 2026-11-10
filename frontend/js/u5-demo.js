@@ -6,7 +6,7 @@
 (function () {
    'use strict';
    const KEY = 'u5-demo-db-v2';
-   const USERS = { 1: ['STAFF', 'สมศรี ทำงานดี'], 2: ['ADVISOR', 'อ.ดร.วิชัย สอนดี'], 3: ['STUDENT', 'สมชาย ใจดี'], 4: ['STUDENT', 'สมหญิง รักเรียน'] };
+   const USERS = { 1: ['STAFF', 'S staff'], 2: ['ADVISOR', 'A advisor'], 3: ['STUDENT', 'A arizona'], 4: ['STUDENT', 'B berlin'] };
    const LOGINS = { 1: 'staff01', 2: 'advisor01', 3: '6609650001', 4: '6609650002' };   // username ตาม DemoDataSeeder
    const pad = n => String(n).padStart(2, '0');
    const now = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:00`; };
@@ -24,7 +24,7 @@
       };
    }
    function seed() {
-      const staffOk = (appId, at) => [{ id: appId + 900, applicationId: appId, approvalLevel: 'STAFF', decision: 'APPROVE', approverName: 'สมศรี ทำงานดี', comment: null, decidedAt: at, applicationStatus: 'UNDER_REVIEW' }];
+      const staffOk = (appId, at) => [{ id: appId + 900, applicationId: appId, approvalLevel: 'STAFF', decision: 'APPROVE', approverName: 'S staff', comment: null, decidedAt: at, applicationStatus: 'UNDER_REVIEW' }];
       return {
          seq: 1000,
          forms: [
@@ -33,9 +33,9 @@
               fields: [field(2, 1, 'ชื่อ-นามสกุล', 'TEXT'), field(3, 2, 'เบอร์โทรศัพท์', 'PHONE'), field(4, 3, 'อีเมล', 'EMAIL'), field(5, 4, 'ที่อยู่ปัจจุบัน', 'TEXTAREA'), field(6, 5, 'Transcript', 'FILE')] }
          ],
          apps: [
-            app(50, 3, '6609650001', 'สมชาย ใจดี', 'somchai@dome.tu.ac.th', 3.10, 'SUBMITTED', daysAgo(2, 10, 24)),
-            app(51, 4, '6609650002', 'สมหญิง รักเรียน', 'somying@dome.tu.ac.th', 3.45, 'SUBMITTED', daysAgo(2, 14, 2)),
-            app(52, 5, '6609650003', 'มานะ ขยันดี', 'mana@dome.tu.ac.th', 2.98, 'SUBMITTED', daysAgo(1, 9, 15), [{ id: 952, applicationId: 52, approvalLevel: 'STAFF', decision: 'RETURN', approverName: 'สมศรี ทำงานดี', comment: 'เบอร์โทรศัพท์ไม่ถูกต้อง\nช่องที่ต้องแก้: เบอร์โทรศัพท์', decidedAt: daysAgo(2, 15, 0), applicationStatus: 'NEED_CORRECTION' }]),
+            app(50, 3, '6609650001', 'A arizona', 'arizona@dome.tu.ac.th', 3.10, 'SUBMITTED', daysAgo(2, 10, 24)),
+            app(51, 4, '6609650002', 'B berlin', 'berlin@dome.tu.ac.th', 3.45, 'SUBMITTED', daysAgo(2, 14, 2)),
+            app(52, 5, '6609650003', 'มานะ ขยันดี', 'mana@dome.tu.ac.th', 2.98, 'SUBMITTED', daysAgo(1, 9, 15), [{ id: 952, applicationId: 52, approvalLevel: 'STAFF', decision: 'RETURN', approverName: 'S staff', comment: 'เบอร์โทรศัพท์ไม่ถูกต้อง\nช่องที่ต้องแก้: เบอร์โทรศัพท์', decidedAt: daysAgo(2, 15, 0), applicationStatus: 'NEED_CORRECTION' }]),
             app(55, 8, '6609650006', 'วีระ ส่งก่อน', 'weera@dome.tu.ac.th', 3.05, 'SUBMITTED', daysAgo(5, 8, 40)),
             app(53, 6, '6609650004', 'นภา ตั้งใจ', 'napa@dome.tu.ac.th', 3.62, 'UNDER_REVIEW', daysAgo(4, 11, 0), staffOk(53, daysAgo(1, 11, 0))),
             app(54, 7, '6609650005', 'ปิติ มีสุข', 'piti@dome.tu.ac.th', 3.20, 'UNDER_REVIEW', daysAgo(4, 13, 30), staffOk(54, daysAgo(1, 13, 30)))
