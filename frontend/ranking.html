@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" data-theme="light">
 
 <head>
   <meta charset="utf-8">
@@ -7,68 +7,35 @@
   <title>จับคู่บริษัท · ระบบสหกิจศึกษา</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/u4.css">
 </head>
 
-<body data-page="ranking">
+<body data-page="ranking" class="u4">
   <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
   </header>
   <nav><a href="check.html">ตรวจสอบคุณสมบัติ</a><a href="submit.html">ยื่นคำร้อง</a><a href="ranking.html" class="on"
       aria-current="page">จับคู่บริษัท</a><a href="notifications.html" data-free>การแจ้งเตือน</a></nav>
   <main>
     <h1>จับคู่บริษัท (จัดอันดับ)</h1>
-    <p class="sub">เลือกบริษัทที่สนใจและจัดลำดับความต้องการ</p>
-    <div class="steps"><span class="st done"><i class="dot">✓</i>กรอกข้อมูล</span><i></i><span class="st done"><i
-          class="dot">✓</i>ตรวจสอบคำร้อง</span><i></i><span class="st cur"><i class="dot">3</i>จับคู่บริษัท</span></div>
-    <div class="cmp">
-      <div class="card">
-        <h2>รายชื่อบริษัท</h2>
-        <div class="co"><i class="logo"></i>
-          <div><b>บริษัท A</b><br><small class="mute">พัฒนาซอฟต์แวร์ · กรุงเทพ</small></div>
-          <select data-k="A" aria-label="ลำดับ บริษัท A">
-            <option value="">- ไม่เลือก -</option>
-            <option value="1">อันดับ 1</option>
-            <option value="2">อันดับ 2</option>
-            <option value="3">อันดับ 3</option>
-          </select>
-        </div>
-        <div class="co"><i class="logo"></i>
-          <div><b>บริษัท B</b><br><small class="mute">วิเคราะห์ข้อมูล · นนทบุรี</small></div>
-          <select data-k="B" aria-label="ลำดับ บริษัท B">
-            <option value="">- ไม่เลือก -</option>
-            <option value="1">อันดับ 1</option>
-            <option value="2">อันดับ 2</option>
-            <option value="3">อันดับ 3</option>
-          </select>
-        </div>
-        <div class="co"><i class="logo"></i>
-          <div><b>บริษัท C</b><br><small class="mute">ระบบเครือข่าย · ชลบุรี</small></div>
-          <select data-k="C" aria-label="ลำดับ บริษัท C">
-            <option value="">- ไม่เลือก -</option>
-            <option value="1">อันดับ 1</option>
-            <option value="2">อันดับ 2</option>
-            <option value="3">อันดับ 3</option>
-          </select>
-        </div>
-        <div class="co"><i class="logo"></i>
-          <div><b>บริษัท D</b><br><small class="mute">อุตสาหกรรมการผลิต · ระยอง</small></div>
-          <select data-k="D" aria-label="ลำดับ บริษัท D">
-            <option value="">- ไม่เลือก -</option>
-            <option value="1">อันดับ 1</option>
-            <option value="2">อันดับ 2</option>
-            <option value="3">อันดับ 3</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <div class="card">
-          <h2>ลำดับที่เลือก</h2>
-          <div id="chosen"></div>
-          <button class="btn full" id="btnConfirm" type="button" style="margin-top:12px">ยืนยันการเลือก</button>
-        </div>
-        <div class="alert ok" id="msgOk" role="status" hidden><b>สำเร็จ</b><br>บันทึกลำดับเรียบร้อยแล้ว</div>
-        <div class="alert bad" id="msgBad" role="alert" hidden><b>ไม่สำเร็จ</b><br><span id="msgBadTxt"></span></div>
-      </div>
+    <p class="sub">เลือกบริษัทที่สนใจ 1–5 อันดับ โดยค้นหาจากชื่อบริษัท แต่ละบริษัทเลือกได้เพียงอันดับเดียว</p>
+
+    <div class="alert bad" id="rkLoadErr" role="alert" hidden></div>
+    <div class="alert bad" id="rkLock" role="status" hidden></div>
+
+    <section class="card">
+      <h2>จัดอันดับบริษัทที่สนใจ</h2>
+      <p class="mute" id="rkLoading">กำลังโหลดรายชื่อบริษัท...</p>
+      <ol class="rk-list" id="rkSlots" aria-label="อันดับบริษัทที่เลือก"></ol>
+    </section>
+
+    <div class="rk-acts">
+      <button class="btn" id="btnConfirm" type="button">ยืนยันการเลือก</button>
+      <button class="btn ghost" id="btnClear" type="button">ล้างทั้งหมด</button>
+      <span class="mute" id="rkCount" aria-live="polite">เลือกแล้ว 0 จาก 5 อันดับ</span>
     </div>
+
+    <div class="alert ok" id="msgOk" role="status" hidden><b>สำเร็จ</b><br>บันทึกลำดับเรียบร้อยแล้ว</div>
+    <div class="alert bad" id="msgBad" role="alert" hidden><b>ไม่สำเร็จ</b><br><span id="msgBadTxt"></span></div>
   </main>
   <script src="js/script.js"></script>
 </body>

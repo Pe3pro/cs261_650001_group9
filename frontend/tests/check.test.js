@@ -1,407 +1,129 @@
 // @vitest-environment node
-
-import {
-    describe,
-    test,
-    expect,
-    vi,
-    afterEach
-} from 'vitest';
-
+import { test, expect, vi, afterEach } from 'vitest';
 import { JSDOM } from 'jsdom';
 import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const testDir = path.dirname(fileURLToPath(
-    import.meta.url));
-
-const html = fs.readFileSync(
-    path.join(testDir, '..', 'check.html'),
-    'utf8'
-);
-
-const script = fs.readFileSync(
-    path.join(testDir, '..', 'js', 'script.js'),
-    'utf8'
-);
-
-const openedWindows = [];
-
-const passedResponse = {
-    valid: true,
-    eligible: true,
-    message: 'ผ่านคุณสมบัติ',
-    errors: [],
-    reasons: [],
-    warnings: [
-        'ต้องสอบได้วิชา คพ.302 ก่อนออกปฏิบัติงาน'
-    ]
-};
-
-const failedResponse = {
-    valid: true,
-    eligible: false,
-    message: 'ไม่ผ่านคุณสมบัติ',
-    errors: [],
-    reasons: [
-        'GPA ต้องไม่ต่ำกว่า 2.75'
-    ],
-    warnings: [
-        'ต้องสอบได้วิชา คพ.302 ก่อนออกปฏิบัติงาน'
-    ]
-};
-
-const invalidResponse = {
-    valid: false,
-    eligible: null,
-    message: 'ข้อมูลไม่ถูกต้อง',
-    errors: [
-        'ไม่พบผลการเรียนวิชา คพ.101'
-    ],
-    reasons: [],
-    warnings: []
-};
-
-function openCheckPage(
-    apiResponse = passedResponse,
-    status = 200
-) {
-    const dom = new JSDOM(html, {
-        url: 'http://localhost/check.html',
-        runScripts: 'outside-only'
-    });
-
-    const { window } = dom;
-    openedWindows.push(window);
-
-    window.sessionStorage.setItem(
-        'coop-state',
-        JSON.stringify({
-            user: '6410000001',
-            unlocked: 1,
-            form: {
-                id: '6410000001',
-                fac: 'วิทยาศาสตร์',
-                major: 'วิทยาการคอมพิวเตอร์',
-                gpax: '3.10'
-            },
-            cur: '61',
-            val: {},
-            alt: {},
-            ack: [false, false, false],
-            prio: {
-                A: '',
-                B: '',
-                C: '',
-                D: ''
-            }
-        })
-    );
-
-    // จำลอง API โดยไม่เรียก Backend จริง
-    window.fetch = vi.fn().mockResolvedValue({
-        status,
-        ok: status >= 200 && status < 300,
-        json: vi.fn().mockResolvedValue(apiResponse)
-    });
-
-    /*
-     * ข้ามเวลารอ animation แต่ไม่เรียก timeout
-     * ของ AbortController ทันที เพราะจะทำให้ Request
-     * ถูกยกเลิกก่อนเริ่มทดสอบ
-     */
-    const originalSetTimeout = window.setTimeout.bind(window);
-
-    window.setTimeout = (callback, delay = 0, ...args) => {
-        if (delay >= 15000) {
-            return originalSetTimeout(callback, delay, ...args);
-        }
-
-        return originalSetTimeout(callback, 0, ...args);
-    };
-
-    window.eval(script);
-
-    window.document.dispatchEvent(
-        new window.Event('DOMContentLoaded')
-    );
-
-    return window;
+const html = fs.readFileSync(new URL('../check.html', import.meta.url), 'utf8');
+const script = fs.readFileSync(new URL('../js/script.js', import.meta.url), 'utf8');
+const windows = [];
+const passed = { valid: true, eligible: true, message: 'ผ่านคุณสมบัติ', errors: [], reasons: [], warnings: [] };
+const flush = () => new Promise(resolve => setTimeout(resolve, 40));
+async function open({ response = passed, status = 200, profileFails = false, legacy = false } = {}) {
+    const w = new JSDOM(html, { url: 'http://localhost/check.html', runScripts: 'outside-only' }).window;
+    windows.push(w);
+    w.sessionStorage.setItem('u1-auth', JSON.stringify({ userId: 42, username: '6610000002', role: 'STUDENT' }));
+    w.sessionStorage.setItem('coop-state', JSON.stringify({ user: '6610000002', unlocked: 1,
+        ...(legacy ? { form: { id: '6410000001', gpax: '3.10' }, val: { '61g0': 'B' }, ack: [true, true, true] } : {}) }));
+    w.fetch = vi.fn(async url => url.endsWith('/api/students/me')
+        ? { ok: !profileFails, json: async () => ({ studentId: '6610000002', faculty: 'วิทยาศาสตร์และเทคโนโลยี', major: 'วิทยาการคอมพิวเตอร์' }) }
+        : { status, ok: status === 200, json: async () => response });
+    const timer = w.setTimeout.bind(w);
+    w.setTimeout = (fn, delay, ...args) => timer(fn, delay >= 15000 ? delay : 0, ...args);
+    await flush(); // Let JSDOM's automatic DOMContentLoaded finish first.
+    w.eval(script);
+    w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+    await flush();
+    return w;
 }
+function change(w, selector, value) {
+    const el = w.document.querySelector(selector);
+    el.value = value;
+    el.dispatchEvent(new w.Event('input', { bubbles: true }));
+}
+function confirm(w) {
+    w.document.querySelectorAll('.cf').forEach(el => {
+        el.checked = true;
+        el.dispatchEvent(new w.Event('change', { bubbles: true }));
+    });
+}
+function fill(w, gpa = '3.10') {
+    change(w, '#f_gpax', gpa);
+    w.document.querySelectorAll('select[data-t="val"]').forEach(el => {
+        el.value = el.closest('#coreRows') ? 'B' : 'กำลังศึกษา';
+        el.dispatchEvent(new w.Event('change', { bubbles: true }));
+    });
+    confirm(w);
+}
+async function submit(w) { w.document.querySelector('#btnCheck').click(); await flush(); }
+const posts = w => w.fetch.mock.calls.filter(([url]) => url.endsWith('/eligibility/check'));
+afterEach(() => windows.splice(0).forEach(w => w.close()));
 
-afterEach(() => {
-    for (const window of openedWindows) {
-        window.close();
-    }
-
-    openedWindows.length = 0;
+test('profile identity is readonly and faculty comes from DB', async () => {
+    const w = await open();
+    expect(w.document.querySelector('#f_id').value).toBe('6610000002');
+    expect(w.document.querySelector('#f_id').readOnly).toBe(true);
+    expect(w.document.querySelector('#f_fac').value).toBe('วิทยาศาสตร์และเทคโนโลยี');
+    expect(w.fetch.mock.calls[0][1].headers['X-User-Id']).toBe('42');
 });
-
-function confirmAll(window) {
-    window.document
-        .querySelectorAll('.cf')
-        .forEach(checkbox => {
-            checkbox.checked = true;
-
-            checkbox.dispatchEvent(
-                new window.Event('change', {
-                    bubbles: true
-                })
-            );
-        });
-}
-
-function enter(window, selector, value) {
-    const input = window.document.querySelector(selector);
-
-    expect(input).not.toBeNull();
-
-    input.value = value;
-
-    input.dispatchEvent(
-        new window.Event('input', {
-            bubbles: true
-        })
-    );
-}
-
-function clickCheck(window) {
-    const button = window.document.querySelector('#btnCheck');
-
-    expect(button).not.toBeNull();
-    expect(button.disabled).toBe(false);
-
-    button.click();
-}
-
-function textOf(window, selector) {
-    const element = window.document.querySelector(selector);
-
-    expect(element).not.toBeNull();
-
-    return element.textContent;
-}
-
-function assertPostRequest(window, expectedGpax) {
-    expect(window.fetch).toHaveBeenCalledTimes(1);
-
-    const [requestUrl, requestOptions] =
-    window.fetch.mock.calls[0];
-
-    expect(requestUrl).toBe(
-        'http://localhost:8080/api/eligibility/check'
-    );
-
-    expect(requestOptions.method).toBe('POST');
-
-    expect(requestOptions.headers['Content-Type']).toBe(
-        'application/json'
-    );
-
-    const body = JSON.parse(requestOptions.body);
-
-    expect(body.studentId).toBe('6410000001');
-    expect(body.curriculum).toBe('61');
-    expect(body.gpax).toBe(expectedGpax);
-
-    expect(body.acknowledgements).toEqual([
-        true,
-        true,
-        true
-    ]);
-}
-
-describe('U2 หน้า UI ตรวจสอบคุณสมบัติ — Mock API', () => {
-    test(
-        'ปุ่มตรวจสอบถูกปิดเมื่อยังยืนยันเงื่อนไขไม่ครบ',
-        () => {
-            const window = openCheckPage();
-
-            const button =
-                window.document.querySelector('#btnCheck');
-
-            expect(button.disabled).toBe(true);
-            expect(window.fetch).not.toHaveBeenCalled();
-        }
-    );
-
-    test(
-        'ปุ่มตรวจสอบเปิดเมื่อยืนยันครบทั้ง 3 ข้อ',
-        () => {
-            const window = openCheckPage();
-
-            confirmAll(window);
-
-            const button =
-                window.document.querySelector('#btnCheck');
-
-            expect(button.disabled).toBe(false);
-            expect(window.fetch).not.toHaveBeenCalled();
-        }
-    );
-
-    test(
-        'UI-API-01: GPA 3.10 ส่ง Request และแสดงผลผ่าน',
-        async() => {
-            const window = openCheckPage(passedResponse, 200);
-
-            enter(window, '#f_gpax', '3.10');
-            confirmAll(window);
-            clickCheck(window);
-
-            await vi.waitFor(() => {
-                expect(textOf(window, '#rAlert').trim()).toBe(
-                    'ผ่านคุณสมบัติ'
-                );
-            });
-
-            assertPostRequest(window, '3.10');
-
-            expect(textOf(window, '#rList')).toContain(
-                'ต้องสอบได้วิชา คพ.302 ก่อนออกปฏิบัติงาน'
-            );
-        }
-    );
-
-    test(
-        'GPA 2.75 ส่ง Request และแสดงผลผ่านจาก API',
-        async() => {
-            const window = openCheckPage(passedResponse, 200);
-
-            enter(window, '#f_gpax', '2.75');
-            confirmAll(window);
-            clickCheck(window);
-
-            await vi.waitFor(() => {
-                expect(textOf(window, '#rAlert').trim()).toBe(
-                    'ผ่านคุณสมบัติ'
-                );
-            });
-
-            assertPostRequest(window, '2.75');
-        }
-    );
-
-    test(
-        'UI-API-02: GPA 2.74 แสดงผลไม่ผ่านพร้อมเหตุผล',
-        async() => {
-            const window = openCheckPage(failedResponse, 200);
-
-            enter(window, '#f_gpax', '2.74');
-            confirmAll(window);
-            clickCheck(window);
-
-            await vi.waitFor(() => {
-                expect(textOf(window, '#rAlert').trim()).toBe(
-                    'ไม่ผ่านคุณสมบัติ'
-                );
-
-                expect(textOf(window, '#rList')).toContain(
-                    'GPA ต้องไม่ต่ำกว่า 2.75'
-                );
-            });
-
-            assertPostRequest(window, '2.74');
-        }
-    );
-
-    test(
-        'UI-API-03: กรอกข้อมูลไม่ครบ แสดงข้อผิดพลาดและไม่เรียก API',
-        () => {
-            const window = openCheckPage();
-
-            enter(window, '#f_id', '');
-            confirmAll(window);
-            clickCheck(window);
-
-            expect(textOf(window, '#formError')).toContain(
-                'กรอกข้อมูลให้ครบถ้วน'
-            );
-
-            expect(
-                window.document.querySelector('#vForm').hidden
-            ).toBe(false);
-
-            expect(window.fetch).not.toHaveBeenCalled();
-        }
-    );
-
-    test(
-        'UI-API-04: GPA ผิดรูปแบบ แสดงข้อผิดพลาดและไม่เรียก API',
-        () => {
-            const window = openCheckPage();
-
-            enter(window, '#f_gpax', '3.10abc');
-            confirmAll(window);
-            clickCheck(window);
-
-            expect(textOf(window, '#formError')).toContain(
-                'GPA ต้องเป็นตัวเลข'
-            );
-
-            expect(
-                window.document.querySelector('#vForm').hidden
-            ).toBe(false);
-
-            expect(window.fetch).not.toHaveBeenCalled();
-        }
-    );
-
-    test(
-        'UI-API-05: API ตอบ 400 แสดง errors และไม่แสดงผลผ่าน',
-        async() => {
-            const window = openCheckPage(invalidResponse, 400);
-
-            confirmAll(window);
-            clickCheck(window);
-
-            await vi.waitFor(() => {
-                expect(textOf(window, '#rAlert').trim()).toBe(
-                    'ข้อมูลไม่ถูกต้อง'
-                );
-
-                expect(textOf(window, '#rList')).toContain(
-                    'ไม่พบผลการเรียนวิชา คพ.101'
-                );
-            });
-
-            assertPostRequest(window, '3.10');
-
-            expect(textOf(window, '#rAlert').trim()).not.toBe(
-                'ผ่านคุณสมบัติ'
-            );
-        }
-    );
-
-    test(
-        'UI-API-06: Network Error แสดงข้อความเชื่อมต่อไม่ได้',
-        async() => {
-            const window = openCheckPage();
-
-            // ใช้ TypeError ของ window เดียวกับ script.js
-            window.fetch.mockRejectedValue(
-                new window.TypeError('Failed to fetch')
-            );
-
-            confirmAll(window);
-            clickCheck(window);
-
-            await vi.waitFor(() => {
-                expect(textOf(window, '#rAlert').trim()).toBe(
-                    'ไม่สามารถตรวจสอบคุณสมบัติได้'
-                );
-
-                expect(textOf(window, '#rList')).toContain(
-                    'ไม่สามารถเชื่อมต่อ API ได้'
-                );
-            });
-
-            expect(window.fetch).toHaveBeenCalledTimes(1);
-
-            expect(textOf(window, '#rAlert').trim()).not.toBe(
-                'ผ่านคุณสมบัติ'
-            );
-        }
-    );
+test('initial GPA, grades and statuses are blank and button disabled', async () => {
+    const w = await open();
+    expect(w.document.querySelector('#f_gpax').value).toBe('');
+    w.document.querySelectorAll('select[data-t="val"]').forEach(el => expect(el.value).toBe(''));
+    expect(w.document.querySelector('#btnCheck').disabled).toBe(true);
+});
+test('confirming alone cannot POST and highlights missing fields', async () => {
+    const w = await open(); confirm(w);
+    expect(w.document.querySelector('#btnCheck').disabled).toBe(false);
+    await submit(w);
+    expect(posts(w)).toHaveLength(0);
+    expect(w.document.querySelector('#f_gpax').getAttribute('aria-invalid')).toBe('true');
+    expect(w.document.querySelectorAll('select[aria-invalid="true"]').length).toBeGreaterThan(0);
+});
+test('GPA 2.75 sends profile ID despite DOM tampering and displays mocked pass', async () => {
+    const w = await open(); fill(w, '2.75');
+    w.document.querySelector('#f_id').value = '9999999999';
+    await submit(w);
+    expect(posts(w)).toHaveLength(1);
+    expect(posts(w)[0][1].method).toBe('POST');
+    expect(JSON.parse(posts(w)[0][1].body)).toMatchObject({ studentId: '6610000002', gpax: '2.75', acknowledgements: [true, true, true] });
+    expect(w.document.querySelector('#rAlert').textContent).toContain('ผ่านคุณสมบัติ');
+});
+test('GPA 2.74 displays mocked failure and reason', async () => {
+    const w = await open({ response: { ...passed, eligible: false, message: 'ไม่ผ่านคุณสมบัติ', reasons: ['GPA ต้องไม่ต่ำกว่า 2.75'] } });
+    fill(w, '2.74'); await submit(w);
+    expect(w.document.querySelector('#rAlert').textContent).toContain('ไม่ผ่านคุณสมบัติ');
+    expect(w.document.querySelector('#rList').textContent).toContain('GPA ต้องไม่ต่ำกว่า 2.75');
+});
+test('invalid GPA is highlighted and focused without POST', async () => {
+    const w = await open(); fill(w, '3.10abc'); await submit(w);
+    expect(posts(w)).toHaveLength(0);
+    expect(w.document.activeElement.id).toBe('f_gpax');
+    expect(w.document.querySelector('#f_gpax').getAttribute('aria-invalid')).toBe('true');
+});
+test('correction clears highlight on resubmit', async () => {
+    const w = await open(); fill(w, 'abc'); await submit(w);
+    change(w, '#f_gpax', '3.10'); await submit(w);
+    expect(w.document.querySelector('#f_gpax').hasAttribute('aria-invalid')).toBe(false);
+    expect(posts(w)).toHaveLength(1);
+});
+test('profile failure blocks checking', async () => {
+    const w = await open({ profileFails: true }); fill(w); await submit(w);
+    expect(w.document.querySelector('#btnCheck').disabled).toBe(true);
+    expect(posts(w)).toHaveLength(0);
+    expect(w.document.querySelector('#formError').hidden).toBe(false);
+});
+test('legacy sample values are discarded', async () => {
+    const w = await open({ legacy: true });
+    expect(w.document.querySelector('#f_gpax').value).toBe('');
+    expect(w.document.querySelector('select[data-t="val"]').value).toBe('');
+    expect(w.document.querySelector('.cf').checked).toBe(false);
+});
+test('unsupported HTTP status displays server error', async () => {
+    const w = await open({ status: 500 }); fill(w); await submit(w);
+    expect(w.document.querySelector('#rAlert').textContent).toContain('ไม่สามารถตรวจสอบคุณสมบัติได้');
+});
+test('malformed response displays error', async () => {
+    const w = await open({ response: {} }); fill(w); await submit(w);
+    expect(w.document.querySelector('#rList').textContent).toContain('รูปแบบข้อมูลตอบกลับ');
+});
+test('network failure does not display success', async () => {
+    const w = await open(); fill(w);
+    w.fetch.mockRejectedValueOnce(new w.TypeError('Network error'));
+    await submit(w);
+    expect(w.document.querySelector('#rAlert').textContent).toContain('ไม่สามารถตรวจสอบคุณสมบัติได้');
+});
+test('HTTP 400 shows API validation errors', async () => {
+    const w = await open({ status: 400, response: { ...passed, valid: false, eligible: null, message: 'ข้อมูลไม่ถูกต้อง', errors: ['ไม่พบผลการเรียนวิชา คพ.101'] } });
+    fill(w); await submit(w);
+    expect(w.document.querySelector('#formError').textContent).toContain('ไม่พบผลการเรียนวิชา คพ.101');
+    expect(w.document.querySelector('select[data-k="61g0"]').getAttribute('aria-invalid')).toBe('true');
 });

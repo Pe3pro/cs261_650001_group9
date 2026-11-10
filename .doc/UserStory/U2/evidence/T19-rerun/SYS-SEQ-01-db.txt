@@ -1,0 +1,4 @@
+﻿after_count
+34
+id	student_id	eligible	checked_at
+34	6609650001	true	2026-10-27 01:00:30.339426

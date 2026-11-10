@@ -3,10 +3,11 @@
   "private": true,
   "description": "Unit test หน้าเว็บ (frontend/tests) รันด้วย npm install แล้ว npm run test:ui",
   "scripts": {
-    "test:ui": "vitest run frontend/tests"
+    "test:ui": "vitest run frontend/tests",
+    "test": "vitest run"
   },
   "devDependencies": {
-    "jsdom": "26.1.0",
+    "jsdom": "^26.1.0",
     "vitest": "3.2.7"
   }
 }
