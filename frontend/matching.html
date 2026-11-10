@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>เลือกตำแหน่งและผลการจับคู่ · ระบบสหกิจศึกษา</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/u6.css">
+</head>
+
+<!-- U6: นักศึกษาที่ใบสมัคร APPROVED เลือกตำแหน่ง 1–5 อันดับ ดูผลการจับคู่ และยืนยัน / สละสิทธิ์ -->
+<body class="u5 u6" data-page="matching">
+    <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
+    </header>
+    <nav id="u6nav"></nav>
+    <main class="narrow">
+        <div id="err" class="alert bad" role="alert" hidden></div>
+        <section id="vLoading"><p class="mute">กำลังโหลด...</p></section>
+
+        <section id="vNoApp" hidden>
+            <h1>เลือกตำแหน่งที่สนใจ</h1>
+            <div class="card">
+                <p>ยังไม่มีใบสมัครที่ได้รับการอนุมัติ</p>
+                <p class="mute">เลือกตำแหน่งได้หลังอาจารย์อนุมัติใบสมัครแล้ว ดูสถานะได้ที่ <a href="notifications.html">การแจ้งเตือน</a></p>
+            </div>
+        </section>
+
+        <section id="vResult" hidden>
+            <h1>ผลการจับคู่</h1>
+            <p class="sub" id="roundInfo"></p>
+            <div class="card" id="resultCard">
+                <p id="summaryText"></p>
+                <dl class="kv" id="matchInfo" hidden></dl>
+                <div id="respondBox" hidden>
+                    <div class="opts">
+                        <label class="opt"><input type="radio" name="accept" value="yes"><span>ยืนยันสิทธิ์</span></label>
+                        <label class="opt"><input type="radio" name="accept" value="no"><span>สละสิทธิ์</span></label>
+                    </div>
+                    <div id="reasonBox" hidden>
+                        <label class="lab" for="reason">เหตุผลที่สละสิทธิ์ <em>*</em></label>
+                        <textarea id="reason" rows="3" placeholder="เช่น ได้ที่ฝึกงานอื่นแล้ว"></textarea>
+                    </div>
+                    <div id="respondErr" class="errmsg" role="alert" hidden></div>
+                    <div class="acts"><button class="btn" type="button" id="btnRespond">ส่งคำตอบ</button></div>
+                </div>
+                <div id="respondOk" class="alert ok" role="status" hidden></div>
+            </div>
+        </section>
+
+        <section id="vPrefs" hidden>
+            <h2 id="prefTitle">อันดับตำแหน่งที่สนใจ</h2>
+            <p class="sub" id="prefSub">เลือกได้ 1–5 อันดับ อันดับ 1 คือที่อยากไปที่สุด · ระบบจับคู่ตามอันดับและโควตาของแต่ละตำแหน่ง</p>
+            <div class="card">
+                <ol class="ranks" id="rankList"></ol>
+                <div id="prefErr" class="alert bad" role="alert" hidden></div>
+                <div id="prefOk" class="alert ok" role="status" hidden></div>
+                <div class="acts" id="prefActs">
+                    <button class="btn" type="button" id="btnSave">บันทึกอันดับ</button>
+                    <button class="btn ghost" type="button" id="btnClear">ล้างทั้งหมด</button>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="js/u6.js"></script>
+</body>
+
+</html>
