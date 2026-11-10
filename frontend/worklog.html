@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>บันทึกการทำงาน · ระบบสหกิจศึกษา</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-page="worklog">
+    <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
+    </header>
+    <nav><a href="check.html">ตรวจสอบคุณสมบัติ</a><a href="submit.html">ยื่นคำร้อง</a><a
+            href="ranking.html">จับคู่บริษัท</a><a href="notifications.html" data-free>การแจ้งเตือน</a><a
+            href="worklog.html" class="on" aria-current="page" data-free>บันทึกการทำงาน</a></nav>
+    <main class="wide">
+        <span class="tag">US8 · Priority High</span>
+        <h1>บันทึกการทำงาน</h1>
+        <p class="sub">บันทึกการทำงานรายสัปดาห์และส่งรายงานประจำเดือน เพื่อสะสมหลักฐานการฝึกงานและให้อาจารย์ติดตามความคืบหน้า</p>
+
+        <div class="alert warn box" id="wDue" role="note"><b id="wDueTitle"></b><span>ส่งหลังเวลานี้ระบบจะแจ้งเตือนว่า
+                "ส่งล่าช้า" และอาจารย์จะเห็นสถานะนี้</span></div>
+
+        <div class="wl">
+            <div>
+                <section class="card wl-card">
+                    <h2>บันทึกประจำสัปดาห์</h2>
+                    <div class="g3">
+                        <div class="fld"><label for="wWeek">สัปดาห์ที่</label><select id="wWeek"></select></div>
+                        <div class="fld"><label for="wRange">ช่วงวันที่</label><input id="wRange" readonly
+                                placeholder="[วันที่เริ่ม] - [วันที่สิ้นสุด]"></div>
+                        <div class="fld"><label for="wHours">จำนวนชั่วโมงทำงาน</label><input id="wHours" type="number"
+                                min="0" step="0.5" inputmode="decimal" placeholder="[ชั่วโมง]"></div>
+                    </div>
+                    <div class="fld"><label for="wTask">งานที่ได้รับมอบหมายและสิ่งที่ปฏิบัติ</label><textarea id="wTask"
+                            rows="4" placeholder="อธิบายงานที่ทำในสัปดาห์นี้..."></textarea></div>
+                    <div class="fld"><label for="wSkill">ทักษะ / สิ่งที่ได้เรียนรู้</label><textarea id="wSkill"
+                            rows="3" placeholder="สรุปสิ่งที่ได้เรียนรู้..."></textarea></div>
+                    <div class="fld"><label for="wProb">ปัญหาและอุปสรรค (ถ้ามี)</label><textarea id="wProb" rows="2"
+                            placeholder="ระบุปัญหาที่พบ..."></textarea></div>
+                    <div class="fld"><label for="wFile">ไฟล์แนบ (ถ้ามี)</label><input id="wFile" type="file"
+                            accept=".pdf,.jpg,.jpeg,application/pdf,image/jpeg"><small id="wFileNote" class="mute"
+                            hidden></small></div>
+                    <div id="wErr" class="alert bad" role="alert" hidden></div>
+                    <div class="wl-acts"><button class="btn" id="wSend" type="button">ส่งบันทึก</button><button
+                            class="btn ghost" id="wDraft" type="button">บันทึกแบบร่าง</button></div>
+                </section>
+
+                <section class="card wl-card">
+                    <h2>รายงานประจำเดือน</h2>
+                    <div class="g2">
+                        <div class="fld"><label for="wMonth">เดือน</label><select id="wMonth"></select></div>
+                        <div class="fld"><label for="wMFile">ไฟล์รายงาน</label><input id="wMFile" type="file"
+                                accept=".pdf,application/pdf"></div>
+                    </div>
+                    <div id="wMMsg" class="alert" role="status" hidden></div>
+                    <div class="wl-acts"><button class="btn" id="wMSend" type="button">ส่งรายงานประจำเดือน</button></div>
+                </section>
+            </div>
+
+            <aside>
+                <div id="wOk" class="alert ok box" role="status" hidden><b>ส่งบันทึกสำเร็จ</b><span>ระบบบันทึกข้อมูลแล้ว
+                        อาจารย์ที่ปรึกษาเปิดดูได้</span></div>
+                <div id="wLate" class="alert bad box" role="status" hidden><b>ส่งล่าช้า</b><span>ส่งบันทึกเลยกำหนด
+                        ระบบแจ้งเตือนว่าส่งล่าช้าและแสดงสถานะให้อาจารย์ทราบ</span></div>
+                <div id="wSaved" class="alert warn box" role="status" hidden><b>บันทึกฉบับร่างแล้ว</b><span>อาจารย์ยังไม่เห็นบันทึกนี้
+                        จนกว่าจะกดส่งบันทึก</span></div>
+                <section class="card wl-card">
+                    <h2>ประวัติการส่งบันทึก</h2>
+                    <div class="hist head"><span>สัปดาห์</span><span>สถานะ</span><span>อาจารย์</span></div>
+                    <div id="wHist"></div>
+                </section>
+            </aside>
+        </div>
+    </main>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

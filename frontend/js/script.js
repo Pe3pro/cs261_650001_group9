@@ -1,6 +1,6 @@
 /* =========================================================
    script.js
-   ใช้ร่วมกัน: login, check, submit, ranking
+   ใช้ร่วมกัน: login, check, submit, ranking, worklog
    ========================================================= */
 
 /* ---------- ตัวช่วยค้นหา HTML ---------- */
@@ -37,6 +37,12 @@ const DEF = {
         B: '',
         C: '',
         D: ''
+    },
+
+    // US8: บันทึกรายสัปดาห์ { [สัปดาห์]: {...} } และรายงานประจำเดือน { 'YYYY-MM': {...} }
+    worklog: {
+        weeks: {},
+        months: {}
     }
 };
 
@@ -69,6 +75,11 @@ function load() {
             prio: {
                 ...defaults.prio,
                 ...(stored.prio || {})
+            },
+
+            worklog: {
+                weeks: (stored.worklog && stored.worklog.weeks) || {},
+                months: (stored.worklog && stored.worklog.months) || {}
             }
         };
     } catch (error) {
@@ -190,7 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const initializers = {
         check: initCheck,
         submit: initSubmit,
-        ranking: initRanking
+        ranking: initRanking,
+        worklog: initWorklog
     };
 
     if (!initializers[page]) {
@@ -1410,4 +1422,297 @@ function initRanking() {
    };
 
    list();
+}
+
+/* =========================================================
+   หน้าบันทึกการทำงาน (US8)
+   ========================================================= */
+const WL = {
+   start: '2026-10-12',          // วันจันทร์แรกของการฝึก (สัปดาห์ที่ 1)
+   weeks: 16,                    // จำนวนสัปดาห์ทั้งหมด
+   maxHours: 84,                 // ไม่เกิน 12 ชม./วัน × 7 วัน
+   maxFile: 5 * 1024 * 1024,     // ไฟล์แนบไม่เกิน 5 MB
+   weekFile: /\.(pdf|jpe?g)$/i,
+   monthFile: /\.pdf$/i
+};
+
+const WL_STATUS = {
+   DRAFT: ['ฉบับร่าง', 'draft'],
+   SUBMITTED: ['ส่งแล้ว', 'ok'],
+   LATE: ['ส่งล่าช้า', 'bad'],
+   REVISION_REQUESTED: ['ขอให้แก้ไข', 'draft'],
+   REVIEWED: ['ตรวจแล้ว', 'ok']
+};
+
+function initWorklog() {
+   const W = S.worklog;
+   const DAY = 864e5;
+   const base = new Date(WL.start + 'T00:00:00');
+   const now = () => new Date();
+
+   const fmt = d => d.toLocaleDateString('th-TH', {
+      day: 'numeric', month: 'short', year: 'numeric'
+   });
+   const weekStart = n => new Date(base.getTime() + (n - 1) * 7 * DAY);
+   const weekEnd = n => new Date(weekStart(n).getTime() + 6 * DAY);
+   const deadline = n => {
+      const d = weekEnd(n);
+      d.setHours(23, 59, 59, 999);
+      return d;
+   };
+   // แก้ไขได้เฉพาะ DRAFT หรือ REVISION_REQUESTED (UC8-2)
+   const editable = e => !e || ['DRAFT', 'REVISION_REQUESTED'].includes(e.status);
+
+   const week = $('#wWeek');
+   const fields = {
+      hours: $('#wHours'),
+      task: $('#wTask'),
+      skill: $('#wSkill'),
+      prob: $('#wProb')
+   };
+   const file = $('#wFile');
+   const sideAlerts = ['wOk', 'wLate', 'wSaved'];
+
+   /* ---------- ตัวเลือกสัปดาห์ (ยังไม่ถึงสัปดาห์ = เลือกไม่ได้) ---------- */
+   const today = now();
+   const current = Math.min(
+      Math.max(Math.floor((today - base) / (7 * DAY)) + 1, 1),
+      WL.weeks
+   );
+
+   for (let n = 1; n <= WL.weeks; n++) {
+      const option = document.createElement('option');
+      option.value = n;
+      option.textContent = 'สัปดาห์ที่ ' + n;
+      option.disabled = weekStart(n) > today;
+      week.append(option);
+   }
+   week.value = current;
+
+   function hideSide() {
+      sideAlerts.forEach(id => { $('#' + id).hidden = true; });
+   }
+
+   function showError(messages) {
+      const box = $('#wErr');
+      box.hidden = !messages.length;
+      box.textContent = messages.join(' · ');
+   }
+
+   /* ---------- แสดงข้อมูลของสัปดาห์ที่เลือก ---------- */
+   function show() {
+      const n = Number(week.value);
+      const entry = W.weeks[n];
+
+      $('#wRange').value = fmt(weekStart(n)) + ' - ' + fmt(weekEnd(n));
+      $('#wDueTitle').textContent =
+         'กำหนดส่งบันทึกสัปดาห์ที่ ' + n + ': ' + fmt(deadline(n)) + ' เวลา 23:59';
+
+      Object.entries(fields).forEach(([key, el]) => {
+         el.value = entry ? (entry[key] ?? '') : '';
+         el.disabled = !editable(entry);
+      });
+
+      file.value = '';
+      file.disabled = !editable(entry);
+
+      const note = $('#wFileNote');
+      note.hidden = !(entry && entry.file);
+      note.textContent = entry && entry.file ? 'ไฟล์ที่แนบไว้: ' + entry.file : '';
+
+      $('#wSend').disabled = !editable(entry);
+      $('#wDraft').disabled = !editable(entry);
+
+      showError([]);
+      history();
+   }
+
+   /* ---------- ตรวจข้อมูล: ร่างไม่บังคับช่อง แต่ค่าที่กรอกต้องถูกต้อง ---------- */
+   function validate(submit) {
+      const errors = [];
+      const hoursText = fields.hours.value.trim();
+      const hours = Number(hoursText);
+
+      if (submit && !hoursText) {
+         errors.push('กรุณากรอกจำนวนชั่วโมงทำงาน');
+      } else if (hoursText && (!Number.isFinite(hours) || hours <= 0 || hours > WL.maxHours)) {
+         errors.push('จำนวนชั่วโมงต้องมากกว่า 0 และไม่เกิน ' + WL.maxHours + ' ชั่วโมง');
+      }
+
+      if (submit && !fields.task.value.trim()) {
+         errors.push('กรุณากรอกงานที่ได้รับมอบหมายและสิ่งที่ปฏิบัติ');
+      }
+
+      if (submit && !fields.skill.value.trim()) {
+         errors.push('กรุณากรอกทักษะ / สิ่งที่ได้เรียนรู้');
+      }
+
+      const picked = file.files && file.files[0];
+
+      if (picked && !WL.weekFile.test(picked.name)) {
+         errors.push('ไฟล์แนบต้องเป็น PDF หรือ JPG');
+      } else if (picked && picked.size > WL.maxFile) {
+         errors.push('ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB');
+      }
+
+      if (!errors.length && Number(week.value) > current) {
+         errors.push('ยังไม่ถึงสัปดาห์นี้ ไม่สามารถบันทึกล่วงหน้าได้');
+      }
+
+      showError(errors);
+      return !errors.length;
+   }
+
+   function collect(status) {
+      const n = Number(week.value);
+      const old = W.weeks[n] || {};
+      const picked = file.files && file.files[0];
+
+      return {
+         hours: fields.hours.value.trim() ? Number(fields.hours.value) : '',
+         task: fields.task.value.trim(),
+         skill: fields.skill.value.trim(),
+         prob: fields.prob.value.trim(),
+         file: picked ? picked.name : (old.file || ''),
+         status,
+         viewed: false,
+         savedAt: now().toISOString()
+      };
+   }
+
+   /* ---------- ส่งบันทึก / บันทึกแบบร่าง ---------- */
+   function submit() {
+      hideSide();
+      if (!validate(true)) return;
+
+      const n = Number(week.value);
+      const late = now() > deadline(n);
+
+      W.weeks[n] = collect(late ? 'LATE' : 'SUBMITTED');
+      save();
+      show();
+
+      $(late ? '#wLate' : '#wOk').hidden = false;
+   }
+
+   function draft() {
+      hideSide();
+      if (!validate(false)) return;
+
+      const n = Number(week.value);
+      const old = W.weeks[n];
+      // ถ้าอาจารย์ขอแก้ไข สถานะยังคงเป็น REVISION_REQUESTED จนกว่าจะกดส่ง
+      const status = old && old.status === 'REVISION_REQUESTED' ? old.status : 'DRAFT';
+
+      W.weeks[n] = collect(status);
+      save();
+      show();
+
+      $('#wSaved').hidden = false;
+   }
+
+   /* ---------- ประวัติการส่งบันทึก ---------- */
+   function history() {
+      const box = $('#wHist');
+      const list = Object.keys(W.weeks).map(Number).sort((a, b) => a - b);
+
+      box.textContent = '';
+
+      if (!list.length) {
+         const empty = document.createElement('p');
+         empty.className = 'mute';
+         empty.textContent = 'ยังไม่มีบันทึก';
+         box.append(empty);
+         return;
+      }
+
+      list.forEach(n => {
+         const entry = W.weeks[n];
+         const [label, tone] = WL_STATUS[entry.status] || [entry.status, 'draft'];
+         const row = document.createElement('button');
+         const name = document.createElement('span');
+         const pill = document.createElement('span');
+         const advisor = document.createElement('small');
+
+         row.type = 'button';
+         row.className = 'hist' + (n === Number(week.value) ? ' cur' : '');
+         row.dataset.week = n;
+
+         name.textContent = 'สัปดาห์ที่ ' + n;
+         pill.className = 'pill ' + tone;
+         pill.textContent = label;
+         advisor.textContent = entry.status === 'DRAFT'
+            ? '-'
+            : (entry.viewed ? 'เปิดดูแล้ว' : 'ยังไม่เปิดดู');
+
+         row.append(name, pill, advisor);
+         row.onclick = () => {
+            week.value = n;
+            hideSide();
+            show();
+         };
+         box.append(row);
+      });
+   }
+
+   /* ---------- รายงานประจำเดือน ---------- */
+   const month = $('#wMonth');
+   const monthMsg = $('#wMMsg');
+   const monthFile = $('#wMFile');
+   const blank = document.createElement('option');
+
+   blank.value = '';
+   blank.textContent = '[เดือน]';
+   month.append(blank);
+
+   for (
+      let d = new Date(base.getFullYear(), base.getMonth(), 1);
+      d <= weekEnd(WL.weeks);
+      d = new Date(d.getFullYear(), d.getMonth() + 1, 1)
+   ) {
+      const option = document.createElement('option');
+      option.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      option.textContent = d.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+      option.disabled = d > today;
+      month.append(option);
+   }
+
+   function monthNote(text, tone) {
+      monthMsg.hidden = !text;
+      monthMsg.className = 'alert ' + (tone || '');
+      monthMsg.textContent = text || '';
+   }
+
+   month.onchange = () => {
+      const sent = W.months[month.value];
+      monthNote(sent
+         ? 'ส่งรายงานเดือนนี้แล้ว: ' + sent.file + ' (ส่งใหม่เพื่อแทนที่ไฟล์เดิม)'
+         : '', 'ok');
+   };
+
+   $('#wMSend').onclick = () => {
+      const picked = monthFile.files && monthFile.files[0];
+
+      if (!month.value) return monthNote('กรุณาเลือกเดือน', 'bad');
+      if (!picked) return monthNote('กรุณาแนบไฟล์รายงาน', 'bad');
+      if (!WL.monthFile.test(picked.name)) return monthNote('ไฟล์รายงานต้องเป็น PDF', 'bad');
+      if (picked.size > WL.maxFile) return monthNote('ไฟล์รายงานต้องมีขนาดไม่เกิน 5 MB', 'bad');
+
+      const replaced = Boolean(W.months[month.value]);
+
+      W.months[month.value] = { file: picked.name, sentAt: now().toISOString() };
+      save();
+      monthFile.value = '';
+      monthNote(replaced ? 'อัปเดตรายงานประจำเดือนแล้ว' : 'ส่งรายงานประจำเดือนสำเร็จ', 'ok');
+   };
+
+   /* ---------- เริ่มต้น ---------- */
+   week.onchange = () => {
+      hideSide();
+      show();
+   };
+   $('#wSend').onclick = submit;
+   $('#wDraft').onclick = draft;
+
+   show();
 }

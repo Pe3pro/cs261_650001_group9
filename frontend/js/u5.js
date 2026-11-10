@@ -110,6 +110,7 @@
       if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร', 'review']];
       if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ', 'check'], ['submit.html', 'ยื่นคำร้อง', 'submit'], ['ranking.html', 'จับคู่บริษัท', 'ranking']];
       if (user) links.push(['notifications.html', 'การแจ้งเตือน', 'notifications']);
+      if (user?.role === 'STUDENT') links.push(['worklog.html', 'บันทึกการทำงาน', 'worklog']);
       $('#u5nav').innerHTML = links.map(([href, label, p]) =>
          `<a href="${href}"${p === page ? ' class="on" aria-current="page"' : ''}>${label}</a>`).join('');
       const bar = $('#demoBar');
