@@ -7,7 +7,6 @@
     <title>แบบฟอร์มคำร้อง · ระบบสหกิจศึกษา</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/u5.css">
 </head>
 
 <body class="u5" data-page="forms">
@@ -61,8 +60,9 @@
                 <button class="btn ghost" id="btnAddField" type="button">+ เพิ่มช่อง</button>
             </div>
             <div id="editErr" class="alert bad" role="alert" hidden></div>
+            <div class="card preview" id="previewBox" hidden></div>
             <div class="acts"><button class="btn muted" id="btnCancel" type="button">ยกเลิก</button>
-                <div><button class="btn ghost" id="btnSaveDraft" type="button">บันทึกฉบับร่าง</button><button class="btn"
+                <div><button class="btn ghost" id="btnPreview" type="button">ดูตัวอย่างหน้านักศึกษา</button><button class="btn ghost" id="btnSaveDraft" type="button">บันทึกฉบับร่าง</button><button class="btn"
                         id="btnSavePublish" type="button">บันทึกและเปิดใช้งาน</button></div>
             </div>
         </section>

@@ -73,19 +73,21 @@ public class DemoDataSeeder implements CommandLineRunner {
             return;
         }
         User staff = users.save(new User("staff01", "S staff", "staff01@tu.ac.th", Role.STAFF));
-        users.save(new User("advisor01", "A advisor", "advisor01@tu.ac.th", Role.ADVISOR));
+        User advisor = users.save(new User("advisor01", "A advisor", "advisor01@tu.ac.th", Role.ADVISOR));
         User a = users.save(new User("6609650001", "A arizona", "arizona@dome.tu.ac.th", Role.STUDENT));
         User b = users.save(new User("6609650002", "B berlin", "berlin@dome.tu.ac.th", Role.STUDENT));
-        Student sa = students.save(new Student(a.getId(), "6609650001", "วิทยาศาสตร์และเทคโนโลยี",
-                "วิทยาการคอมพิวเตอร์", 3.10));
-        Student sb = students.save(new Student(b.getId(), "6609650002", "วิทยาศาสตร์และเทคโนโลยี",
-                "วิทยาการคอมพิวเตอร์", 3.45));
+        Student sa = students.save(withAdvisor(new Student(a.getId(), "6609650001", "วิทยาศาสตร์และเทคโนโลยี",
+                "วิทยาการคอมพิวเตอร์", 3.10), advisor));
+        Student sb = students.save(withAdvisor(new Student(b.getId(), "6609650002", "วิทยาศาสตร์และเทคโนโลยี",
+                "วิทยาการคอมพิวเตอร์", 3.45), advisor));
 
         // U3: นักศึกษา C และ D ยังไม่มีคำร้อง ใช้ทดลองยื่นคำร้องใหม่ (login 6609650003 / 6609650004 ด้วยรหัสผ่านทดลอง)
         User c = users.save(new User("6609650003", "C center", "center@dome.tu.ac.th", Role.STUDENT));
-        students.save(new Student(c.getId(), "6609650003", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.25));
+        students.save(withAdvisor(new Student(c.getId(), "6609650003", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.25),
+                advisor));
         User d = users.save(new User("6609650004", "D dubai", "dubai@dome.tu.ac.th", Role.STUDENT));
-        students.save(new Student(d.getId(), "6609650004", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 2.95));
+        students.save(withAdvisor(new Student(d.getId(), "6609650004", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 2.95),
+                advisor));
 
         // U2 → U3: ต้องผ่านการตรวจสอบคุณสมบัติก่อนจึงยื่นคำร้องได้ (RequestService.requireEligible)
         // A–D ผ่านแล้ว (สคริปต์ tools/u3-t17/t19/t20 ใช้ยื่นคำร้องทั้ง 4 บัญชี)
@@ -95,7 +97,8 @@ public class DemoDataSeeder implements CommandLineRunner {
         }
         // นักศึกษา E ยังไม่เคยตรวจ U2 ใช้ demo กรณียื่นคำร้องแล้วถูกบล็อก 403 NOT_ELIGIBLE
         User e = users.save(new User("6609650005", "E essen", "essen@dome.tu.ac.th", Role.STUDENT));
-        students.save(new Student(e.getId(), "6609650005", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.00));
+        students.save(withAdvisor(new Student(e.getId(), "6609650005", "วิทยาศาสตร์และเทคโนโลยี", "วิทยาการคอมพิวเตอร์", 3.00),
+                advisor));
 
         FormTemplate form = new FormTemplate("คำร้องขอฝึกสหกิจศึกษา 2/2569", 1, staff.getId());
         form.setDescription("กรอกข้อมูลให้ครบและแนบ Transcript (PDF)");
@@ -131,5 +134,11 @@ public class DemoDataSeeder implements CommandLineRunner {
                 .getBytes(java.nio.charset.StandardCharsets.US_ASCII);
         String key = fileStorage.store("transcript.pdf", pdf);
         documents.save(new Document(app.getId(), "transcript.pdf", key, (long) pdf.length));
+    }
+
+    /** U5: นักศึกษาทดลองทุกคนอยู่ในความดูแลของ advisor01 */
+    private static Student withAdvisor(Student student, User advisor) {
+        student.setAdvisorId(advisor.getId());
+        return student;
     }
 }

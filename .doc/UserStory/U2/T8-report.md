@@ -47,3 +47,25 @@
 
 - Postman Collection: [`postman/U2-Eligibility-API.postman_collection.json`](postman/U2-Eligibility-API.postman_collection.json)
 - Test Evidence: [`evidence/T8-postman-run.png`](evidence/T8-postman-run.png)
+
+## หลักฐานการทดสอบหลังแก้ไข
+
+รัน Postman Collection จำนวน 9 Requests รวม 18 Tests โดยมีผลดังนี้:
+
+- Passed: 18
+- Failed: 0
+- Errors: 0
+- กรณีที่ครอบคลุม:
+  - ข้อมูลถูกต้องและตรงกับฐานข้อมูล
+  - กรอกข้อมูลไม่ครบ
+  - กรอกข้อมูลผิดรูปแบบ
+  - ข้อมูลถูกต้องแต่ไม่ผ่านคุณสมบัติ
+  - ไม่มี `X-User-Id`
+  - `X-User-Id` ไม่มีอยู่ในตาราง `students`
+  - ปลอมรหัสนักศึกษา
+  - GPA ไม่ตรงกับฐานข้อมูล
+  - ส่งรหัสวิชานอกหลักสูตร
+
+![ผลการรัน Postman ส่วนที่ 1](evidence/T8-postman-security-run_v1.png)
+
+![ผลการรัน Postman ส่วนที่ 2](evidence/T8-postman-security-run_v2.png)

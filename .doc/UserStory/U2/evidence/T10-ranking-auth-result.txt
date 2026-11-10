@@ -1,0 +1,28 @@
+U2:T10 - Authenticated Eligibility Integration Result
+
+Request:
+GET http://localhost:8080/api/students/me/company-ranking
+X-User-Id: 5
+
+Authenticated student:
+user_id: 5
+student_id: 6609650003
+
+Latest eligibility result:
+eligible: true
+
+Response:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[]
+
+Result: PASS
+
+The authenticated student was resolved from X-User-Id 5 to
+student_id 6609650003. The student's latest eligibility result
+was true, so the U4 company-ranking API returned HTTP 200 and
+did not return 403 NOT_ELIGIBLE.
+
+An empty JSON array means that the student has not saved a
+company ranking yet. It is not an error.

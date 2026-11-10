@@ -1,0 +1,16 @@
+{
+  "studentId": "6609650001",
+  "curriculum": "66",
+  "gpax": "3.10abc",
+  "grades": {
+    "คพ.999": "Z"
+  },
+  "courseStatuses": {
+    "คพ.999": "สถานะไม่ถูกต้อง"
+  },
+  "acknowledgements": [
+    true,
+    true,
+    true
+  ]
+}

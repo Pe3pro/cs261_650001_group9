@@ -10,6 +10,13 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
 
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        #vForm [aria-invalid="true"] {
+            border: 2px solid #b91c1c;
+            background-color: #fff1f2;
+            outline-color: #b91c1c;
+        }
+    </style>
 </head>
 
 <body data-page="check">
@@ -65,7 +72,7 @@
                 <div class="g2">
                     <div class="fld">
                         <label for="f_id">รหัสนักศึกษา</label>
-                        <input id="f_id">
+                        <input id="f_id" readonly aria-label="รหัสนักศึกษาจากบัญชีที่เข้าสู่ระบบ">
                     </div>
 
                     <div class="fld">
@@ -78,12 +85,12 @@
 
                     <div class="fld">
                         <label>คณะ</label>
-                        <input value="วิทยาศาสตร์" disabled>
+                        <input id="f_fac" value="" disabled>
                     </div>
 
                     <div class="fld">
                         <label>สาขาวิชา</label>
-                        <input value="วิทยาการคอมพิวเตอร์" disabled>
+                        <input id="f_major" value="" disabled>
                     </div>
                 </div>
 

@@ -1,0 +1,61 @@
+/* =====================================================================
+   u4.css — หน้าจับคู่บริษัท (จัดอันดับ) U4
+   ใช้คู่กับ style.css เดิม ทุกกฎอยู่ใต้ body.u4 จึงไม่กระทบหน้าอื่นของทีม
+   ขนาดและสีตาม UI prototype "U4 Ranking (new)"
+   ===================================================================== */
+body.u4 { --u4-ink: #1f2a3c; --u4-mute: #5b6474; --u4-line: #e3e6ec; --u4-soft: #eef0f4; --u4-navy: #1f3a5f;
+  --u4-gold: #e8a317; background: #f3f4f7; color: var(--u4-ink); font-size: 14px }
+
+body.u4 nav a.on { border-color: var(--u4-gold) }
+body.u4 main { max-width: 1040px; padding: 40px 16px 60px }
+body.u4 h1 { font-size: 28px; margin: 0 0 6px }
+body.u4 h2 { font-size: 16px; margin: 0 0 8px; padding-bottom: 12px; border-bottom: 1px solid var(--u4-line) }
+body.u4 .sub { font-size: 13px; color: var(--u4-mute); margin: 0 0 24px }
+body.u4 .mute { color: var(--u4-mute) }
+body.u4 .card { border: 0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, .06); padding: 20px 24px; margin-bottom: 28px }
+body.u4 .btn { border-radius: 6px; padding: 11px 22px; font-weight: 700; border: 1px solid var(--u4-navy) }
+body.u4 .btn.ghost { background: #fff; color: var(--u4-navy) }
+
+/* ---------- 5 ช่องอันดับ ---------- */
+.rk-list { list-style: none; margin: 0; padding: 0 }
+.rk-row { display: grid; grid-template-columns: 32px 72px 1fr; gap: 12px; align-items: center; padding: 12px 0;
+  border-bottom: 1px solid var(--u4-line) }
+.rk-row:last-child { border-bottom: 0 }
+.rk-no { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700;
+  background: var(--u4-soft); color: var(--u4-mute) }
+.rk-row.filled .rk-no, .rk-row.active .rk-no { background: var(--u4-navy); color: #fff }
+.rk-lbl { font-weight: 500 }
+.rk-field { position: relative; min-width: 0 }
+
+/* บริษัทที่เลือกแล้ว */
+.rk-pick { display: flex; align-items: center; gap: 12px; border: 1px solid var(--u4-line); border-radius: 6px; padding: 8px 12px; background: #fff }
+.rk-pick .rk-co { flex: 1 }
+.rk-clear { background: none; border: 0; color: var(--u4-mute); font: inherit; font-size: 12px; cursor: pointer; padding: 4px }
+.rk-clear:hover { color: var(--u4-ink) }
+
+/* ช่องค้นหา */
+body.u4 .rk-search { background: #fff; border: 1px solid var(--u4-line); border-radius: 6px; padding: 10px 12px }
+body.u4 .rk-search:focus { outline: 0; border-color: var(--u4-gold); box-shadow: 0 0 0 1px var(--u4-gold) }
+body.u4 .rk-search:disabled { background: var(--u4-soft); cursor: not-allowed }
+
+/* รายการบริษัทที่ค้นเจอ */
+.rk-menu { position: absolute; z-index: 10; left: 0; right: 0; top: calc(100% + 4px); margin: 0; padding: 6px; list-style: none;
+  background: #fff; border: 1px solid var(--u4-line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  max-height: 320px; overflow-y: auto }
+.rk-opt { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 6px; cursor: pointer }
+.rk-opt:hover, .rk-opt.hl { background: var(--u4-soft) }
+.rk-menu .rk-note { padding: 8px 10px 4px; font-size: 12px; color: var(--u4-mute) }
+
+/* โลโก้และชื่อบริษัท */
+.rk-logo { width: 30px; height: 30px; border-radius: 4px; background: var(--u4-soft); border: 1px solid var(--u4-line); flex: none }
+.rk-co { display: flex; flex-direction: column; min-width: 0 }
+.rk-co b { font-size: 13px }
+.rk-co small { font-size: 12px; color: var(--u4-mute) }
+
+/* ปุ่มล่าง */
+.rk-acts { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px }
+
+@media (max-width: 600px) {
+  .rk-row { grid-template-columns: 28px 1fr }
+  .rk-lbl { display: none }
+}

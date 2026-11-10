@@ -1,0 +1,871 @@
+{
+  "info": {
+    "name": "U4 Ranking — จับคู่บริษัท (จัดอันดับ)",
+    "description": "ทดสอบ API ของ U4 ตามเอกสาร Unit Test (U4-API-01 ถึง 08)\n\nก่อนรัน: เปิดระบบด้วย `docker compose up -d --build` (ข้อมูลตัวอย่างมาจาก DemoDataSeeder และ RankingDemoSeeder)\nรันทั้งชุดตามลำดับด้วย Run collection · โฟลเดอร์ 00 จะหา userId ของแต่ละคนให้อัตโนมัติ",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 เตรียมข้อมูล: หา userId จาก username",
+      "item": [
+        {
+          "name": "00-1 เจ้าหน้าที่ (GET /api/users/staff01)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/staff01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "staff01"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('staffId', pm.response.json().id);",
+                  "console.log('staffId = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00-2 นักศึกษา A (ยื่นคำร้องแล้ว) (GET /api/users/6609650001)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/6609650001",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6609650001"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('studentA', pm.response.json().id);",
+                  "console.log('studentA = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00-3 นักศึกษา C (ผ่าน U2 ยังไม่ยื่น) (GET /api/users/6609650003)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/6609650003",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6609650003"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('studentC', pm.response.json().id);",
+                  "console.log('studentC = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00-4 นักศึกษา D (ไม่ผ่าน U2) (GET /api/users/6609650004)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/6609650004",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6609650004"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('studentD', pm.response.json().id);",
+                  "console.log('studentD = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 ดูบริษัทและจัดอันดับสำเร็จ",
+      "item": [
+        {
+          "name": "U4-API-01 ดูบริษัทที่เปิดรับ (GET /api/companies)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "companies"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const list = pm.response.json();",
+                  "pm.test('ทุกบริษัทในรายการเปิดรับ (OPEN)', () => list.forEach(c => pm.expect(c.status).to.eql('OPEN')));",
+                  "pm.test('มีบริษัทเปิดรับอย่างน้อย 6 แห่ง', () => pm.expect(list.length).to.be.at.least(6));",
+                  "list.slice(0, 6).forEach((c, i) => pm.collectionVariables.set('c' + (i + 1), c.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "U4-API-02 บันทึกครบ 5 อันดับไม่ซ้ำ (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c3}}, {{c1}}, {{c5}}, {{c2}}, {{c4}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('ได้ 5 อันดับ เรียง 1–5', () => pm.expect(r.map(x => x.rank)).to.eql([1, 2, 3, 4, 5]));",
+                  "const want = ['c3', 'c1', 'c5', 'c2', 'c4'].map(k => Number(pm.collectionVariables.get(k)));",
+                  "pm.test('บริษัทเรียงตามที่ส่งไป', () => pm.expect(r.map(x => x.companyId)).to.eql(want));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "U4-API-07 ดูอันดับที่บันทึกไว้ (GET)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('เรียงอันดับ 1–5', () => pm.expect(r.map(x => x.rank)).to.eql([1, 2, 3, 4, 5]));",
+                  "pm.test('มีชื่อบริษัททุกอันดับ', () => r.forEach(x => pm.expect(x.companyName).to.be.a('string')));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 ข้อมูลไม่ถูกต้อง (400)",
+      "item": [
+        {
+          "name": "U4-API-03 เลือกไม่ครบ 5 อันดับ",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c1}}, {{c2}}, {{c3}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = INVALID_RANKING', () => pm.expect(pm.response.json().code).to.eql('INVALID_RANKING'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "U4-API-03 เลือกบริษัทซ้ำ",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c1}}, {{c1}}, {{c2}}, {{c3}}, {{c4}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = DUPLICATE_COMPANY', () => pm.expect(pm.response.json().code).to.eql('DUPLICATE_COMPANY'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "U4-API-04 Company ID ที่ไม่มีอยู่",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c1}}, {{c2}}, {{c3}}, {{c4}}, 99999]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = COMPANY_NOT_FOUND', () => pm.expect(pm.response.json().code).to.eql('COMPANY_NOT_FOUND'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ข้อมูลผิดไม่ทำให้อันดับเดิมเปลี่ยน (GET)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const want = ['c3', 'c1', 'c5', 'c2', 'c4'].map(k => Number(pm.collectionVariables.get(k)));",
+                  "pm.test('ยังเป็นชุดเดิมจาก U4-API-02', () => pm.expect(pm.response.json().map(x => x.companyId)).to.eql(want));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 สิทธิ์และสถานะคำร้อง",
+      "item": [
+        {
+          "name": "U4-API-05 นักศึกษาที่ยังไม่ผ่าน U2 (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentD}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c3}}, {{c1}}, {{c5}}, {{c2}}, {{c4}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));",
+                  "pm.test('code = NOT_ELIGIBLE', () => pm.expect(pm.response.json().code).to.eql('NOT_ELIGIBLE'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "U4-API-06 ยื่นคำร้อง (U3) ไปแล้ว (409)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c3}}, {{c1}}, {{c5}}, {{c2}}, {{c4}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code = RANKING_LOCKED', () => pm.expect(pm.response.json().code).to.eql('RANKING_LOCKED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ไม่ได้ login (ไม่มี X-User-Id) ได้ 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "companies"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 เจ้าหน้าที่เปิด–ปิดรับบริษัท",
+      "item": [
+        {
+          "name": "U4-API-08 นักศึกษาเรียก PUT /api/staff/companies/{id} (403)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/staff/companies/{{c6}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "staff",
+                "companies",
+                "{{c6}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLOSED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "เจ้าหน้าที่ปิดรับบริษัท c6",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{staffId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/staff/companies/{{c6}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "staff",
+                "companies",
+                "{{c6}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CLOSED\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('สถานะเป็น CLOSED', () => pm.expect(pm.response.json().status).to.eql('CLOSED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "บริษัทที่ปิดรับไม่อยู่ในรายการ (GET /api/companies)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/companies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "companies"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const c6 = Number(pm.collectionVariables.get('c6'));",
+                  "pm.test('ไม่มีบริษัท c6 ในรายการ', () => pm.expect(pm.response.json().map(c => c.id)).to.not.include(c6));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "เลือกบริษัทที่ปิดรับแล้ว (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/students/me/company-ranking",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "students",
+                "me",
+                "company-ranking"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyIds\": [{{c1}}, {{c2}}, {{c3}}, {{c4}}, {{c6}}]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = COMPANY_CLOSED', () => pm.expect(pm.response.json().code).to.eql('COMPANY_CLOSED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "เจ้าหน้าที่เปิดรับบริษัท c6 คืน",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{staffId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/staff/companies/{{c6}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "staff",
+                "companies",
+                "{{c6}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"OPEN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('สถานะเป็น OPEN', () => pm.expect(pm.response.json().status).to.eql('OPEN'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "staffId",
+      "value": ""
+    },
+    {
+      "key": "studentA",
+      "value": ""
+    },
+    {
+      "key": "studentC",
+      "value": ""
+    },
+    {
+      "key": "studentD",
+      "value": ""
+    },
+    {
+      "key": "c1",
+      "value": ""
+    },
+    {
+      "key": "c2",
+      "value": ""
+    },
+    {
+      "key": "c3",
+      "value": ""
+    },
+    {
+      "key": "c4",
+      "value": ""
+    },
+    {
+      "key": "c5",
+      "value": ""
+    },
+    {
+      "key": "c6",
+      "value": ""
+    }
+  ]
+}

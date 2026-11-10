@@ -68,13 +68,16 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 24px;
+    height: 64px;
+    padding: 0 64px;
+    font-size: 20px;
     font-weight: 700
 }
 
 header span {
     font-weight: 400;
-    font-size: 12px
+    font-size: 14px;
+    opacity: .92
 }
 
 header button {
@@ -83,7 +86,7 @@ header button {
     color: #fff;
     cursor: pointer;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     text-decoration: underline
 }
 
@@ -91,14 +94,19 @@ nav {
     background: var(--card);
     border-bottom: 1px solid var(--line);
     display: flex;
-    gap: 24px;
-    padding: 0 24px;
+    align-items: stretch;
+    gap: 40px;
+    height: 56px;
+    padding: 0 68px;
     overflow-x: auto
 }
 
 nav a {
+    display: flex;
+    align-items: center;
     border-bottom: 3px solid transparent;
-    padding: 12px 0;
+    padding: 0;
+    font-size: 14px;
     color: var(--mute);
     text-decoration: none;
     white-space: nowrap
@@ -468,6 +476,19 @@ button:focus-visible {
     background: var(--field)
 }
 
+@media (max-width:760px) {
+
+    header,
+    nav {
+        padding-left: 16px;
+        padding-right: 16px
+    }
+
+    nav {
+        gap: 20px
+    }
+}
+
 @media (max-width:700px) {
 
     .login,
@@ -505,3 +526,181 @@ a.btn {
 .mute {
     color: var(--mute)
 }
+
+/* ===== U5: หน้าเจ้าหน้าที่ / อาจารย์ / การแจ้งเตือน (ย้ายมาจาก u5.css) =====
+   ทุกกฎอยู่ใต้ body.u5 จึงไม่กระทบหน้าอื่น รองรับทั้งโหมดสว่างและโหมดมืด */
+body.u5 {
+  /* สีของหน้า U5 — โหมดสว่าง (ตาม prototype) */
+  --u5-bg: #f3f4f7; --u5-panel: #fff; --u5-head: #f8f9fb; --u5-sel: #f1f5fb; --u5-errbg: #fffafa;
+  --u5-ink: #1f2a3c; --u5-mute: #5b6474; --u5-faint: #9aa2b1; --u5-line: #e3e6ec; --u5-soft: #eef0f4; --u5-border: #cfd5df;
+  --u5-navy: #1f3a5f; --u5-accent: #1f3a5f; --u5-header: #1f3a5f;
+  --u5-warn-bg: #fff4dc; --u5-warn: #a36b00; --u5-info-bg: #e6efff; --u5-info: #1f4fa0;
+  --u5-ok-bg: #e4f5e8; --u5-ok: #24753b; --u5-bad-bg: #fdeaea; --u5-bad: #b42323;
+  /* ให้ตัวแปรของ style.css (header, nav, card, input) ใช้ชุดสีเดียวกัน */
+  --bg: var(--u5-bg); --card: var(--u5-panel); --ink: var(--u5-ink); --mute: var(--u5-mute);
+  --line: var(--u5-line); --field: var(--u5-soft); --navy: var(--u5-navy);
+  background: var(--u5-bg); color: var(--u5-ink); font-size: 14px }
+
+/* โหมดมืด: ตามระบบ (ยกเว้นตั้ง data-theme="light") หรือบังคับด้วย data-theme="dark" */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body.u5 {
+    color-scheme: dark;
+    --u5-bg: #12151c; --u5-panel: #1b2029; --u5-head: #222835; --u5-sel: #1f2b3d; --u5-errbg: #2a1717;
+    --u5-ink: #e8ebf2; --u5-mute: #97a0b3; --u5-faint: #6f7889; --u5-line: #2c3342; --u5-soft: #232938; --u5-border: #3a4256;
+    --u5-navy: #2b4c78; --u5-accent: #a9c4ea; --u5-header: #162b47;
+    --u5-warn-bg: #3a2e12; --u5-warn: #f0c060; --u5-info-bg: #1b2a45; --u5-info: #9dc0ff;
+    --u5-ok-bg: #17301a; --u5-ok: #7fd08f; --u5-bad-bg: #3a1b1b; --u5-bad: #ff9a9a }
+}
+:root[data-theme="dark"] body.u5 {
+  color-scheme: dark;
+  --u5-bg: #12151c; --u5-panel: #1b2029; --u5-head: #222835; --u5-sel: #1f2b3d; --u5-errbg: #2a1717;
+  --u5-ink: #e8ebf2; --u5-mute: #97a0b3; --u5-faint: #6f7889; --u5-line: #2c3342; --u5-soft: #232938; --u5-border: #3a4256;
+  --u5-navy: #2b4c78; --u5-accent: #a9c4ea; --u5-header: #162b47;
+  --u5-warn-bg: #3a2e12; --u5-warn: #f0c060; --u5-info-bg: #1b2a45; --u5-info: #9dc0ff;
+  --u5-ok-bg: #17301a; --u5-ok: #7fd08f; --u5-bad-bg: #3a1b1b; --u5-bad: #ff9a9a }
+
+/* ---------- ส่วนหัวและเมนู ---------- */
+body.u5 header { height: 64px; padding: 0 64px; background: var(--u5-header); font-size: 20px }
+body.u5 header > span { font-size: 14px; opacity: .92 }
+body.u5 header button { font-size: 14px }
+body.u5 nav { height: 56px; padding: 0 68px; gap: 40px; align-items: stretch }
+body.u5 nav a { display: flex; align-items: center; padding: 0; font-size: 14px; color: var(--u5-mute) }
+body.u5 nav a.on { color: var(--u5-ink); border-color: #e8a317 }
+
+/* ---------- เนื้อหา ---------- */
+body.u5 main { max-width: 1100px; padding: 40px 16px 60px }
+body.u5 main.narrow { max-width: 744px }
+body.u5 h1 { font-size: 36px; margin: 0 0 8px; line-height: 1.25 }
+body.u5 h2 { font-size: 19px; margin: 0 0 20px }
+body.u5 .sub { font-size: 14px; color: var(--u5-mute); margin: 0 0 24px }
+body.u5 .card { border: 0; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, .05); padding: 32px; margin-bottom: 20px }
+body.u5 .card.flush { padding: 8px 8px 0; overflow-x: auto }
+body.u5 .mute { color: var(--u5-mute) }
+body.u5 .center { text-align: center }
+
+/* ปุ่ม */
+body.u5 .btn { padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; border: 1px solid var(--u5-navy) }
+body.u5 .btn.ghost { background: var(--u5-panel); color: var(--u5-accent); border-color: var(--u5-accent) }
+body.u5 .btn.muted { background: var(--u5-panel); color: var(--u5-faint); border-color: var(--u5-border); font-weight: 400 }
+body.u5 .btn.sm { padding: 8px 18px }
+body.u5 .btn.warn { background: #e8a317; border-color: #e8a317; color: #1f2a3c }
+
+/* แถบกรองสถานะ + ค้นหา */
+body.u5 .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; flex-wrap: wrap }
+body.u5 .chip { border: 1px solid var(--u5-border); background: var(--u5-panel); color: var(--u5-mute); border-radius: 20px; padding: 8px 16px; font: inherit; font-size: 14px; cursor: pointer }
+body.u5 .chip.on { background: var(--u5-navy); border-color: var(--u5-navy); color: #fff }
+body.u5 .chip b { margin-left: 6px; background: #e8a317; color: #fff; border-radius: 10px; padding: 1px 8px; font-size: 12px; font-weight: 400 }
+body.u5 .search { margin-left: auto; width: 320px; max-width: 100%; border: 1px solid var(--u5-border); border-radius: 8px; padding: 8px 14px; background: var(--u5-panel); color: var(--u5-ink); font-size: 14px }
+
+/* ตาราง */
+body.u5 .tbl { width: 100%; border-collapse: collapse; font-size: 14px }
+body.u5 .tbl th { text-align: left; font-weight: 400; color: var(--u5-mute); background: var(--u5-head); padding: 12px 14px; border-bottom: 1px solid var(--u5-line); white-space: nowrap }
+body.u5 .tbl td { padding: 16px 14px; border-bottom: 1px solid var(--u5-soft); vertical-align: middle }
+body.u5 .tbl tr:last-child td { border-bottom: 0 }
+body.u5 .tbl td:last-child { text-align: right; white-space: nowrap }
+body.u5 .tbl .btn { padding: 8px 18px }
+body.u5 .empty { padding: 36px 0; text-align: center; color: var(--u5-mute) }
+
+/* ป้ายสถานะ */
+body.u5 .badge { display: inline-block; border-radius: 12px; padding: 4px 12px; font-size: 13px; white-space: nowrap; background: var(--u5-soft); color: var(--u5-mute) }
+body.u5 .badge.SUBMITTED, body.u5 .badge.DRAFT { background: var(--u5-warn-bg); color: var(--u5-warn) }
+body.u5 .badge.UNDER_REVIEW { background: var(--u5-info-bg); color: var(--u5-info) }
+body.u5 .badge.APPROVED, body.u5 .badge.PUBLISHED { background: var(--u5-ok-bg); color: var(--u5-ok) }
+body.u5 .badge.NEED_CORRECTION, body.u5 .badge.REJECTED { background: var(--u5-bad-bg); color: var(--u5-bad) }
+
+/* แถบขั้นตอน */
+body.u5 .steps { gap: 12px; font-size: 14px; color: var(--u5-ink); margin-bottom: 24px }
+body.u5 .steps > i { height: 1.5px; background: var(--u5-border) }
+body.u5 .dot { width: 28px; height: 28px; font-size: 13px; border: 1.5px solid var(--u5-border); background: var(--u5-panel) }
+body.u5 .st.cur { font-weight: 700 }
+body.u5 .st.done { color: var(--u5-ink) }
+body.u5 .st.done .dot { background: #2e7d3a; border-color: #2e7d3a }
+
+/* หน้าตรวจ: 2 คอลัมน์ */
+body.u5 .cols { display: grid; grid-template-columns: 1.6fr 1fr; gap: 20px; align-items: start }
+body.u5 .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; margin: 0 }
+body.u5 .kv.one { grid-template-columns: 1fr; gap: 12px }
+body.u5 .kv dt { font-size: 13px; color: var(--u5-mute); margin-bottom: 4px }
+body.u5 .kv dd { margin: 0; font-size: 15px; overflow-wrap: anywhere }
+body.u5 .opts { display: flex; gap: 12px; margin-bottom: 18px }
+body.u5 .opt { flex: 1; display: flex; gap: 10px; align-items: center; border: 1.5px solid var(--u5-border); border-radius: 10px; padding: 16px; font-size: 15px; color: var(--u5-ink); margin: 0; cursor: pointer }
+body.u5 .opt input { width: 18px; height: 18px; margin: 0; accent-color: var(--u5-accent) }
+body.u5 .opt:has(input:checked) { border-color: var(--u5-accent); background: var(--u5-sel) }
+body.u5 label.lab { font-size: 13px; color: var(--u5-mute); margin-bottom: 8px }
+body.u5 label.lab em { font-style: normal; color: #c62828 }
+body.u5 textarea, body.u5 input:not([type=radio]):not([type=checkbox]), body.u5 select { background: var(--u5-panel); color: var(--u5-ink); border: 1px solid var(--u5-border); border-radius: 8px; padding: 12px 14px; font-size: 14px }
+body.u5 textarea.err { border-color: #d33; background: var(--u5-errbg) }
+body.u5 .errmsg { color: #c62828; font-size: 13px; margin-top: 6px }
+body.u5 .acts { border-top: 1px solid var(--u5-soft); padding-top: 20px; margin-top: 24px; align-items: center }
+body.u5 .alert { border-radius: 8px; padding: 14px 16px; font-size: 14px; margin-bottom: 20px }
+body.u5 .alert.info { background: var(--u5-info-bg); color: var(--u5-info) }
+body.u5 .doc { display: flex; align-items: center; gap: 14px; border: 1px solid var(--u5-line); border-radius: 8px; padding: 14px 16px; margin-bottom: 10px }
+body.u5 .doc .ico { width: 36px; height: 36px; border-radius: 8px; background: var(--u5-bad-bg); color: var(--u5-bad); font-size: 11px; font-weight: 700; display: grid; place-items: center; flex: none }
+body.u5 .doc small { display: block; color: var(--u5-faint) }
+body.u5 .doc .btn { margin-left: auto }
+body.u5 .hist { display: flex; gap: 12px; margin-bottom: 14px; font-size: 14px }
+body.u5 .hist .dot { flex: none; color: #fff; border: 0; background: var(--u5-navy) }
+body.u5 .hist .dot.ok { background: #2e7d3a }
+body.u5 .hist small { display: block; color: var(--u5-mute) }
+
+/* หน้าบันทึกสำเร็จ */
+body.u5 .big { width: 72px; height: 72px; font-size: 36px; margin: 8px auto 18px; background: #2e7d3a }
+body.u5 .btnrow { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap }
+
+/* แบบฟอร์มคำร้อง */
+body.u5 .titlebar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px }
+body.u5 .frow { display: grid; grid-template-columns: 28px 1fr 170px auto auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--u5-line) }
+body.u5 .frow .no { color: var(--u5-mute); text-align: center }
+body.u5 .frow .req { display: flex; gap: 6px; align-items: center; margin: 0; white-space: nowrap; color: var(--u5-ink); font-size: 13px }
+body.u5 .frow .req input { width: auto }
+body.u5 .frow .tools { display: flex; gap: 4px }
+body.u5 .frow .tools button { border: 1px solid var(--u5-line); background: var(--u5-panel); color: var(--u5-ink); border-radius: 6px; padding: 8px 10px; cursor: pointer; font: inherit }
+body.u5 .frow .opts-in { grid-column: 2 / -1 }
+body.u5 #fieldList { margin-bottom: 12px }
+
+/* การแจ้งเตือน */
+body.u5 .notif { display: flex; gap: 14px; padding: 18px 4px; border-bottom: 1px solid var(--u5-soft); cursor: pointer }
+body.u5 .notif:last-child { border: 0 }
+body.u5 .notif .nd { width: 10px; height: 10px; border-radius: 50%; background: #e8a317; margin-top: 7px; flex: none }
+body.u5 .notif.read .nd { background: transparent }
+body.u5 .notif b { font-size: 15px }
+body.u5 .notif p { margin: 4px 0 0; font-size: 14px; color: var(--u5-mute) }
+body.u5 .notif time { margin-left: auto; font-size: 13px; color: var(--u5-faint); white-space: nowrap }
+
+/* โหมดข้อมูลตัวอย่าง + เลือกผู้ใช้ */
+body.u5 .demo-bar { background: var(--u5-warn-bg); color: var(--u5-warn); padding: 8px 68px; font-size: 13px; display: flex; gap: 12px; align-items: center }
+body.u5 .demo-bar button { background: none; border: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit }
+body.u5 .pick { display: grid; gap: 10px }
+body.u5 .pick .btn { text-align: left }
+
+@media (max-width: 760px) {
+  body.u5 header, body.u5 nav, body.u5 .demo-bar { padding-left: 16px; padding-right: 16px }
+  body.u5 nav { gap: 20px }
+  body.u5 h1 { font-size: 28px }
+  body.u5 .card { padding: 20px }
+  body.u5 .cols, body.u5 .kv { grid-template-columns: 1fr }
+  body.u5 .opts { flex-direction: column }
+  body.u5 .search { margin-left: 0; width: 100% }
+  body.u5 .frow { grid-template-columns: 24px 1fr }
+  body.u5 .frow > select, body.u5 .frow .req, body.u5 .frow .tools { grid-column: 2 }
+  body.u5 .titlebar { flex-direction: column }
+}
+
+/* U5 เพิ่มเติม: ป้ายเตือน · เลือกหลายรายการ · ช่องที่ต้องแก้ · เทียบฉบับแก้ · ตัวอย่างหน้านักศึกษา */
+body.u5 .badge.OVERDUE { background: #fff4dc; color: #a36b00; margin-left: 6px }
+body.u5 .badge.DEADLINE_SOON { background: #fdeaea; color: #b42323; margin-left: 6px }
+body.u5 .tbl tr.attn td { background: #fffaf0 }
+body.u5 .tbl .ck { width: 36px }
+body.u5 .tbl .ck input { width: 16px; height: 16px; accent-color: var(--u5-navy) }
+body.u5 .bulkbar { display: flex; gap: 12px; align-items: center; justify-content: flex-end; margin-bottom: 12px; color: var(--u5-mute) }
+body.u5 .fixfields { margin: 16px 0 4px }
+body.u5 .fixlist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px }
+body.u5 .fixlist label { display: flex; gap: 6px; align-items: center; margin: 0; border: 1px solid #cfd5df; border-radius: 16px; padding: 6px 12px; font-size: 13px; color: var(--u5-ink); cursor: pointer }
+body.u5 .fixlist input { width: auto; margin: 0; accent-color: #b42323 }
+body.u5 .preset { margin: 6px 0 8px; width: 100% }
+body.u5 .kv dd.changed { background: #fff4dc; border-radius: 6px; padding: 4px 8px }
+body.u5 .kv dd .was { display: block; font-size: 12px; color: var(--u5-mute); text-decoration: line-through }
+body.u5 .preview { border: 2px dashed #cfd5df }
+body.u5 .preview .pv-tag { display: inline-block; font-size: 12px; color: var(--u5-mute); margin-bottom: 8px }
+body.u5 .preview .fld { margin-bottom: 14px }
+body.u5 .preview .fld label em { color: #b42323; font-style: normal }

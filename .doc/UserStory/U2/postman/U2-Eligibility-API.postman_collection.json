@@ -1,32 +1,42 @@
 {
   "info": {
     "_postman_id": "b968e661-0a07-40bb-b8b7-e38250c2f5e8",
-    "name": "U2 Eligibility API",
-    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "59008006",
-    "_collection_link": "https://go.postman.co/collection/59008006-b968e661-0a07-40bb-b8b7-e38250c2f5e8?source=collection_link"
+    "name": "U2 Eligibility API - DB Validation",
+    "description": "U2:T8 ทดสอบ Eligibility API หลังแก้ให้รับ X-User-Id ตรวจนักศึกษากับตาราง students เปรียบเทียบ GPA กับฐานข้อมูล และปฏิเสธรายวิชานอกหลักสูตร\n\nค่าเริ่มต้นอ้างอิง DemoDataSeeder: studentId=6609650003, gpax=3.25 ส่วน userId เป็น primary key ภายในตาราง users/students ให้ตรวจและแก้ Collection variable userId หากฐานข้อมูลเดิมสร้างลำดับ ID ต่างจาก 5",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "01 - ผ่านคุณสมบัติ",
+      "name": "01 - ผ่านคุณสมบัติและตรงกับ DB",
       "event": [
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"ข้อมูลถูกต้อง\", function () {\r\n    const json = pm.response.json();\r\n    pm.expect(json.valid).to.eql(true);\r\n});\r\n\r\npm.test(\"ผ่านคุณสมบัติ\", function () {\r\n    const json = pm.response.json();\r\n    pm.expect(json.eligible).to.eql(true);\r\n    pm.expect(json.message).to.eql(\"ผ่านคุณสมบัติ\");\r\n});"
+              "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+              "pm.test('ข้อมูลถูกต้องและผ่านคุณสมบัติ', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(true); pm.expect(j.eligible).to.eql(true); pm.expect(j.message).to.eql('ผ่านคุณสมบัติ'); });"
             ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"studentId\": \"6809650119\",\r\n  \"curriculum\": \"66\",\r\n  \"gpax\": \"3.25\",\r\n  \"grades\": {\r\n    \"คพ.100\": \"A\",\r\n    \"คพ.101\": \"B+\",\r\n    \"คพ.102\": \"B\",\r\n    \"คพ.111\": \"A\",\r\n    \"คพ.251\": \"B+\",\r\n    \"คพ.261\": \"B\",\r\n    \"คพ.216\": \"A\"\r\n  },\r\n  \"courseStatuses\": {\r\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\r\n    \"คพ.262\": \"กำลังศึกษา\"\r\n  },\r\n  \"acknowledgements\": [\r\n    true,\r\n    true,\r\n    true\r\n  ]\r\n}",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -34,18 +44,17 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/eligibility/check",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/eligibility/check",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "eligibility",
             "check"
           ]
-        }
+        },
+        "description": ""
       },
       "response": []
     },
@@ -57,17 +66,29 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"ข้อมูลไม่ถูกต้อง\", function () {\r\n    const json = pm.response.json();\r\n\r\n    pm.expect(json.valid).to.eql(false);\r\n    pm.expect(json.eligible).to.eql(null);\r\n    pm.expect(json.message).to.eql(\"ข้อมูลไม่ถูกต้อง\");\r\n});\r\n\r\npm.test(\"พบรายการข้อมูลที่กรอกไม่ครบ\", function () {\r\n    const json = pm.response.json();\r\n\r\n    pm.expect(json.errors).to.be.an(\"array\");\r\n    pm.expect(json.errors.length).to.be.above(0);\r\n    pm.expect(json.errors).to.include(\"กรุณากรอกรหัสนักศึกษา\");\r\n    pm.expect(json.errors).to.include(\"กรุณากรอก GPA\");\r\n});"
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('พบข้อมูลไม่ครบ', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.eligible).to.eql(null); pm.expect(j.errors).to.include('กรุณากรอกรหัสนักศึกษา'); pm.expect(j.errors).to.include('กรุณากรอก GPA'); });"
             ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"studentId\": \"\",\r\n  \"curriculum\": \"66\",\r\n  \"gpax\": \"\"\r\n}",
+          "raw": "{\n  \"studentId\": \"\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"\"\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -75,18 +96,17 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/eligibility/check",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/eligibility/check",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "eligibility",
             "check"
           ]
-        }
+        },
+        "description": ""
       },
       "response": []
     },
@@ -98,17 +118,29 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"ข้อมูลผิดรูปแบบ\", function () {\r\n    const json = pm.response.json();\r\n\r\n    pm.expect(json.valid).to.eql(false);\r\n    pm.expect(json.eligible).to.eql(null);\r\n    pm.expect(json.message).to.eql(\"ข้อมูลไม่ถูกต้อง\");\r\n});\r\n\r\npm.test(\"พบข้อผิดพลาดตามที่กำหนด\", function () {\r\n    const errors = pm.response.json().errors;\r\n\r\n    pm.expect(errors).to.include(\"รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก\");\r\n    pm.expect(errors).to.include(\r\n        \"GPA ต้องเป็นตัวเลข 0.00–4.00 และมีทศนิยมไม่เกิน 2 ตำแหน่ง\"\r\n    );\r\n    pm.expect(errors).to.include(\"เกรดของวิชา คพ.100 ไม่ถูกต้อง\");\r\n    pm.expect(errors).to.include(\"สถานะของวิชา คพ.180 ไม่ถูกต้อง\");\r\n});"
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('พบข้อมูลผิดรูปแบบ', () => { const e = pm.response.json().errors; pm.expect(e).to.include('รหัสนักศึกษาต้องเป็นตัวเลข 10 หลัก'); pm.expect(e).to.include('GPA ต้องเป็นตัวเลข 0.00–4.00 และมีทศนิยมไม่เกิน 2 ตำแหน่ง'); pm.expect(e).to.include('เกรดของวิชา คพ.100 ไม่ถูกต้อง'); pm.expect(e).to.include('สถานะของวิชา คพ.180 ไม่ถูกต้อง'); });"
             ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"studentId\": \"ABC1234567\",\r\n  \"curriculum\": \"66\",\r\n  \"gpax\": \"4.50\",\r\n  \"grades\": {\r\n    \"คพ.100\": \"Z\",\r\n    \"คพ.101\": \"B+\",\r\n    \"คพ.102\": \"B\",\r\n    \"คพ.111\": \"A\",\r\n    \"คพ.251\": \"B+\",\r\n    \"คพ.261\": \"B\",\r\n    \"คพ.216\": \"A\"\r\n  },\r\n  \"courseStatuses\": {\r\n    \"คพ.180\": \"สอบผ่าน\",\r\n    \"คพ.262\": \"กำลังศึกษา\"\r\n  },\r\n  \"acknowledgements\": [\r\n    true,\r\n    true,\r\n    true\r\n  ]\r\n}",
+          "raw": "{\n  \"studentId\": \"ABC1234567\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"4.50\",\n  \"grades\": {\n    \"คพ.100\": \"Z\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"สอบผ่าน\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -116,40 +148,51 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/eligibility/check",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/eligibility/check",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "eligibility",
             "check"
           ]
-        }
+        },
+        "description": ""
       },
       "response": []
     },
     {
-      "name": "04 - ไม่ผ่านคุณสมบัติ",
+      "name": "04 - ข้อมูลถูกต้องแต่ไม่ผ่านคุณสมบัติ",
       "event": [
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"ข้อมูลมีรูปแบบถูกต้อง\", function () {\r\n    const json = pm.response.json();\r\n\r\n    pm.expect(json.valid).to.eql(true);\r\n    pm.expect(json.eligible).to.eql(false);\r\n    pm.expect(json.message).to.eql(\"ไม่ผ่านคุณสมบัติ\");\r\n});\r\n\r\npm.test(\"พบเหตุผลที่ไม่ผ่านคุณสมบัติ\", function () {\r\n    const reasons = pm.response.json().reasons;\r\n\r\n    pm.expect(reasons).to.include(\"GPA ต้องไม่ต่ำกว่า 2.75\");\r\n    pm.expect(reasons).to.include(\"คพ.100 ต้องได้เกรด C+ ขึ้นไป\");\r\n    pm.expect(reasons).to.include(\r\n        \"คพ.180 ต้องกำลังศึกษา หรือเคยศึกษาแล้ว\"\r\n    );\r\n    pm.expect(reasons).to.include(\r\n        \"ต้องยืนยันเงื่อนไขให้ครบทั้ง 3 ข้อ\"\r\n    );\r\n});"
+              "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
+              "pm.test('ไม่ผ่านพร้อมเหตุผล', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(true); pm.expect(j.eligible).to.eql(false); pm.expect(j.reasons).to.include('คพ.100 ต้องได้เกรด C+ ขึ้นไป'); pm.expect(j.reasons).to.include('คพ.180 ต้องกำลังศึกษา หรือเคยศึกษาแล้ว'); pm.expect(j.reasons).to.include('ต้องยืนยันเงื่อนไขให้ครบทั้ง 3 ข้อ'); });"
             ]
           }
         }
       ],
       "request": {
         "method": "POST",
-        "header": [],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"studentId\": \"6809650119\",\r\n  \"curriculum\": \"66\",\r\n  \"gpax\": \"2.50\",\r\n  \"grades\": {\r\n    \"คพ.100\": \"C\",\r\n    \"คพ.101\": \"B+\",\r\n    \"คพ.102\": \"B\",\r\n    \"คพ.111\": \"A\",\r\n    \"คพ.251\": \"B+\",\r\n    \"คพ.261\": \"B\",\r\n    \"คพ.216\": \"A\"\r\n  },\r\n  \"courseStatuses\": {\r\n    \"คพ.180\": \"ยังไม่เคยลง\",\r\n    \"คพ.262\": \"กำลังศึกษา\"\r\n  },\r\n  \"acknowledgements\": [\r\n    true,\r\n    false,\r\n    true\r\n  ]\r\n}",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"C\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"ยังไม่เคยลง\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    false,\n    true\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -157,20 +200,297 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/eligibility/check",
-          "protocol": "http",
+          "raw": "{{baseUrl}}/api/eligibility/check",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "eligibility",
             "check"
           ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "05 - ไม่มี X-User-Id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('ปฏิเสธเมื่อไม่มี Header', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.errors).to.include('กรุณาส่ง X-User-Id'); });"
+            ]
+          }
         }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/eligibility/check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "eligibility",
+            "check"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "06 - X-User-Id ไม่มีใน students",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('ไม่พบข้อมูลนักศึกษา', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.errors).to.include('ไม่พบข้อมูลนักศึกษาของผู้ใช้ที่เข้าสู่ระบบ'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "999999",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/eligibility/check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "eligibility",
+            "check"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "07 - ปลอมรหัสนักศึกษา",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('รหัสไม่ตรงผู้ Login', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.errors).to.include('รหัสนักศึกษาไม่ตรงกับผู้ใช้ที่เข้าสู่ระบบ'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"6609650004\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/eligibility/check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "eligibility",
+            "check"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "08 - GPA ไม่ตรงฐานข้อมูล",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('GPA ไม่ตรง DB', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.errors).to.include('GPA ไม่ตรงกับข้อมูลในฐานข้อมูล'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"3.24\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/eligibility/check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "eligibility",
+            "check"
+          ]
+        },
+        "description": ""
+      },
+      "response": []
+    },
+    {
+      "name": "09 - ส่งรายวิชานอกหลักสูตร",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400', () => pm.response.to.have.status(400));",
+              "pm.test('ปฏิเสธวิชานอกหลักสูตร', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(false); pm.expect(j.errors).to.include('รายวิชา คพ.999 ไม่อยู่ในหลักสูตร 66'); pm.expect(j.errors).to.include('รายวิชา คพ.888 ไม่อยู่ในหลักสูตร 66'); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "{{userId}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"A\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\",\n    \"คพ.999\": \"B\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"เคยศึกษาแล้ว\",\n    \"คพ.262\": \"กำลังศึกษา\",\n    \"คพ.888\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    true,\n    true\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/eligibility/check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "eligibility",
+            "check"
+          ]
+        },
+        "description": ""
       },
       "response": []
     }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "studentId",
+      "value": "6609650003",
+      "type": "string"
+    },
+    {
+      "key": "gpax",
+      "value": "3.25",
+      "type": "string"
+    }
   ]
 }
+
