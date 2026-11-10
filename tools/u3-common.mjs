@@ -90,6 +90,19 @@ export async function publishForm(name, deadline) {
 }
 
 /* เวลา server ปัจจุบัน (LocalDateTime) จาก GET /api/forms/published */
+/* Flow ใหม่: ต้องจัดอันดับบริษัท (U4) ครบ 5 อันดับก่อน หน้าเว็บจึงยอมส่งคำร้อง
+   ใช้บริษัทที่เปิดรับ 5 แห่งแรกจาก GET /api/companies (RankingDemoSeeder) บันทึกผ่าน API ของ U4 */
+export async function ensureRanked(...accs) {
+   for (const acc of accs) {
+      const mine = await api('GET', '/api/students/me/company-ranking', acc.id);
+      if (mine.status === 200 && Array.isArray(mine.data) && mine.data.length >= 5) continue;
+      const companies = await api('GET', '/api/companies', acc.id);
+      const ids = (companies.data || []).filter(c => c.status === 'OPEN').slice(0, 5).map(c => c.id);
+      const saved = await api('PUT', '/api/students/me/company-ranking', acc.id, { companyIds: ids });
+      if (saved.status !== 200) throw new Error(`จัดอันดับบริษัทให้ ${acc.username} ไม่สำเร็จ: ${saved.status} ${JSON.stringify(saved.data)}`);
+   }
+}
+
 /* ยื่นคำร้องผ่าน API ตรง (สร้าง → กรอก → แนบ PDF → ส่ง) คืนเลขที่คำร้อง ใช้เตรียมข้อมูลก่อนทดสอบ */
 export async function submitViaApi(acc, values = ANSWERS) {
    const created = await api('POST', '/api/requests', acc.id, {});

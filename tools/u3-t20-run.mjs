@@ -24,7 +24,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
    OUT, API, ACC, PDF, ANSWERS, sh, sleep, api, backendUp, publishForm, serverTime, addSeconds, submitViaApi,
-   startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, shot
+   ensureRanked, startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, shot
 } from './u3-common.mjs';
 
 const PORT = Number(process.env.T20_PORT) || 5597;
@@ -99,6 +99,7 @@ async function main() {
       console.error('❌ เรียก backend ที่ ' + API + ' ไม่ได้ (รัน docker compose up -d --build ก่อน)');
       process.exit(1);
    }
+   await ensureRanked(ACC.s3, ACC.s4, ACC.s6);   // flow ใหม่: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่นคำร้อง
    const { server, base } = await startStatic(PORT);
    const kind = process.env.U3_BROWSER || 'msedge';
    const browser = kind === 'chromium' ? await chromium.launch() : await chromium.launch({ channel: kind });

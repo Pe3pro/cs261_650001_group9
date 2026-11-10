@@ -50,12 +50,16 @@ const FORM = {
 const PUBLISHED = { form: FORM, serverTime: '2026-10-20T10:00:00', deadlinePassed: false };
 const req = (status, extra = {}) => ({ id: 500, studentId: '6609650001', formTemplateId: 10, status, answers: {}, documents: [], ...extra });
 const ERR = (code, message) => ({ code, message });
+/* อันดับบริษัท (U4) ที่บันทึกแล้ว: ครบ 5 อันดับ = ยื่นได้ */
+const RANKED = n => Array.from({ length: n }, (_, i) => ({ rank: i + 1, companyId: i + 1, companyName: 'บริษัท ' + (i + 1) }));
+const RANKED5 = RANKED(5);
 const PROFILE = { studentId: '6609650001', fullName: 'A arizona', email: 'arizona@dome.tu.ac.th',
    faculty: 'วิทยาศาสตร์และเทคโนโลยี', major: 'วิทยาการคอมพิวเตอร์', gpa: 3.1 };
 const OK_ROUTES = {
    'GET /api/students/me': [200, PROFILE],
    'GET /api/forms/published': [200, PUBLISHED],
    'GET /api/requests/me': [200, []],
+   'GET /api/students/me/company-ranking': [200, RANKED5],
    'POST /api/requests': [201, req('DRAFT')],
    'PUT /api/requests/500/form': [200, req('DRAFT')],
    'POST /api/requests/500/documents': [201, { id: 7, fileName: 'transcript.pdf', status: 'UPLOADED' }],
@@ -300,13 +304,13 @@ test('UI-17', 'ยื่นสำเร็จ → กดดูอันดับ
    await p.fillAll();
    await p.attach('transcript.pdf');
    await p.send();
-   assert.equal(await p.text('#sNext'), 'ดูอันดับบริษัท');
+   assert.equal(await p.text('#sNext'), 'ดูอันดับบริษัทที่เลือก');
    await p.$('#sNext').click();
    await p.page.waitForURL('**/ranking.html');
    assert.equal((await p.state()).unlocked, 3);
    const link = p.page.locator('nav a[href="ranking.html"]');
    assert.equal(await link.getAttribute('aria-disabled'), null);
-   return 'ปุ่ม "ดูอันดับบริษัท" → ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
+   return 'ปุ่ม "ดูอันดับบริษัทที่เลือก" → ไปที่ ranking.html · coop-state.unlocked = 3 · เมนูจับคู่บริษัทไม่ถูกปิด';
 });
 
 test('UI-18', 'กดยกเลิก → กลับไปหน้าตรวจสอบคุณสมบัติ', async b => {
@@ -363,7 +367,7 @@ test('UI-22', '(Flow จัดอันดับก่อนยื่น) เข
    assert.equal(await link.evaluate(a => a.classList.contains('disabled')), false);
    assert.equal((await p.state()).unlocked, 3);
    assert.equal(await p.visible('#s_rank'), true);
-   assert.match(await p.text('#s_rank'), /ยื่นคำร้องแล้วจะแก้ไขอันดับบริษัทไม่ได้/);
+   assert.match(await p.text('#s_rank'), /จัดอันดับบริษัทให้ครบ 5 อันดับก่อนยื่น\s+ยื่นแล้วแก้ไม่ได้/);
    return 'เมนูจับคู่บริษัทไม่ถูกปิด · coop-state.unlocked = 3 · แสดง "' + await p.text('#s_rank') + '"';
 });
 
@@ -372,6 +376,34 @@ test('UI-23', '(Flow จัดอันดับก่อนยื่น) มี
    assert.equal(await p.$('#btnSend').isDisabled(), true);
    assert.equal(await p.visible('#s_rank'), false);
    return 'ปุ่มส่งถูกปิด · ซ่อนข้อความเตือนเรื่องจัดอันดับ';
+});
+
+test('UI-24', '(Flow จัดอันดับก่อนยื่น) ยังจัดอันดับไม่ครบ 5 อันดับ → แจ้งเตือนพร้อมลิงก์ไปหน้าจัดอันดับ และไม่ส่งคำร้อง', async b => {
+   const p = await open(b, { 'GET /api/students/me/company-ranking': [200, RANKED(3)] });
+   await p.fillAll();
+   await p.attach('transcript.pdf');
+   await p.send();
+   const err = await p.text('#s_err');
+   assert.match(err, /กรุณาจัดอันดับบริษัทให้ครบ 5 อันดับก่อนยื่นคำร้อง/);
+   assert.equal(await p.$('#s_err a[href="ranking.html"]').count(), 1);
+   assert.ok(p.keys().includes('GET /api/students/me/company-ranking'));
+   assert.deepEqual(p.posts(), []);
+   assert.equal(await p.visible('#vForm'), true);
+   return 'จัดอันดับไว้ 3 อันดับ → แจ้ง "' + err + '" มีลิงก์ไป ranking.html · ไม่เรียก POST/PUT ใด ๆ อยู่หน้ากรอกข้อมูล';
+});
+
+test('UI-25', '(Flow จัดอันดับก่อนยื่น) ยังไม่เคยจัดอันดับ → แจ้งเตือนและไม่ส่ง · จัดครบแล้วส่งได้ตามปกติ', async b => {
+   const p = await open(b, { 'GET /api/students/me/company-ranking': [200, []] });
+   await p.fillAll();
+   await p.attach('transcript.pdf');
+   await p.send();
+   assert.match(await p.text('#s_err'), /จัดอันดับบริษัทให้ครบ 5 อันดับ/);
+   assert.deepEqual(p.posts(), []);
+   p.routes['GET /api/students/me/company-ranking'] = [200, RANKED5];
+   await p.send();
+   assert.equal(await p.cls('#sAlert'), 'alert ok');
+   assert.deepEqual(p.posts(), SUBMIT_CALLS);
+   return 'ไม่มีอันดับ → แจ้งเตือน ไม่ส่ง · จัดครบ 5 อันดับแล้วกดส่งอีกครั้ง → ' + p.posts().join(' → ') + ' สำเร็จ';
 });
 
 /* ---------- main ---------- */

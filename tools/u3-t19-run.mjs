@@ -23,7 +23,7 @@ import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {
    OUT, API, ACC, PDF, ANSWERS, sh, sleep, api, backendUp, publishForm, serverTime, addSeconds,
-   startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, apiLog, shot
+   ensureRanked, startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, apiLog, shot
 } from './u3-common.mjs';
 
 const PORT = Number(process.env.T19_PORT) || 5596;
@@ -54,6 +54,7 @@ async function main() {
       console.error('❌ เรียก backend ที่ ' + API + ' ไม่ได้');
       process.exit(1);
    }
+   await ensureRanked(ACC.s3, ACC.s4);   // flow ใหม่: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่นคำร้อง
    const { server, base } = await startStatic(PORT);
    const browser = await chromium.launch();
    console.log(`U3:T19 System test · ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })} · Chromium ${browser.version()} · API ${API}`);

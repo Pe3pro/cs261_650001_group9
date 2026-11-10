@@ -1079,7 +1079,7 @@ function initSubmit() {
    let busy = false;        // กันกดส่งซ้ำ
    let locked = false;      // ยื่นไม่ได้ (ยื่นซ้ำ / หมดเขต / ยื่นสำเร็จแล้ว)
 
-   /* Flow ที่ทีมตกลง: ผ่าน U2 → จัดอันดับบริษัท (U4) → ยื่นคำร้อง (U3)
+   /* Flow ใหม่ (U3/T13, T14): ผ่าน U2 → จัดอันดับบริษัท (U4) → ยื่นคำร้อง (U3)
       backend U4 ล็อกอันดับทันทีที่คำร้องเป็น SUBMITTED/UNDER_REVIEW/APPROVED (409 RANKING_LOCKED)
       จึงเปิดเมนูจับคู่บริษัทตั้งแต่เข้าหน้ายื่นคำร้อง ไม่ต้องรอยื่นเสร็จ */
    S.unlocked = Math.max(S.unlocked, NEED.ranking);
@@ -1324,6 +1324,23 @@ function initSubmit() {
       return out;
    }
 
+   /* Flow: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่น เพราะยื่นแล้ว backend U4 ล็อกอันดับ (409 RANKING_LOCKED)
+      คืน true ถ้าจัดครบ RANK_COUNT อันดับแล้ว · API อันดับตอบอย่างอื่น (เช่น 403) → ปล่อยให้ API ของ U3 ตัดสินตอนส่ง */
+   const RANK_COUNT = 5;
+   async function rankingReady() {
+      const r = await call('/api/students/me/company-ranking');
+      if (r.status !== 200 || !Array.isArray(r.data)) return true;
+      return r.data.length >= RANK_COUNT;
+   }
+
+   function needRanking() {
+      backToForm('กรุณาจัดอันดับบริษัทให้ครบ ' + RANK_COUNT + ' อันดับก่อนยื่นคำร้อง (ยื่นแล้วจะแก้ไขอันดับไม่ได้)');
+      const link = document.createElement('a');
+      link.href = 'ranking.html';
+      link.textContent = 'ไปจัดอันดับบริษัท';
+      $('#s_err').append(' ', link);
+   }
+
    /* ส่งคำร้อง: สร้าง (ถ้ายังไม่มี) → บันทึกคำตอบ → แนบไฟล์ (ถ้าเลือก) → ยื่น
       ไม่ได้แนบไฟล์ → ให้ API ตรวจและตอบ 400 MISSING_DOCUMENT */
    async function send() {
@@ -1346,6 +1363,7 @@ function initSubmit() {
       setStepper(2);
       show('vLoad');
       try {
+         if (!(await rankingReady())) return needRanking();
          if (!form) {
             const pub = await call('/api/forms/published');
             if (pub.status !== 200) return fail(pub);
