@@ -596,7 +596,7 @@ main.wide {
     margin-top: 4px
 }
 
-.hist {
+.wl-hist {
     display: grid;
     grid-template-columns: 1fr 1.2fr 1fr;
     gap: 8px;
@@ -611,22 +611,22 @@ main.wide {
     text-align: left
 }
 
-button.hist {
+button.wl-hist {
     cursor: pointer
 }
 
-button.hist:hover,
-button.hist.cur {
+button.wl-hist:hover,
+button.wl-hist.cur {
     background: var(--field)
 }
 
-.hist.head {
+.wl-hist.head {
     font-size: 12px;
     color: var(--mute);
     padding-top: 0
 }
 
-.hist small {
+.wl-hist small {
     color: var(--mute)
 }
 
@@ -654,6 +654,87 @@ button.hist.cur {
     color: var(--warnink)
 }
 
+.g4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px
+}
+
+.wl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px
+}
+
+.wl-head h2 {
+    margin: 0
+}
+
+.btn.sm {
+    padding: 6px 12px;
+    font-size: 12px
+}
+
+.btn.danger {
+    color: var(--bad);
+    border-color: var(--bad)
+}
+
+.wl-files {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0
+}
+
+.wl-files li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px
+}
+
+.wl-files a,
+.wl-files button.link {
+    color: var(--navy);
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: left
+}
+
+.wl-files button.del {
+    color: var(--bad)
+}
+
+.wl-sum {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px
+}
+
+.wl-sum small {
+    display: block;
+    color: var(--mute);
+    font-size: 11px
+}
+
+.wl-sum b {
+    font-size: 18px
+}
+
+.wl-note {
+    margin: 10px 0 0;
+    font-size: 12px
+}
+
 @media (max-width:900px) {
     .wl {
         grid-template-columns: 1fr
@@ -661,7 +742,9 @@ button.hist.cur {
 }
 
 @media (max-width:700px) {
-    .g3 {
-        grid-template-columns: 1fr
+
+    .g3,
+    .g4 {
+        grid-template-columns: 1fr 1fr
     }
 }

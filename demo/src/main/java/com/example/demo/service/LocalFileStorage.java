@@ -32,6 +32,26 @@ public class LocalFileStorage implements FileStorage {
         }
     }
 
+    /** U8: เก็บไฟล์แนบ (รูป / PDF) ใต้โฟลเดอร์ที่กำหนด ชื่อไฟล์สุ่มด้วย UUID คงนามสกุลเดิมไว้ */
+    @Override
+    public String store(String folder, String fileName, byte[] content) {
+        String safeFolder = folder == null ? "files" : folder.replaceAll("[^A-Za-z0-9/_-]", "");
+        String ext = "";
+        int dot = fileName == null ? -1 : fileName.lastIndexOf('.');
+        if (dot >= 0) {
+            ext = fileName.substring(dot).toLowerCase(java.util.Locale.ROOT).replaceAll("[^.a-z0-9]", "");
+        }
+        String key = safeFolder + "/" + UUID.randomUUID() + ext;
+        try {
+            Path target = resolve(key);
+            Files.createDirectories(target.getParent());
+            Files.write(target, content);
+            return key;
+        } catch (IOException e) {
+            throw new StorageException("บันทึกไฟล์ไม่สำเร็จ", e);
+        }
+    }
+
     @Override
     public byte[] load(String storageKey) {
         try {

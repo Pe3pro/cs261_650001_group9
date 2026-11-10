@@ -39,6 +39,10 @@ public class User {
     @Column(nullable = false)
     private Boolean active = true;
 
+    /** U8: อาจารย์ที่ปรึกษาของนักศึกษา (USERS.id) ใช้ตรวจสิทธิ์ตรวจบันทึกการทำงาน */
+    @Column(name = "advisor_id")
+    private Long advisorId;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -71,4 +75,6 @@ public class User {
     public Boolean getActive() { return active; }
     public void setActive(Boolean active) { this.active = active; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public Long getAdvisorId() { return advisorId; }
+    public void setAdvisorId(Long advisorId) { this.advisorId = advisorId; }
 }

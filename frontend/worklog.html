@@ -18,45 +18,43 @@
     <main class="wide">
         <span class="tag">US8 · Priority High</span>
         <h1>บันทึกการทำงาน</h1>
-        <p class="sub">บันทึกการทำงานรายสัปดาห์และส่งรายงานประจำเดือน เพื่อสะสมหลักฐานการฝึกงานและให้อาจารย์ติดตามความคืบหน้า</p>
+        <p class="sub">บันทึกการทำงานประจำวันระหว่างฝึกงาน แล้วส่งให้อาจารย์ที่ปรึกษาตรวจ เพื่อสะสมหลักฐานการฝึกงานและให้อาจารย์ติดตามความคืบหน้า</p>
 
-        <div class="alert warn box" id="wDue" role="note"><b id="wDueTitle"></b><span>ส่งหลังเวลานี้ระบบจะแจ้งเตือนว่า
-                "ส่งล่าช้า" และอาจารย์จะเห็นสถานะนี้</span></div>
+        <div class="alert warn box" id="wDue" role="note"><b id="wDueTitle">กำหนดส่งบันทึก</b><span>ส่งบันทึกภายใน 3
+                วันหลังวันที่ทำงาน ส่งหลังจากนั้นระบบจะแสดงสถานะ "ส่งล่าช้า" และอาจารย์จะเห็นสถานะนี้</span></div>
+        <div id="wState" class="alert bad" role="alert" hidden></div>
 
         <div class="wl">
             <div>
-                <section class="card wl-card">
-                    <h2>บันทึกประจำสัปดาห์</h2>
-                    <div class="g3">
-                        <div class="fld"><label for="wWeek">สัปดาห์ที่</label><select id="wWeek"></select></div>
-                        <div class="fld"><label for="wRange">ช่วงวันที่</label><input id="wRange" readonly
-                                placeholder="[วันที่เริ่ม] - [วันที่สิ้นสุด]"></div>
-                        <div class="fld"><label for="wHours">จำนวนชั่วโมงทำงาน</label><input id="wHours" type="number"
-                                min="0" step="0.5" inputmode="decimal" placeholder="[ชั่วโมง]"></div>
+                <section class="card wl-card" id="wForm">
+                    <div class="wl-head">
+                        <h2 id="wFormTitle">บันทึกประจำวัน</h2><button class="btn ghost sm" id="wNew"
+                            type="button">เพิ่มบันทึกใหม่</button>
+                    </div>
+                    <div id="wReview" class="alert bad box" role="status" hidden><b>อาจารย์ขอให้แก้ไข</b><span
+                            id="wReviewText"></span></div>
+                    <div class="g4">
+                        <div class="fld"><label for="wDate">วันที่</label><input id="wDate" type="date"></div>
+                        <div class="fld"><label for="wStart">เวลาเริ่ม</label><input id="wStart" type="time"></div>
+                        <div class="fld"><label for="wEnd">เวลาสิ้นสุด</label><input id="wEnd" type="time"></div>
+                        <div class="fld"><label for="wHours">จำนวนชั่วโมงทำงาน</label><input id="wHours" readonly
+                                placeholder="[ชั่วโมง]"></div>
                     </div>
                     <div class="fld"><label for="wTask">งานที่ได้รับมอบหมายและสิ่งที่ปฏิบัติ</label><textarea id="wTask"
-                            rows="4" placeholder="อธิบายงานที่ทำในสัปดาห์นี้..."></textarea></div>
+                            rows="4" maxlength="2000" placeholder="อธิบายงานที่ทำในวันนี้..."></textarea></div>
                     <div class="fld"><label for="wSkill">ทักษะ / สิ่งที่ได้เรียนรู้</label><textarea id="wSkill"
-                            rows="3" placeholder="สรุปสิ่งที่ได้เรียนรู้..."></textarea></div>
+                            rows="3" maxlength="2000" placeholder="สรุปสิ่งที่ได้เรียนรู้..."></textarea></div>
                     <div class="fld"><label for="wProb">ปัญหาและอุปสรรค (ถ้ามี)</label><textarea id="wProb" rows="2"
-                            placeholder="ระบุปัญหาที่พบ..."></textarea></div>
-                    <div class="fld"><label for="wFile">ไฟล์แนบ (ถ้ามี)</label><input id="wFile" type="file"
-                            accept=".pdf,.jpg,.jpeg,application/pdf,image/jpeg"><small id="wFileNote" class="mute"
-                            hidden></small></div>
+                            maxlength="2000" placeholder="ระบุปัญหาที่พบ..."></textarea></div>
+                    <div class="fld"><label for="wFile">ไฟล์แนบ (ถ้ามี) · รูป JPG/PNG หรือ PDF ไม่เกิน 10 MB สูงสุด 5
+                            ไฟล์</label><input id="wFile" type="file" multiple
+                            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+                        <ul id="wFiles" class="wl-files"></ul>
+                    </div>
                     <div id="wErr" class="alert bad" role="alert" hidden></div>
                     <div class="wl-acts"><button class="btn" id="wSend" type="button">ส่งบันทึก</button><button
-                            class="btn ghost" id="wDraft" type="button">บันทึกแบบร่าง</button></div>
-                </section>
-
-                <section class="card wl-card">
-                    <h2>รายงานประจำเดือน</h2>
-                    <div class="g2">
-                        <div class="fld"><label for="wMonth">เดือน</label><select id="wMonth"></select></div>
-                        <div class="fld"><label for="wMFile">ไฟล์รายงาน</label><input id="wMFile" type="file"
-                                accept=".pdf,application/pdf"></div>
-                    </div>
-                    <div id="wMMsg" class="alert" role="status" hidden></div>
-                    <div class="wl-acts"><button class="btn" id="wMSend" type="button">ส่งรายงานประจำเดือน</button></div>
+                            class="btn ghost" id="wDraft" type="button">บันทึกแบบร่าง</button><button
+                            class="btn ghost danger" id="wDelete" type="button" hidden>ลบบันทึกร่าง</button></div>
                 </section>
             </div>
 
@@ -68,8 +66,17 @@
                 <div id="wSaved" class="alert warn box" role="status" hidden><b>บันทึกฉบับร่างแล้ว</b><span>อาจารย์ยังไม่เห็นบันทึกนี้
                         จนกว่าจะกดส่งบันทึก</span></div>
                 <section class="card wl-card">
+                    <h2>สรุปบันทึก</h2>
+                    <div class="wl-sum">
+                        <div><small>ชั่วโมงสะสม</small><b id="sumHours">-</b></div>
+                        <div><small>วันที่บันทึก / วันทำงาน</small><b id="sumDays">-</b></div>
+                        <div><small>วันที่ขาดบันทึก</small><b id="sumMissing">-</b></div>
+                    </div>
+                    <p id="sumMissingList" class="mute wl-note" hidden></p>
+                </section>
+                <section class="card wl-card">
                     <h2>ประวัติการส่งบันทึก</h2>
-                    <div class="hist head"><span>สัปดาห์</span><span>สถานะ</span><span>อาจารย์</span></div>
+                    <div class="wl-hist head"><span>วันที่</span><span>สถานะ</span><span>ชั่วโมง</span></div>
                     <div id="wHist"></div>
                 </section>
             </aside>

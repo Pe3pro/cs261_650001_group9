@@ -37,12 +37,6 @@ const DEF = {
         B: '',
         C: '',
         D: ''
-    },
-
-    // US8: บันทึกรายสัปดาห์ { [สัปดาห์]: {...} } และรายงานประจำเดือน { 'YYYY-MM': {...} }
-    worklog: {
-        weeks: {},
-        months: {}
     }
 };
 
@@ -75,11 +69,6 @@ function load() {
             prio: {
                 ...defaults.prio,
                 ...(stored.prio || {})
-            },
-
-            worklog: {
-                weeks: (stored.worklog && stored.worklog.weeks) || {},
-                months: (stored.worklog && stored.worklog.months) || {}
             }
         };
     } catch (error) {
@@ -1426,293 +1415,457 @@ function initRanking() {
 
 /* =========================================================
    หน้าบันทึกการทำงาน (US8)
+   API (ดู .doc/UserStory/U8/us8-01-api-spec.png) · ทุก request ส่ง header X-User-Id
+   GET  /api/internships/me                         หา internshipId ของนักศึกษา
+   GET  /api/internships/{id}/work-logs              ประวัติบันทึก
+   GET  /api/internships/{id}/work-logs/summary      สรุปชั่วโมง / วันที่ขาดบันทึก
+   POST /api/internships/{id}/work-logs              สร้างบันทึกฉบับร่าง
+   GET / PUT / DELETE /api/work-logs/{id}            รายละเอียด / แก้ไข / ลบ (เฉพาะ DRAFT)
+   POST /api/work-logs/{id}/submit                   ส่งให้อาจารย์ตรวจ
+   POST / GET / DELETE /api/work-logs/{id}/attachments[/{attachmentId}]
    ========================================================= */
 const WL = {
-   start: '2026-10-12',          // วันจันทร์แรกของการฝึก (สัปดาห์ที่ 1)
-   weeks: 16,                    // จำนวนสัปดาห์ทั้งหมด
-   maxHours: 84,                 // ไม่เกิน 12 ชม./วัน × 7 วัน
-   maxFile: 5 * 1024 * 1024,     // ไฟล์แนบไม่เกิน 5 MB
-   weekFile: /\.(pdf|jpe?g)$/i,
-   monthFile: /\.pdf$/i
+   api: () => window.U8_API_BASE || 'http://localhost:8080',
+   minHours: 0.5,
+   maxHours: 12,
+   maxText: 2000,
+   maxFile: 10 * 1024 * 1024,
+   maxFiles: 5,
+   lateDays: 3,
+   fileTypes: /\.(pdf|jpe?g|png)$/i
 };
 
 const WL_STATUS = {
    DRAFT: ['ฉบับร่าง', 'draft'],
    SUBMITTED: ['ส่งแล้ว', 'ok'],
    LATE: ['ส่งล่าช้า', 'bad'],
-   REVISION_REQUESTED: ['ขอให้แก้ไข', 'draft'],
-   REVIEWED: ['ตรวจแล้ว', 'ok']
+   NEED_REVISION: ['ขอให้แก้ไข', 'bad'],
+   APPROVED: ['อนุมัติแล้ว', 'ok']
 };
 
-function initWorklog() {
-   const W = S.worklog;
-   const DAY = 864e5;
-   const base = new Date(WL.start + 'T00:00:00');
-   const now = () => new Date();
+/** ชั่วโมงจากเวลา "HH:MM" ทศนิยม 2 ตำแหน่ง · เวลาไม่ครบหรือสิ้นสุดไม่หลังเวลาเริ่ม = null */
+function wlHours(start, end) {
+   if (!start || !end) return null;
+   const toMin = t => {
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+   };
+   const minutes = toMin(end) - toMin(start);
+   return minutes > 0 ? Math.round(minutes / 60 * 100) / 100 : null;
+}
 
-   const fmt = d => d.toLocaleDateString('th-TH', {
+/** วันที่ท้องถิ่นรูปแบบ YYYY-MM-DD */
+function wlIso(date) {
+   const pad = n => String(n).padStart(2, '0');
+   return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+}
+
+function wlThaiDate(iso) {
+   if (!iso) return '-';
+   return new Date(iso + 'T00:00:00').toLocaleDateString('th-TH', {
       day: 'numeric', month: 'short', year: 'numeric'
    });
-   const weekStart = n => new Date(base.getTime() + (n - 1) * 7 * DAY);
-   const weekEnd = n => new Date(weekStart(n).getTime() + 6 * DAY);
-   const deadline = n => {
-      const d = weekEnd(n);
-      d.setHours(23, 59, 59, 999);
-      return d;
-   };
-   // แก้ไขได้เฉพาะ DRAFT หรือ REVISION_REQUESTED (UC8-2)
-   const editable = e => !e || ['DRAFT', 'REVISION_REQUESTED'].includes(e.status);
+}
 
-   const week = $('#wWeek');
+function initWorklog() {
    const fields = {
-      hours: $('#wHours'),
-      task: $('#wTask'),
-      skill: $('#wSkill'),
-      prob: $('#wProb')
+      logDate: $('#wDate'),
+      startTime: $('#wStart'),
+      endTime: $('#wEnd'),
+      activity: $('#wTask'),
+      learning: $('#wSkill'),
+      problem: $('#wProb')
    };
-   const file = $('#wFile');
-   const sideAlerts = ['wOk', 'wLate', 'wSaved'];
+   const fileInput = $('#wFile');
 
-   /* ---------- ตัวเลือกสัปดาห์ (ยังไม่ถึงสัปดาห์ = เลือกไม่ได้) ---------- */
-   const today = now();
-   const current = Math.min(
-      Math.max(Math.floor((today - base) / (7 * DAY)) + 1, 1),
-      WL.weeks
-   );
+   let internship = null;   // { id, startDate, endDate, status }
+   let logs = [];           // ประวัติบันทึก (WorkLogResponse)
+   let current = null;      // บันทึกที่เปิดอยู่ (WorkLogDetailResponse) · null = บันทึกใหม่
+   let busy = false;        // กันกดซ้ำ
 
-   for (let n = 1; n <= WL.weeks; n++) {
-      const option = document.createElement('option');
-      option.value = n;
-      option.textContent = 'สัปดาห์ที่ ' + n;
-      option.disabled = weekStart(n) > today;
-      week.append(option);
+   /* ---------- เรียก API ---------- */
+   function userId() {
+      try {
+         const u5 = JSON.parse(sessionStorage.getItem('u5-user') || 'null');
+         if (u5 && u5.id != null) return String(u5.id);
+         const u1 = JSON.parse(sessionStorage.getItem('u1-auth') || 'null');
+         return u1 && u1.userId != null ? String(u1.userId) : '';
+      } catch (e) {
+         return '';
+      }
    }
-   week.value = current;
 
+   async function call(path, method = 'GET', body) {
+      const headers = { 'X-User-Id': userId() };
+      let payload;
+      if (body instanceof FormData) {
+         payload = body;
+      } else if (body !== undefined) {
+         headers['Content-Type'] = 'application/json';
+         payload = JSON.stringify(body);
+      }
+      const res = await fetch(WL.api() + path, { method, headers, body: payload });
+      let data = null;
+      try {
+         data = await res.json();
+      } catch (e) {
+         data = null;
+      }
+      return { status: res.status, data };
+   }
+
+   const message = (res, fallback) =>
+      (res.data && res.data.message) || fallback;
+
+   /* ---------- ข้อความบนหน้า ---------- */
    function hideSide() {
-      sideAlerts.forEach(id => { $('#' + id).hidden = true; });
+      ['#wOk', '#wLate', '#wSaved'].forEach(s => { $(s).hidden = true; });
    }
 
-   function showError(messages) {
-      const box = $('#wErr');
-      box.hidden = !messages.length;
-      box.textContent = messages.join(' · ');
+   function showError(text) {
+      $('#wErr').hidden = !text;
+      $('#wErr').textContent = text || '';
    }
 
-   /* ---------- แสดงข้อมูลของสัปดาห์ที่เลือก ---------- */
-   function show() {
-      const n = Number(week.value);
-      const entry = W.weeks[n];
+   function showState(text) {
+      $('#wState').hidden = !text;
+      $('#wState').textContent = text || '';
+   }
 
-      $('#wRange').value = fmt(weekStart(n)) + ' - ' + fmt(weekEnd(n));
-      $('#wDueTitle').textContent =
-         'กำหนดส่งบันทึกสัปดาห์ที่ ' + n + ': ' + fmt(deadline(n)) + ' เวลา 23:59';
+   function setBusy(value) {
+      busy = value;
+      $('#wSend').textContent = value ? 'กำลังบันทึก...' : 'ส่งบันทึก';
+      lockForm();
+   }
 
-      Object.entries(fields).forEach(([key, el]) => {
-         el.value = entry ? (entry[key] ?? '') : '';
-         el.disabled = !editable(entry);
+   /* แก้ได้เฉพาะบันทึกใหม่ / DRAFT / NEED_REVISION ของการฝึกงานที่ IN_PROGRESS */
+   function editable() {
+      const open = internship && internship.status === 'IN_PROGRESS';
+      return Boolean(open && (!current || ['DRAFT', 'NEED_REVISION'].includes(current.status)));
+   }
+
+   function lockForm() {
+      const canEdit = editable() && !busy;
+      Object.values(fields).forEach(el => { el.disabled = !canEdit; });
+      // แก้บันทึกเดิมได้ แต่ห้ามเปลี่ยนวันที่ไปทับวันอื่น จึงล็อกวันที่ไว้
+      fields.logDate.disabled = !canEdit || Boolean(current);
+      fileInput.disabled = !canEdit;
+      $('#wSend').disabled = !canEdit;
+      $('#wDraft').disabled = !canEdit;
+      $('#wDelete').hidden = !(current && current.status === 'DRAFT');
+      $('#wDelete').disabled = busy;
+      $('#wNew').disabled = busy || !internship;
+   }
+
+   /* ---------- กำหนดส่ง + ชั่วโมง ---------- */
+   function updateDue() {
+      const date = fields.logDate.value;
+      if (!date) {
+         $('#wDueTitle').textContent = 'กำหนดส่งบันทึก';
+         return;
+      }
+      const due = new Date(date + 'T00:00:00');
+      due.setDate(due.getDate() + WL.lateDays);
+      $('#wDueTitle').textContent = 'กำหนดส่งบันทึกวันที่ ' + wlThaiDate(date) + ': '
+         + wlThaiDate(wlIso(due)) + ' เวลา 23:59';
+   }
+
+   function updateHours() {
+      const hours = wlHours(fields.startTime.value, fields.endTime.value);
+      $('#wHours').value = hours == null ? '' : hours.toFixed(2).replace(/\.?0+$/, '') + ' ชั่วโมง';
+   }
+
+   /* ---------- ฟอร์ม ---------- */
+   function fillForm(detail) {
+      current = detail;
+      const today = wlIso(new Date());
+      fields.logDate.value = detail ? detail.logDate : (fields.logDate.value || today);
+      fields.startTime.value = detail ? String(detail.startTime || '').slice(0, 5) : '';
+      fields.endTime.value = detail ? String(detail.endTime || '').slice(0, 5) : '';
+      fields.activity.value = detail ? detail.activity || '' : '';
+      fields.learning.value = detail ? detail.learning || '' : '';
+      fields.problem.value = detail ? detail.problem || '' : '';
+      fileInput.value = '';
+
+      $('#wFormTitle').textContent = detail
+         ? 'บันทึกวันที่ ' + wlThaiDate(detail.logDate) + ' · ' + statusLabel(detail)[0]
+         : 'บันทึกประจำวัน';
+
+      const revise = detail && detail.status === 'NEED_REVISION';
+      $('#wReview').hidden = !(detail && detail.reviewComment);
+      $('#wReview b').textContent = revise ? 'อาจารย์ขอให้แก้ไข' : 'ความเห็นจากอาจารย์';
+      $('#wReviewText').textContent = detail && detail.reviewComment
+         ? detail.reviewComment + (detail.reviewerName ? ' (' + detail.reviewerName + ')' : '')
+         : '';
+
+      renderFiles();
+      updateHours();
+      updateDue();
+      showError('');
+      lockForm();
+      renderHistory();
+   }
+
+   function renderFiles() {
+      const list = $('#wFiles');
+      list.textContent = '';
+      const files = current && current.attachments ? current.attachments : [];
+      files.forEach(file => {
+         const li = document.createElement('li');
+         const open = document.createElement('button');
+         open.type = 'button';
+         open.className = 'link';
+         open.textContent = file.fileName;
+         open.onclick = () => window.open(WL.api() + '/api/work-logs/' + current.id + '/attachments/'
+            + file.id + '?userId=' + encodeURIComponent(userId()), '_blank');
+         li.append(open);
+         if (editable()) {
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'link del';
+            del.textContent = 'ลบไฟล์';
+            del.dataset.attachment = file.id;
+            del.onclick = () => removeFile(file.id);
+            li.append(del);
+         }
+         list.append(li);
       });
-
-      file.value = '';
-      file.disabled = !editable(entry);
-
-      const note = $('#wFileNote');
-      note.hidden = !(entry && entry.file);
-      note.textContent = entry && entry.file ? 'ไฟล์ที่แนบไว้: ' + entry.file : '';
-
-      $('#wSend').disabled = !editable(entry);
-      $('#wDraft').disabled = !editable(entry);
-
-      showError([]);
-      history();
    }
 
-   /* ---------- ตรวจข้อมูล: ร่างไม่บังคับช่อง แต่ค่าที่กรอกต้องถูกต้อง ---------- */
-   function validate(submit) {
-      const errors = [];
-      const hoursText = fields.hours.value.trim();
-      const hours = Number(hoursText);
-
-      if (submit && !hoursText) {
-         errors.push('กรุณากรอกจำนวนชั่วโมงทำงาน');
-      } else if (hoursText && (!Number.isFinite(hours) || hours <= 0 || hours > WL.maxHours)) {
-         errors.push('จำนวนชั่วโมงต้องมากกว่า 0 และไม่เกิน ' + WL.maxHours + ' ชั่วโมง');
+   /** ตรวจข้อมูลก่อนเรียก API (ฝั่ง API ตรวจซ้ำอีกครั้ง) คืนข้อความ error แรกที่เจอ */
+   function validate() {
+      const v = key => fields[key].value.trim();
+      const today = wlIso(new Date());
+      if (!v('logDate')) return 'กรุณาเลือกวันที่';
+      if (v('logDate') > today) return 'ไม่สามารถบันทึกวันที่ในอนาคตได้';
+      if (internship && (v('logDate') < internship.startDate
+         || (internship.endDate && v('logDate') > internship.endDate))) {
+         return 'วันที่ต้องอยู่ในช่วงฝึกงาน';
       }
-
-      if (submit && !fields.task.value.trim()) {
-         errors.push('กรุณากรอกงานที่ได้รับมอบหมายและสิ่งที่ปฏิบัติ');
+      if (!v('startTime') || !v('endTime')) return 'กรุณากรอกเวลาเริ่มและเวลาสิ้นสุด';
+      const hours = wlHours(v('startTime'), v('endTime'));
+      if (hours == null) return 'เวลาสิ้นสุดต้องหลังเวลาเริ่ม';
+      if (hours < WL.minHours || hours > WL.maxHours) return 'ชั่วโมงทำงานต้องอยู่ระหว่าง 0.5 ถึง 12 ชั่วโมง';
+      if (!v('activity')) return 'กรุณากรอกงานที่ทำ';
+      if (!v('learning')) return 'กรุณากรอกสิ่งที่ได้เรียนรู้';
+      if (['activity', 'learning', 'problem'].some(k => v(k).length > WL.maxText)) {
+         return 'ข้อความแต่ละช่องต้องไม่เกิน ' + WL.maxText + ' ตัวอักษร';
       }
+      if (!current && logs.some(l => l.logDate === v('logDate'))) return 'มีบันทึกของวันที่นี้แล้ว';
 
-      if (submit && !fields.skill.value.trim()) {
-         errors.push('กรุณากรอกทักษะ / สิ่งที่ได้เรียนรู้');
-      }
-
-      const picked = file.files && file.files[0];
-
-      if (picked && !WL.weekFile.test(picked.name)) {
-         errors.push('ไฟล์แนบต้องเป็น PDF หรือ JPG');
-      } else if (picked && picked.size > WL.maxFile) {
-         errors.push('ไฟล์แนบต้องมีขนาดไม่เกิน 5 MB');
-      }
-
-      if (!errors.length && Number(week.value) > current) {
-         errors.push('ยังไม่ถึงสัปดาห์นี้ ไม่สามารถบันทึกล่วงหน้าได้');
-      }
-
-      showError(errors);
-      return !errors.length;
+      const picked = [...(fileInput.files || [])];
+      const existing = current && current.attachments ? current.attachments.length : 0;
+      if (existing + picked.length > WL.maxFiles) return 'แนบไฟล์ได้ไม่เกิน ' + WL.maxFiles + ' ไฟล์ต่อบันทึก';
+      if (picked.some(f => !WL.fileTypes.test(f.name))) return 'แนบได้เฉพาะไฟล์รูป (JPG, PNG) หรือ PDF';
+      if (picked.some(f => f.size > WL.maxFile)) return 'ไฟล์ต้องมีขนาดไม่เกิน 10 MB';
+      return '';
    }
 
-   function collect(status) {
-      const n = Number(week.value);
-      const old = W.weeks[n] || {};
-      const picked = file.files && file.files[0];
-
+   function request() {
+      const v = key => fields[key].value.trim();
       return {
-         hours: fields.hours.value.trim() ? Number(fields.hours.value) : '',
-         task: fields.task.value.trim(),
-         skill: fields.skill.value.trim(),
-         prob: fields.prob.value.trim(),
-         file: picked ? picked.name : (old.file || ''),
-         status,
-         viewed: false,
-         savedAt: now().toISOString()
+         logDate: v('logDate'),
+         startTime: v('startTime'),
+         endTime: v('endTime'),
+         activity: v('activity'),
+         learning: v('learning'),
+         problem: v('problem') || null
       };
    }
 
-   /* ---------- ส่งบันทึก / บันทึกแบบร่าง ---------- */
-   function submit() {
+   /* ---------- บันทึกร่าง / ส่ง ---------- */
+   async function save(submit) {
+      if (busy) return;
       hideSide();
-      if (!validate(true)) return;
+      const error = validate();
+      showError(error);
+      if (error) return;
 
-      const n = Number(week.value);
-      const late = now() > deadline(n);
+      setBusy(true);
+      try {
+         let res = current
+            ? await call('/api/work-logs/' + current.id, 'PUT', request())
+            : await call('/api/internships/' + internship.id + '/work-logs', 'POST', request());
+         if (res.status !== 200 && res.status !== 201) {
+            return showError(message(res, 'บันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'));
+         }
+         const id = res.data.id;
 
-      W.weeks[n] = collect(late ? 'LATE' : 'SUBMITTED');
-      save();
-      show();
+         for (const file of [...(fileInput.files || [])]) {
+            const form = new FormData();
+            form.append('file', file);
+            const up = await call('/api/work-logs/' + id + '/attachments', 'POST', form);
+            if (up.status !== 201) {
+               await reload(id);
+               return showError(message(up, 'แนบไฟล์ ' + file.name + ' ไม่สำเร็จ'));
+            }
+         }
 
-      $(late ? '#wLate' : '#wOk').hidden = false;
+         if (submit) {
+            res = await call('/api/work-logs/' + id + '/submit', 'POST');
+            if (res.status !== 200) {
+               await reload(id);
+               return showError(message(res, 'ส่งบันทึกไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'));
+            }
+            $(res.data.lateSubmitted ? '#wLate' : '#wOk').hidden = false;
+         } else {
+            $('#wSaved').hidden = false;
+         }
+         await reload(id);
+      } catch (e) {
+         showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+      } finally {
+         setBusy(false);
+      }
    }
 
-   function draft() {
-      hideSide();
-      if (!validate(false)) return;
-
-      const n = Number(week.value);
-      const old = W.weeks[n];
-      // ถ้าอาจารย์ขอแก้ไข สถานะยังคงเป็น REVISION_REQUESTED จนกว่าจะกดส่ง
-      const status = old && old.status === 'REVISION_REQUESTED' ? old.status : 'DRAFT';
-
-      W.weeks[n] = collect(status);
-      save();
-      show();
-
-      $('#wSaved').hidden = false;
+   async function removeLog() {
+      if (busy || !current || current.status !== 'DRAFT') return;
+      if (!window.confirm('ลบบันทึกร่างวันที่ ' + wlThaiDate(current.logDate) + ' ?')) return;
+      setBusy(true);
+      try {
+         const res = await call('/api/work-logs/' + current.id, 'DELETE');
+         if (res.status !== 204) return showError(message(res, 'ลบบันทึกไม่สำเร็จ'));
+         hideSide();
+         fillForm(null);
+         await refresh();
+      } catch (e) {
+         showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+      } finally {
+         setBusy(false);
+      }
    }
 
-   /* ---------- ประวัติการส่งบันทึก ---------- */
-   function history() {
+   async function removeFile(attachmentId) {
+      if (busy || !current) return;
+      setBusy(true);
+      try {
+         const res = await call('/api/work-logs/' + current.id + '/attachments/' + attachmentId, 'DELETE');
+         if (res.status !== 204) return showError(message(res, 'ลบไฟล์ไม่สำเร็จ'));
+         await reload(current.id);
+      } catch (e) {
+         showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+      } finally {
+         setBusy(false);
+      }
+   }
+
+   /* ---------- โหลดข้อมูล ---------- */
+   async function open(id) {
+      const res = await call('/api/work-logs/' + id);
+      if (res.status !== 200) return showError(message(res, 'เปิดบันทึกไม่สำเร็จ'));
+      fillForm(res.data);
+   }
+
+   async function reload(id) {
+      await refresh();
+      if (id != null) await open(id);
+   }
+
+   async function refresh() {
+      const [list, sum] = await Promise.all([
+         call('/api/internships/' + internship.id + '/work-logs'),
+         call('/api/internships/' + internship.id + '/work-logs/summary')
+      ]);
+      logs = list.status === 200 && Array.isArray(list.data) ? list.data : [];
+      renderHistory();
+      renderSummary(sum.status === 200 ? sum.data : null);
+   }
+
+   function statusLabel(log) {
+      if (log.status === 'SUBMITTED' && log.lateSubmitted) return WL_STATUS.LATE;
+      return WL_STATUS[log.status] || [log.status, 'draft'];
+   }
+
+   function renderHistory() {
       const box = $('#wHist');
-      const list = Object.keys(W.weeks).map(Number).sort((a, b) => a - b);
-
       box.textContent = '';
-
-      if (!list.length) {
+      if (!logs.length) {
          const empty = document.createElement('p');
          empty.className = 'mute';
          empty.textContent = 'ยังไม่มีบันทึก';
          box.append(empty);
          return;
       }
-
-      list.forEach(n => {
-         const entry = W.weeks[n];
-         const [label, tone] = WL_STATUS[entry.status] || [entry.status, 'draft'];
+      [...logs].sort((a, b) => b.logDate.localeCompare(a.logDate)).forEach(log => {
+         const [label, tone] = statusLabel(log);
          const row = document.createElement('button');
-         const name = document.createElement('span');
+         const date = document.createElement('span');
          const pill = document.createElement('span');
-         const advisor = document.createElement('small');
-
+         const hours = document.createElement('small');
          row.type = 'button';
-         row.className = 'hist' + (n === Number(week.value) ? ' cur' : '');
-         row.dataset.week = n;
-
-         name.textContent = 'สัปดาห์ที่ ' + n;
+         row.className = 'wl-hist' + (current && current.id === log.id ? ' cur' : '');
+         row.dataset.id = log.id;
+         date.textContent = wlThaiDate(log.logDate);
          pill.className = 'pill ' + tone;
          pill.textContent = label;
-         advisor.textContent = entry.status === 'DRAFT'
-            ? '-'
-            : (entry.viewed ? 'เปิดดูแล้ว' : 'ยังไม่เปิดดู');
-
-         row.append(name, pill, advisor);
+         hours.textContent = Number(log.hours) + ' ชม.';
+         row.append(date, pill, hours);
          row.onclick = () => {
-            week.value = n;
             hideSide();
-            show();
+            open(log.id).catch(() => showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง'));
          };
          box.append(row);
       });
    }
 
-   /* ---------- รายงานประจำเดือน ---------- */
-   const month = $('#wMonth');
-   const monthMsg = $('#wMMsg');
-   const monthFile = $('#wMFile');
-   const blank = document.createElement('option');
-
-   blank.value = '';
-   blank.textContent = '[เดือน]';
-   month.append(blank);
-
-   for (
-      let d = new Date(base.getFullYear(), base.getMonth(), 1);
-      d <= weekEnd(WL.weeks);
-      d = new Date(d.getFullYear(), d.getMonth() + 1, 1)
-   ) {
-      const option = document.createElement('option');
-      option.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-      option.textContent = d.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
-      option.disabled = d > today;
-      month.append(option);
+   function renderSummary(sum) {
+      $('#sumHours').textContent = sum ? Number(sum.totalHours) + ' ชม.' : '-';
+      $('#sumDays').textContent = sum ? sum.daysLogged + ' / ' + sum.workingDays : '-';
+      const missing = sum && Array.isArray(sum.missingDates) ? sum.missingDates : [];
+      $('#sumMissing').textContent = sum ? missing.length + ' วัน' : '-';
+      $('#sumMissingList').hidden = !missing.length;
+      $('#sumMissingList').textContent = missing.length
+         ? 'ยังไม่บันทึก: ' + missing.slice(-5).map(wlThaiDate).join(', ') + (missing.length > 5 ? ' ...' : '')
+         : '';
    }
-
-   function monthNote(text, tone) {
-      monthMsg.hidden = !text;
-      monthMsg.className = 'alert ' + (tone || '');
-      monthMsg.textContent = text || '';
-   }
-
-   month.onchange = () => {
-      const sent = W.months[month.value];
-      monthNote(sent
-         ? 'ส่งรายงานเดือนนี้แล้ว: ' + sent.file + ' (ส่งใหม่เพื่อแทนที่ไฟล์เดิม)'
-         : '', 'ok');
-   };
-
-   $('#wMSend').onclick = () => {
-      const picked = monthFile.files && monthFile.files[0];
-
-      if (!month.value) return monthNote('กรุณาเลือกเดือน', 'bad');
-      if (!picked) return monthNote('กรุณาแนบไฟล์รายงาน', 'bad');
-      if (!WL.monthFile.test(picked.name)) return monthNote('ไฟล์รายงานต้องเป็น PDF', 'bad');
-      if (picked.size > WL.maxFile) return monthNote('ไฟล์รายงานต้องมีขนาดไม่เกิน 5 MB', 'bad');
-
-      const replaced = Boolean(W.months[month.value]);
-
-      W.months[month.value] = { file: picked.name, sentAt: now().toISOString() };
-      save();
-      monthFile.value = '';
-      monthNote(replaced ? 'อัปเดตรายงานประจำเดือนแล้ว' : 'ส่งรายงานประจำเดือนสำเร็จ', 'ok');
-   };
 
    /* ---------- เริ่มต้น ---------- */
-   week.onchange = () => {
+   fields.startTime.addEventListener('input', updateHours);
+   fields.endTime.addEventListener('input', updateHours);
+   fields.logDate.addEventListener('change', () => {
+      updateDue();
+      // วันที่มีบันทึกแล้ว → เปิดบันทึกนั้นแทนการสร้างซ้ำ
+      const found = logs.find(l => l.logDate === fields.logDate.value);
+      if (found && !current) {
+         hideSide();
+         open(found.id).catch(() => showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง'));
+      }
+   });
+   $('#wSend').onclick = () => save(true);
+   $('#wDraft').onclick = () => save(false);
+   $('#wDelete').onclick = removeLog;
+   $('#wNew').onclick = () => {
       hideSide();
-      show();
+      fields.logDate.value = '';
+      fillForm(null);
    };
-   $('#wSend').onclick = submit;
-   $('#wDraft').onclick = draft;
 
-   show();
+   fillForm(null);
+
+   window.U8Worklog = {
+      ready: (async () => {
+         try {
+            const res = await call('/api/internships/me');
+            if (res.status !== 200) {
+               showState(res.status === 404
+                  ? 'ยังไม่มีข้อมูลการฝึกงาน จึงยังบันทึกการทำงานไม่ได้'
+                  : message(res, 'โหลดข้อมูลการฝึกงานไม่สำเร็จ'));
+               return lockForm();
+            }
+            internship = res.data;
+            fields.logDate.min = internship.startDate;
+            const today = wlIso(new Date());
+            fields.logDate.max = internship.endDate && internship.endDate < today ? internship.endDate : today;
+            if (internship.status !== 'IN_PROGRESS') {
+               showState('บันทึกได้เฉพาะช่วงที่กำลังฝึกงาน (สถานะปัจจุบัน: ' + internship.status + ')');
+            }
+            fillForm(null);
+            await refresh();
+         } catch (e) {
+            showState('ไม่สามารถเชื่อมต่อระบบได้ กรุณาตรวจสอบ Backend ที่ localhost:8080');
+            lockForm();
+         }
+      })()
+   };
 }
