@@ -131,7 +131,7 @@ const DELAY = 1400;
 const NEED = {
     check: 1,
     submit: 2,
-    ranking: 3
+    ranking: 2
 };
 
 const HOME = () => {
@@ -150,13 +150,14 @@ const HOME_OF = u => isStaffLogin(u) ? 'staff-review.html' : HOME();
 function initShell() {
     $('#who').textContent = S.user;
 
-    $$('nav a:not([data-free])').forEach((link, index) => {
-        if (index + 1 > S.unlocked) {
-            link.classList.add('disabled');
-            link.setAttribute('aria-disabled', 'true');
-            link.tabIndex = -1;
-        }
-    });
+$$('nav a:not([data-free])').forEach((link, index) => {
+    const page = (link.getAttribute('href') || '').replace('.html', '');
+    if (S.unlocked < (NEED[page] ?? index + 1)) {
+        link.classList.add('disabled');
+        link.setAttribute('aria-disabled', 'true');
+        link.tabIndex = -1;
+    }
+});
 
     $('#logout').onclick = () => {
         S.user = null;

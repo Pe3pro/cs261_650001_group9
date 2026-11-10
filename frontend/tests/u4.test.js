@@ -45,7 +45,7 @@ const reply = (status, body) => ({
  * เปิดหน้า ranking ของนักศึกษาที่ผ่านขั้นก่อนหน้าแล้ว (unlocked = 3)
  * api(method, url, body) คืน reply(...) ตาม request ที่หน้าเว็บส่งมา
  */
-async function openRankingPage(api = defaultApi()) {
+async function openRankingPage(api = defaultApi(), unlocked = 3) {
     const dom = new JSDOM(html, {
         url: 'http://localhost/ranking.html',
         runScripts: 'outside-only',
@@ -54,7 +54,7 @@ async function openRankingPage(api = defaultApi()) {
     const { window } = dom;
     openedWindows.push(window);
 
-    window.sessionStorage.setItem('coop-state', JSON.stringify({ user: '6609650003', unlocked: 3 }));
+    window.sessionStorage.setItem('coop-state', JSON.stringify({ user: '6609650003', unlocked }));
     window.sessionStorage.setItem('u1-auth', JSON.stringify({ userId: 3, role: 'STUDENT' }));
 
     window.fetch = vi.fn((url, options = {}) => {
@@ -243,5 +243,13 @@ describe('U4-UI หน้าจับคู่บริษัท (ranking.html)'
 
         expect($(window, '#rkLoadErr').hidden).toBe(false);
         expect($(window, '#rkLoadErr').textContent).toBe('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+    });
+        test('12 ผ่านตรวจคุณสมบัติแล้วแต่ยังไม่ยื่นคำร้อง (unlocked = 2) เปิดหน้าจัดอันดับได้ และแท็บจับคู่บริษัทไม่ถูกปิด', async () => {
+        const window = await openRankingPage(defaultApi(), 2);
+
+        expect($$(window, '.rk-row')).toHaveLength(5);
+        const tab = $(window, 'nav a[href="ranking.html"]');
+        expect(tab.classList.contains('disabled')).toBe(false);
+        expect(tab.getAttribute('aria-disabled')).toBeNull();
     });
 });
