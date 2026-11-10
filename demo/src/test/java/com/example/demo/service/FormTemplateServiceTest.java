@@ -231,4 +231,33 @@ class FormTemplateServiceTest {
         assertThat(published.getStatus()).isEqualTo(FormStatus.PUBLISHED);
         verify(fields, times(2)).save(any(FormField.class));
     }
+
+    @Test
+    @DisplayName("SV-F15 ปิดรับคำร้องก่อนกำหนด: วันหมดเขตเลื่อนมาเป็นเวลานี้ สถานะยังเป็น PUBLISHED")
+    void closeEarly() {
+        FormTemplate t = draft();
+        t.publish(LocalDateTime.of(2026, 10, 1, 9, 0));
+
+        FormTemplateResponse res = service.close(10L, 1L);
+
+        assertThat(res.deadline()).isEqualTo(LocalDateTime.of(2026, 10, 17, 10, 0));
+        assertThat(res.status()).isEqualTo(FormStatus.PUBLISHED);
+    }
+
+    @Test
+    @DisplayName("SV-F16 ปิดรับแบบฟอร์มที่ยังเป็นร่าง / หมดเขตไปแล้ว: 409 · นักศึกษาปิดรับ: 403")
+    void closeRejected() {
+        FormTemplate t = draft();
+        assertThatThrownBy(() -> service.close(10L, 1L))
+                .isInstanceOf(ApiException.class).extracting("status").isEqualTo(409);
+
+        t.publish(LocalDateTime.of(2026, 10, 1, 9, 0));
+        t.setDeadline(LocalDateTime.of(2026, 10, 16, 23, 59));
+        assertThatThrownBy(() -> service.close(10L, 1L))
+                .isInstanceOf(ApiException.class).extracting("status").isEqualTo(409);
+
+        assertThatThrownBy(() -> service.close(10L, 3L))
+                .isInstanceOf(ApiException.class).extracting("status").isEqualTo(403);
+    }
 }
+

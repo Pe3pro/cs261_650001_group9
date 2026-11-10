@@ -270,9 +270,12 @@ class RequestApiDaoIntegrationTest {
                 .andExpect(jsonPath("$[?(@.id == " + id + ")].documents[0].fileName").value("transcript.pdf"));
         mvc.perform(get("/api/applications/" + id + "/detail").header("X-User-Id", staffS))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.answers.length()").value(4))
+                // U5: แสดงทุกช่องในแบบฟอร์ม รวมช่องแนบไฟล์ (ค่า = ชื่อไฟล์ที่แนบ)
+                .andExpect(jsonPath("$.answers.length()").value(5))
                 .andExpect(jsonPath("$.answers[1].value").value("0812345678"))
-                .andExpect(jsonPath("$.answers[2].value").value("somchai@dome.tu.ac.th"));
+                .andExpect(jsonPath("$.answers[2].value").value("somchai@dome.tu.ac.th"))
+                .andExpect(jsonPath("$.answers[4].label").value("Transcript"))
+                .andExpect(jsonPath("$.answers[4].value").value("transcript.pdf"));
     }
 
     @Test

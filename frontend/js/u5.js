@@ -29,6 +29,17 @@
    const DECISION_TH = { APPROVE: 'อนุมัติ', RETURN: 'ส่งกลับแก้ไข', REJECT: 'ปฏิเสธ' };
    const FIELD_TYPES = { TEXT: 'ข้อความสั้น', TEXTAREA: 'ข้อความยาว', NUMBER: 'ตัวเลข', EMAIL: 'อีเมล', PHONE: 'เบอร์โทรศัพท์', DATE: 'วันที่', SELECT: 'ตัวเลือก', FILE: 'แนบไฟล์' };
    const MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+   /* U5: ป้ายเตือนในรายการคำร้อง (จาก server: attention) */
+   const ATTN_TH = { DEADLINE_SOON: 'ใกล้หมดเขต', OVERDUE: 'รอนาน' };
+   /* U5: เหตุผลที่ใช้บ่อย เลือกแล้วเติมลงช่องเหตุผล (แก้ต่อได้) */
+   const PRESET_REASONS = [
+      'Transcript ไม่ชัดเจน กรุณาแนบไฟล์ใหม่',
+      'Transcript ไม่ใช่ฉบับล่าสุด',
+      'ข้อมูลติดต่อไม่ถูกต้อง กรุณาตรวจสอบเบอร์โทรศัพท์และอีเมล',
+      'กรอกข้อมูลไม่ครบ',
+      'เอกสารแนบไม่ครบตามที่กำหนด',
+      'คุณสมบัติไม่ผ่านเกณฑ์ (GPAX / หน่วยกิต)'
+   ];
    const MSG = {
       network: 'ไม่สามารถเชื่อมต่อระบบได้ กรุณาเปิด backend (docker compose up -d) แล้วลองใหม่',
       noDecision: 'กรุณาเลือกผลการพิจารณา',
@@ -214,10 +225,13 @@
       $('#listSub').textContent = isAdvisor() ? 'ใบสมัครที่เจ้าหน้าที่ตรวจผ่านแล้ว รออาจารย์พิจารณาอนุมัติ' : 'ใบสมัครฝึกสหกิจศึกษาที่นักศึกษายื่นเข้ามา รอเจ้าหน้าที่ตรวจสอบ';
       $('#detailTitle').textContent = isAdvisor() ? 'พิจารณาใบสมัคร' : 'ตรวจใบสมัคร';
       $('#approveLabel').textContent = isAdvisor() ? 'อนุมัติ' : 'อนุมัติ ส่งต่ออาจารย์';
-      $('#appHead').innerHTML = '<tr>' + (isAdvisor()
-         ? ['รหัสนักศึกษา', 'ชื่อ-นามสกุล', 'ตรวจโดยเจ้าหน้าที่', 'วันที่ส่งต่อ', 'สถานะ', '']
-         : ['รหัสนักศึกษา', 'ชื่อ-นามสกุล', 'วันที่ยื่น', 'เอกสาร', 'สถานะ', '']).map(h => `<th>${h}</th>`).join('') + '</tr>';
       $('#btnBack').onclick = () => loadList(R.status);
+      $('#btnExport').onclick = exportList;
+      $('#btnBulk').onclick = () => confirmClick($('#btnBulk'), 'ยืนยันอนุมัติ ' + R.selected.size + ' รายการ', bulkApprove);
+      $('#presetReason').innerHTML = '<option value="">เลือกเหตุผลที่ใช้บ่อย…</option>'
+         + PRESET_REASONS.map(t => `<option>${esc(t)}</option>`).join('');
+      $('#presetReason').onchange = usePreset;
+      $$('input[name="decision"]').forEach(i => i.addEventListener('change', toggleFixFields));
       $('#btnDoneBack').onclick = () => loadList(R.status);
       $('#btnDoneView').onclick = () => openDetail(R.current.id);
       $('#btnDecide').onclick = submitDecision;
@@ -226,13 +240,16 @@
       await loadList(reviewTabs()[0][0]);
    }
 
-   async function loadList(status) {
+   /* message = ข้อความผลลัพธ์ที่จะแสดงเหนือรายการหลังโหลดเสร็จ (เช่น ผลการอนุมัติหลายรายการ) */
+   async function loadList(status, message) {
       R.status = status;
+      R.selected = new Set();
       reviewView('vList');
       $('#tabs').innerHTML = reviewTabs().map(([s, label]) =>
          `<button type="button" role="tab" class="chip${s === status ? ' on' : ''}" data-status="${s}" aria-selected="${s === status}">${label}</button>`).join('');
       $$('#tabs .chip').forEach(b => b.onclick = () => loadList(b.dataset.status));
       hide($('#listErr'));
+      if (message) show($('#listMsg'), message); else hide($('#listMsg'));
       R.rows = [];
       R.loaded = false;
       renderRows();
@@ -240,27 +257,129 @@
       if (!r.ok) return showErr($('#listErr'), r);
       R.rows = r.data || [];
       R.loaded = true;
-      const tab = $(`#tabs .chip[data-status="${status}"]`);
-      if (tab && R.rows.length) tab.insertAdjacentHTML('beforeend', `<b>${R.rows.length}</b>`);
       renderRows();
+      await loadCounts(status);
+   }
+
+   /* U5: ตัวเลขบนทุกแท็บจาก GET /api/applications/summary · ถ้าเรียกไม่ได้ แสดงเฉพาะแท็บที่เปิดอยู่ */
+   async function loadCounts(status) {
+      const s = await api('/api/applications/summary');
+      if (R.status !== status) return;   // ผู้ใช้เปลี่ยนแท็บไปแล้ว
+      const counts = s.ok && s.data ? s.data : { [status]: R.rows.length };
+      $$('#tabs .chip').forEach(tab => {
+         const n = counts[tab.dataset.status];
+         $('b', tab)?.remove();
+         if (n) tab.insertAdjacentHTML('beforeend', `<b>${Number(n)}</b>`);
+      });
+   }
+
+   /* เลือกหลายรายการได้เฉพาะแท็บที่ผู้ใช้มีสิทธิ์อนุมัติ */
+   const bulkMode = () => canAct(R.status);
+
+   function renderHead() {
+      const cols = isAdvisor()
+         ? ['รหัสนักศึกษา', 'ชื่อ-นามสกุล', 'ตรวจโดยเจ้าหน้าที่', 'วันที่ส่งต่อ', 'สถานะ', '']
+         : ['รหัสนักศึกษา', 'ชื่อ-นามสกุล', 'วันที่ยื่น', 'เอกสาร', 'สถานะ', ''];
+      const all = bulkMode() ? '<th class="ck"><input type="checkbox" id="ckAll" aria-label="เลือกทั้งหมด"></th>' : '';
+      $('#appHead').innerHTML = '<tr>' + all + cols.map(h => `<th>${h}</th>`).join('') + '</tr>';
+   }
+
+   function visibleRows() {
+      const q = ($('#search').value || '').trim().toLowerCase();
+      return R.rows.filter(a => !q || String(a.studentName || '').toLowerCase().includes(q) || String(a.studentId || '').includes(q));
    }
 
    function renderRows() {
-      const q = ($('#search').value || '').trim().toLowerCase();
-      const rows = R.rows.filter(a => !q || String(a.studentName || '').toLowerCase().includes(q) || String(a.studentId || '').includes(q));
+      const rows = visibleRows();
+      const bulk = bulkMode();
+      renderHead();
       const empty = $('#emptyMsg');
       empty.hidden = !R.loaded || rows.length > 0;
-      empty.textContent = q && R.rows.length ? 'ไม่พบใบสมัครที่ตรงกับคำค้นหา' : 'ไม่มีใบสมัครในสถานะนี้';
+      empty.textContent = $('#search').value.trim() && R.rows.length ? 'ไม่พบใบสมัครที่ตรงกับคำค้นหา' : 'ไม่มีใบสมัครในสถานะนี้';
       $('#appRows').innerHTML = rows.map(a => {
          const act = canAct(a.status);
          const label = act ? (isAdvisor() ? 'พิจารณา' : 'ตรวจ') : 'ดู';
          const mid = isAdvisor()
             ? `<td>${esc(a.reviewedBy || '-')}</td><td>${fmtDate(a.reviewedAt)}</td>`
             : `<td>${fmtDate(a.submittedAt)}</td><td>${(a.documents || []).length} ไฟล์</td>`;
-         return `<tr><td>${esc(a.studentId)}</td><td>${esc(a.studentName)}</td>${mid}<td>${badge(a.status)}</td>
+         const attn = ATTN_TH[a.attention] ? `<span class="badge ${esc(a.attention)}">${ATTN_TH[a.attention]}</span>` : '';
+         const ck = bulk ? `<td class="ck"><input type="checkbox" data-pick="${a.id}" aria-label="เลือก ${esc(a.studentName)}"${R.selected.has(a.id) ? ' checked' : ''}></td>` : '';
+         return `<tr${attn ? ' class="attn"' : ''}>${ck}<td>${esc(a.studentId)}</td><td>${esc(a.studentName)}</td>${mid}<td>${badge(a.status)}${attn}</td>
             <td><button type="button" class="btn sm${act ? '' : ' ghost'}" data-open="${a.id}">${label}</button></td></tr>`;
       }).join('');
       $$('[data-open]').forEach(b => b.onclick = () => openDetail(Number(b.dataset.open)));
+      $$('[data-pick]').forEach(c => c.onchange = () => {
+         const id = Number(c.dataset.pick);
+         if (c.checked) R.selected.add(id); else R.selected.delete(id);
+         renderBulkBar();
+      });
+      const all = $('#ckAll');
+      if (all) {
+         all.checked = rows.length > 0 && rows.every(a => R.selected.has(a.id));
+         all.onchange = () => {
+            rows.forEach(a => { if (all.checked) R.selected.add(a.id); else R.selected.delete(a.id); });
+            renderRows();
+         };
+      }
+      renderBulkBar();
+   }
+
+   function renderBulkBar() {
+      const bar = $('#bulkBar');
+      const n = R.selected ? R.selected.size : 0;
+      bar.hidden = !bulkMode() || n === 0;
+      $('#bulkCount').textContent = 'เลือกแล้ว ' + n + ' รายการ';
+      const b = $('#btnBulk');
+      b.dataset.armed = ''; b.textContent = isAdvisor() ? 'อนุมัติที่เลือก' : 'อนุมัติที่เลือก ส่งต่ออาจารย์'; b.classList.remove('warn');
+   }
+
+   /* U5: อนุมัติหลายรายการ · server ข้ามรายการที่อนุมัติไม่ได้และบอกเหตุผล */
+   async function bulkApprove() {
+      if (R.busy || !R.selected.size) return;
+      R.busy = true;
+      $('#btnBulk').disabled = true;
+      const r = await api('/api/approvals/bulk', { method: 'POST', body: { applicationIds: [...R.selected] } });
+      R.busy = false;
+      $('#btnBulk').disabled = false;
+      if (!r.ok) return showErr($('#listErr'), r);
+      const done = (r.data.approved || []).length;
+      const skipped = r.data.skipped || [];
+      const msg = 'อนุมัติแล้ว ' + done + ' รายการ'
+         + (skipped.length ? ' · ข้าม ' + skipped.length + ' รายการ: ' + skipped.map(x => 'เลขที่ ' + x.applicationId + ' (' + x.reason + ')').join(', ') : '');
+      loadList(R.status, msg);
+   }
+
+   /* U5: ดาวน์โหลดรายการในแท็บนี้เป็น CSV (เปิดด้วย Excel ได้) */
+   async function exportList() {
+      hide($('#listErr'));
+      const name = 'applications-' + R.status + '.csv';
+      let blob;
+      if (demo()) {
+         const cell = v => { const t = String(v ?? ''); return /[",\r\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+         const lines = [['เลขที่คำร้อง', 'รหัสนักศึกษา', 'ชื่อ-นามสกุล', 'สถานะ', 'วันที่ส่ง', 'ผู้พิจารณาล่าสุด', 'วันที่พิจารณา', 'ไฟล์แนบ', 'หมายเหตุ']]
+            .concat(R.rows.map(a => [a.id, a.studentId, a.studentName, a.status, a.submittedAt, a.reviewedBy, a.reviewedAt, (a.documents || []).length, a.attention]));
+         blob = new Blob(['\uFEFF' + lines.map(l => l.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      } else {
+         try {
+            const res = await fetch(API + '/api/applications/export?status=' + encodeURIComponent(R.status), { headers: { 'X-User-Id': String(user?.id ?? '') } });
+            if (!res.ok) {
+               let data = null;
+               try { data = await res.json(); } catch (e) { }
+               return showErr($('#listErr'), { ok: false, status: res.status, data });
+            }
+            blob = await res.blob();
+         } catch (e) {
+            return showErr($('#listErr'), { ok: false, status: 0 });
+         }
+      }
+      if (typeof URL.createObjectURL !== 'function') return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
    }
 
    function setReviewSteps(status) {
@@ -287,9 +406,14 @@
       const info = [['ชื่อ-นามสกุล', a.studentName], ['รหัสนักศึกษา', a.studentId], ['คณะ / สาขา', (a.faculty || '-') + ' / ' + (a.major || '-')],
       ['GPAX', a.gpa != null ? Number(a.gpa).toFixed(2) : '-'], ['อีเมล', a.email], ['วันที่ยื่น', fmtDate(a.submittedAt)]];
       $('#dInfo').innerHTML = info.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v ?? '-')}</dd></div>`).join('');
+      // U5: ช่องที่นักศึกษาแก้หลังถูกตีกลับ แสดงค่าเดิมขีดฆ่าไว้ให้เทียบ
       $('#dAnswers').innerHTML = (a.answers || []).length
-         ? a.answers.map(x => `<div><dt>${esc(x.label)}</dt><dd>${esc(x.value || '-')}</dd></div>`).join('')
+         ? a.answers.map(x => x.previousValue != null
+            ? `<div><dt>${esc(x.label)} <span class="badge NEED_CORRECTION">แก้แล้ว</span></dt><dd class="changed">${esc(x.value || '-')}<span class="was">เดิม: ${esc(x.previousValue || '(ว่าง)')}</span></dd></div>`
+            : `<div><dt>${esc(x.label)}</dt><dd>${esc(x.value || '-')}</dd></div>`).join('')
          : '<p class="mute">ไม่มีข้อมูลในแบบฟอร์ม</p>';
+      $('#fixList').innerHTML = (a.answers || []).filter(x => x.fieldId != null)
+         .map(x => `<label><input type="checkbox" class="fix" value="${Number(x.fieldId)}"> ${esc(x.label)}</label>`).join('');
       $('#dDocs').innerHTML = (a.documents || []).length
          ? a.documents.map(d => `<div class="doc"><span class="ico">PDF</span><div>${esc(d.fileName)}<small>${d.status === 'VERIFIED' ? 'ตรวจแล้ว' : 'อัปโหลดแล้ว'}</small></div>
             <button type="button" class="btn sm ghost" data-doc="${d.id}">ดูไฟล์</button></div>`).join('')
@@ -303,6 +427,24 @@
       $('#decisionCard').hidden = !canAct(a.status);
       $$('input[name="decision"]').forEach(i => { i.checked = i.value === 'APPROVE'; });   // ค่าเริ่มต้นตาม prototype
       $('#comment').value = '';
+      $('#presetReason').value = '';
+      toggleFixFields();
+      clearDecisionError();
+   }
+
+   /* U5: เลือกช่องที่ต้องแก้ได้เฉพาะตอนส่งกลับแก้ไข */
+   function toggleFixFields() {
+      const isReturn = $('input[name="decision"]:checked')?.value === 'RETURN';
+      $('#fixFields').hidden = !isReturn || !$$('#fixList .fix').length;
+   }
+
+   /* U5: เติมเหตุผลที่ใช้บ่อยต่อท้ายข้อความเดิม */
+   function usePreset() {
+      const sel = $('#presetReason');
+      if (!sel.value) return;
+      const c = $('#comment');
+      c.value = c.value.trim() ? c.value.trimEnd() + '\n' + sel.value : sel.value;
+      sel.value = '';
       clearDecisionError();
    }
 
@@ -334,7 +476,10 @@
       clearDecisionError();
       R.busy = true;
       $('#btnDecide').disabled = true;
-      const r = await api('/api/approvals/' + R.current.id + '/decision', { method: 'POST', body: { decision, comment: comment.trim() || null } });
+      const body = { decision, comment: comment.trim() || null };
+      const fieldIds = decision === 'RETURN' ? $$('#fixList .fix:checked').map(c => Number(c.value)) : [];
+      if (fieldIds.length) body.fieldIds = fieldIds;
+      const r = await api('/api/approvals/' + R.current.id + '/decision', { method: 'POST', body });
       R.busy = false;
       $('#btnDecide').disabled = false;
       if (!r.ok) return showErr($('#decErr'), r);
@@ -362,6 +507,7 @@
       $('#btnAddField').onclick = () => { readFields(); F.fields.push({ label: '', fieldType: 'TEXT', required: true, options: '' }); renderFields(); };
       $('#btnSaveDraft').onclick = () => saveForm(false);
       $('#btnSavePublish').onclick = () => confirmClick($('#btnSavePublish'), 'ยืนยันบันทึกและเปิดใช้งาน', () => saveForm(true));
+      $('#btnPreview').onclick = togglePreview;
       $('#vEdit').addEventListener('input', () => hide($('#editErr')));
       await loadForms();
    }
@@ -379,11 +525,23 @@
             <td>${fmtDate(f.deadline)}</td><td>${badge(f.status)}</td>
             <td>${f.status === 'DRAFT'
             ? `<button type="button" class="btn ghost" data-edit="${f.id}">แก้ไข</button> <button type="button" class="btn" data-publish="${f.id}">เปิดใช้งาน</button>`
-            : `<button type="button" class="btn ghost" data-view="${f.id}">ดู</button> <button type="button" class="btn ghost" data-copy="${f.id}">สร้างฉบับใหม่จากฉบับนี้</button>`}</td></tr>`).join('');
+            : `<button type="button" class="btn ghost" data-view="${f.id}">ดู</button> <button type="button" class="btn ghost" data-copy="${f.id}">สร้างฉบับใหม่จากฉบับนี้</button>`
+            + (isOpen(f) ? ` <button type="button" class="btn ghost" data-close="${f.id}">ปิดรับก่อนกำหนด</button>` : '')}</td></tr>`).join('');
       $$('[data-edit]').forEach(b => b.onclick = () => openEditor(list.find(f => f.id === Number(b.dataset.edit))));
       $$('[data-view]').forEach(b => b.onclick = () => openEditor(list.find(f => f.id === Number(b.dataset.view)), true));
       $$('[data-publish]').forEach(b => b.onclick = () => confirmClick(b, 'ยืนยันเปิดใช้งาน', () => publishForm(Number(b.dataset.publish))));
       $$('[data-copy]').forEach(b => b.onclick = () => copyForm(Number(b.dataset.copy)));
+      $$('[data-close]').forEach(b => b.onclick = () => confirmClick(b, 'ยืนยันปิดรับคำร้องตอนนี้', () => closeForm(Number(b.dataset.close))));
+   }
+
+   /* แบบฟอร์มที่เปิดใช้งานและยังไม่หมดเขต */
+   const isOpen = f => f.status === 'PUBLISHED' && (!f.deadline || new Date(f.deadline) > new Date());
+
+   /* U5: ปิดรับคำร้องก่อนวันหมดเขต (คำร้องที่ส่งแล้วยังพิจารณาต่อได้) */
+   async function closeForm(id) {
+      const r = await api('/api/forms/' + id + '/close', { method: 'POST' });
+      if (!r.ok) return loadForms(errMsg(r), false);
+      loadForms('ปิดรับคำร้องของแบบฟอร์ม "' + r.data.name + '" แล้ว นักศึกษายื่นหรือส่งฉบับแก้ไม่ได้อีก');
    }
 
    /* ปุ่มที่ต้องกดยืนยัน 2 ครั้ง (ไม่ใช้ window.confirm): กดครั้งแรกเปลี่ยนข้อความ กดครั้งที่สองจึงทำงาน */
@@ -419,6 +577,42 @@
       $('#btnCancel').textContent = readOnly ? 'กลับ' : 'ยกเลิก';
       const sp = $('#btnSavePublish');
       sp.dataset.armed = ''; sp.textContent = 'บันทึกและเปิดใช้งาน'; sp.classList.remove('warn');
+      F.readOnly = readOnly;
+      $('#previewBox').hidden = true;
+      $('#btnPreview').textContent = 'ดูตัวอย่างหน้านักศึกษา';
+   }
+
+   /* U5: ตัวอย่างแบบฟอร์มตามที่นักศึกษาจะเห็น (จากค่าที่กรอกอยู่ ยังไม่ต้องบันทึก) */
+   function togglePreview() {
+      const box = $('#previewBox');
+      if (!box.hidden) {
+         box.hidden = true;
+         $('#btnPreview').textContent = 'ดูตัวอย่างหน้านักศึกษา';
+         return;
+      }
+      if (!F.readOnly) readFields();
+      const dl = $('#fDeadline').value;
+      const input = (f, i) => {
+         const id = 'pv_' + i;
+         const req = f.required ? ' <em>*</em>' : '';
+         let ctl;
+         if (f.fieldType === 'TEXTAREA') ctl = `<textarea id="${id}" rows="3"></textarea>`;
+         else if (f.fieldType === 'SELECT') ctl = `<select id="${id}"><option value="">-- เลือก --</option>${String(f.options || '').split('\n').map(o => o.trim()).filter(Boolean).map(o => `<option>${esc(o)}</option>`).join('')}</select>`;
+         else if (f.fieldType === 'FILE') ctl = `<input id="${id}" type="file" accept=".pdf,application/pdf">`;
+         else {
+            const type = { NUMBER: 'number', EMAIL: 'email', PHONE: 'tel', DATE: 'date' }[f.fieldType] || 'text';
+            ctl = `<input id="${id}" type="${type}">`;
+         }
+         return `<div class="fld"><label for="${id}">${esc(f.label || '(ยังไม่มีชื่อช่อง)')}${req}</label>${ctl}</div>`;
+      };
+      box.innerHTML = `<span class="pv-tag">ตัวอย่างหน้ายื่นคำร้องของนักศึกษา (ยังไม่บันทึก)</span>
+         <h2>${esc($('#fName').value.trim() || '(ยังไม่มีชื่อแบบฟอร์ม)')}</h2>
+         ${$('#fDesc').value.trim() ? `<p class="sub">${esc($('#fDesc').value.trim())}</p>` : ''}
+         ${dl ? `<div class="alert info">หมดเขตยื่นคำร้อง ${fmtDate(dl)}</div>` : ''}
+         ${F.fields.map(input).join('')}
+         <div class="acts"><span></span><button class="btn" type="button" disabled>ส่งคำร้องเพื่อตรวจสอบ</button></div>`;
+      box.hidden = false;
+      $('#btnPreview').textContent = 'ซ่อนตัวอย่าง';
    }
 
    function renderFields(readOnly = false) {
@@ -536,5 +730,5 @@
    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 
    /* เปิดให้ test เรียกใช้ */
-   window.U5 = { validateDecision, validateForm, fmtDate, MSG, STATUS_TH };
+   window.U5 = { validateDecision, validateForm, fmtDate, MSG, STATUS_TH, PRESET_REASONS };
 })();

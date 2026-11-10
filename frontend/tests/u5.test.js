@@ -157,7 +157,8 @@ describe('U5:T7 หน้าตรวจคำร้อง (staff-review.html)',
     test('UI-16 นักศึกษาเปิดหน้านี้ไม่ได้', async () => {
         const { doc, calls } = await open('staff-review.html', USERS.student);
         expect(doc.querySelector('#vDenied').hidden).toBe(false);
-        expect(calls.length).toBe(0);
+        // เมนูนักศึกษาเรียก /api/requests/me เพื่อดูว่าทำถึงขั้นไหน แต่ต้องไม่เรียก API ของเจ้าหน้าที่
+        expect(calls.filter(c => c.path.startsWith('/api/applications')).length).toBe(0);
     });
 
     test('UI-17 backend ไม่ทำงาน แสดงข้อความเชื่อมต่อไม่ได้', async () => {
@@ -265,5 +266,149 @@ describe('U5:T7 หน้าการแจ้งเตือน (notifications.
         await flush();
         expect(calls.some(c => c.method === 'PATCH' && c.path === '/api/notifications/3/read')).toBe(true);
         expect(doc.querySelector('.notif').classList.contains('read')).toBe(true);
+    });
+});
+
+describe('U5 เพิ่มเติม: รับคำร้อง · พิจารณา · แบบฟอร์ม', () => {
+    const APP2 = { ...APP, id: 51, studentId: '6609650002', studentName: 'สมหญิง รักเรียน' };
+    const rows = [
+        { id: 50, studentId: '6609650001', studentName: 'สมชาย ใจดี', status: 'SUBMITTED', submittedAt: '2026-10-11T10:00:00', documents: [], attention: 'OVERDUE' },
+        { id: 51, studentId: '6609650002', studentName: 'สมหญิง รักเรียน', status: 'SUBMITTED', submittedAt: '2026-10-15T10:00:00', documents: [], attention: null }
+    ];
+    const routes = {
+        'GET /api/applications?status=SUBMITTED': [200, rows],
+        'GET /api/applications/summary': [200, { DRAFT: 0, SUBMITTED: 2, UNDER_REVIEW: 5, NEED_CORRECTION: 1, APPROVED: 9, REJECTED: 0 }],
+        'POST /api/approvals/bulk': [200, { approved: [50], skipped: [{ applicationId: 51, reason: 'คำร้องนี้ไม่ได้อยู่ในขั้นที่คุณพิจารณาได้' }] }]
+    };
+
+    test('UI-40 ตัวเลขบนทุกแท็บมาจาก /api/applications/summary (เรียกหลังโหลดรายการ)', async () => {
+        const { doc, calls } = await open('staff-review.html', USERS.staff, routes);
+        expect(calls[0].path).toBe('/api/applications?status=SUBMITTED');
+        expect(calls[1].path).toBe('/api/applications/summary');
+        const count = s => doc.querySelector(`#tabs .chip[data-status="${s}"] b`)?.textContent;
+        expect(count('SUBMITTED')).toBe('2');
+        expect(count('UNDER_REVIEW')).toBe('5');
+        expect(count('NEED_CORRECTION')).toBe('1');
+        expect(count('REJECTED')).toBeUndefined();
+    });
+
+    test('UI-41 คำร้องที่รอนาน มีป้าย "รอนาน" และไฮไลต์แถว', async () => {
+        const { doc } = await open('staff-review.html', USERS.staff, routes);
+        const first = doc.querySelector('#appRows tr');
+        expect(first.classList.contains('attn')).toBe(true);
+        expect(first.textContent).toContain('รอนาน');
+        expect(doc.querySelectorAll('#appRows tr')[1].classList.contains('attn')).toBe(false);
+    });
+
+    test('UI-42 อนุมัติหลายรายการ: เลือก 2 แถว กดยืนยัน 2 ครั้ง ส่ง POST /api/approvals/bulk และแสดงรายการที่ถูกข้าม', async () => {
+        const { doc, calls } = await open('staff-review.html', USERS.staff, routes);
+        expect(doc.querySelector('#bulkBar').hidden).toBe(true);
+        const ck = doc.querySelector('#ckAll');
+        ck.checked = true;
+        ck.dispatchEvent(new doc.defaultView.Event('change'));
+        expect(doc.querySelector('#bulkBar').hidden).toBe(false);
+        expect(doc.querySelector('#bulkCount').textContent).toContain('2');
+        doc.querySelector('#btnBulk').click();      // ขอยืนยัน
+        expect(calls.some(c => c.path === '/api/approvals/bulk')).toBe(false);
+        doc.querySelector('#btnBulk').click();
+        await flush();
+        const post = calls.find(c => c.path === '/api/approvals/bulk');
+        expect(post.body).toEqual({ applicationIds: [50, 51] });
+        expect(doc.querySelector('#listMsg').textContent).toContain('อนุมัติแล้ว 1 รายการ');
+        expect(doc.querySelector('#listMsg').textContent).toContain('เลขที่ 51');
+    });
+
+    test('UI-43 แท็บที่อนุมัติไม่ได้ (ส่งกลับแก้ไข) ไม่มีช่องเลือกหลายรายการ', async () => {
+        const { doc } = await open('staff-review.html', USERS.staff, {
+            ...routes, 'GET /api/applications?status=NEED_CORRECTION': [200, rows.map(r => ({ ...r, status: 'NEED_CORRECTION' }))]
+        });
+        doc.querySelector('#tabs .chip[data-status="NEED_CORRECTION"]').click();
+        await flush();
+        expect(doc.querySelector('#ckAll')).toBeNull();
+        expect(doc.querySelector('[data-pick]')).toBeNull();
+    });
+
+    const detail = {
+        ...APP2,
+        answers: [{ fieldId: 101, label: 'ชื่อ-นามสกุล', value: 'สมหญิง รักเรียน', previousValue: null },
+            { fieldId: 102, label: 'เบอร์โทรศัพท์', value: '0899999999', previousValue: '0812' },
+            { fieldId: 105, label: 'Transcript', value: 'transcript.pdf', previousValue: null }]
+    };
+    const detailRoutes = {
+        ...routes,
+        'GET /api/applications/51/detail': [200, detail],
+        'POST /api/approvals/51/decision': [200, { id: 901, applicationId: 51, approvalLevel: 'STAFF', decision: 'RETURN', applicationStatus: 'NEED_CORRECTION' }]
+    };
+    async function openDetail51() {
+        const page = await open('staff-review.html', USERS.staff, detailRoutes);
+        page.doc.querySelector('[data-open="51"]').click();
+        await flush();
+        return page;
+    }
+
+    test('UI-44 ฉบับที่แก้แล้วส่งใหม่ แสดงช่องที่เปลี่ยนพร้อมค่าเดิม', async () => {
+        const { doc } = await openDetail51();
+        const changed = doc.querySelectorAll('#dAnswers dd.changed');
+        expect(changed.length).toBe(1);
+        expect(changed[0].textContent).toContain('0899999999');
+        expect(changed[0].querySelector('.was').textContent).toBe('เดิม: 0812');
+    });
+
+    test('UI-45 ส่งกลับแก้ไข: เลือกเหตุผลที่ใช้บ่อย + เลือกช่องที่ต้องแก้ ส่ง fieldIds ไปด้วย', async () => {
+        const { window, doc, calls } = await openDetail51();
+        expect(doc.querySelector('#fixFields').hidden).toBe(true);   // ค่าเริ่มต้น = อนุมัติ
+        const ret = doc.querySelector('input[value="RETURN"]');
+        ret.checked = true;
+        ret.dispatchEvent(new window.Event('change'));
+        expect(doc.querySelector('#fixFields').hidden).toBe(false);
+        const sel = doc.querySelector('#presetReason');
+        sel.value = window.U5.PRESET_REASONS[0];
+        sel.dispatchEvent(new window.Event('change'));
+        expect(doc.querySelector('#comment').value).toBe(window.U5.PRESET_REASONS[0]);
+        doc.querySelector('#fixList .fix[value="105"]').checked = true;
+        doc.querySelector('#btnDecide').click();
+        await flush();
+        const post = calls.find(c => c.path === '/api/approvals/51/decision');
+        expect(post.body).toEqual({ decision: 'RETURN', comment: window.U5.PRESET_REASONS[0], fieldIds: [105] });
+    });
+
+    const formList = [
+        { id: 11, name: 'คำร้อง 2/2569', version: 2, status: 'PUBLISHED', deadline: '2099-12-31T23:59:00', fields: [{ label: 'ชื่อ', fieldType: 'TEXT', required: true }] },
+        { id: 10, name: 'คำร้อง 1/2569', version: 1, status: 'ARCHIVED', deadline: '2020-01-01T00:00:00', fields: [] }
+    ];
+
+    test('UI-46 ปิดรับก่อนกำหนด: มีปุ่มเฉพาะฉบับที่เปิดใช้งานอยู่ กดยืนยันแล้วเรียก POST /api/forms/{id}/close', async () => {
+        const { doc, calls } = await open('staff-forms.html', USERS.staff, {
+            'GET /api/forms': [200, formList],
+            'POST /api/forms/11/close': [200, { ...formList[0], deadline: '2026-10-24T10:00:00' }]
+        });
+        expect(doc.querySelectorAll('[data-close]').length).toBe(1);
+        const b = doc.querySelector('[data-close="11"]');
+        b.click();
+        expect(calls.some(c => c.path === '/api/forms/11/close')).toBe(false);
+        b.click();
+        await flush();
+        expect(calls.some(c => c.method === 'POST' && c.path === '/api/forms/11/close')).toBe(true);
+        expect(doc.querySelector('#formsMsg').textContent).toContain('ปิดรับคำร้อง');
+    });
+
+    test('UI-47 ดูตัวอย่างหน้านักศึกษา: แสดงช่องตามชนิด (ไฟล์ = input file, ตัวเลือก = select) และช่องบังคับมี *', async () => {
+        const { doc, calls } = await open('staff-forms.html', USERS.staff, { 'GET /api/forms': [200, []] });
+        doc.querySelector('#btnNew').click();
+        doc.querySelector('#fName').value = 'คำร้อง 3/2569';
+        doc.querySelector('#btnAddField').click();
+        const rowsEl = doc.querySelectorAll('#fieldList .frow');
+        rowsEl[1].querySelector('.f-label').value = 'หนังสือรับรอง';
+        rowsEl[1].querySelector('.f-type').value = 'FILE';
+        const before = calls.length;
+        doc.querySelector('#btnPreview').click();
+        const box = doc.querySelector('#previewBox');
+        expect(box.hidden).toBe(false);
+        expect(box.textContent).toContain('คำร้อง 3/2569');
+        expect(box.querySelectorAll('input[type=file]').length).toBe(1);
+        expect(box.querySelector('label').innerHTML).toContain('<em>*</em>');
+        expect(calls.length).toBe(before);   // ไม่บันทึกอะไร
+        doc.querySelector('#btnPreview').click();
+        expect(box.hidden).toBe(true);
     });
 });

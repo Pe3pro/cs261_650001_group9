@@ -1,9 +1,15 @@
 package com.example.demo.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.example.demo.dao.NotificationRepository;
 import com.example.demo.dao.StudentRepository;
@@ -22,6 +28,8 @@ import com.example.demo.entity.User;
 @Service
 @Transactional
 public class NotificationService {
+
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
@@ -42,11 +50,16 @@ public class NotificationService {
     public void notifyAfterDecision(Application app, ApprovalLevel level, ApprovalDecision decision, String comment) {
         String reason = (comment == null || comment.isBlank()) ? "" : " เหตุผล: " + comment.trim();
         if (decision == ApprovalDecision.APPROVE && level == ApprovalLevel.STAFF) {
-            for (User advisor : userRepository.findByRoleAndActiveTrue(Role.ADVISOR)) {
-                save(advisor.getId(), "มีใบสมัครรอพิจารณา",
-                        "ใบสมัครเลขที่ " + app.getId() + " ผ่านการตรวจของเจ้าหน้าที่แล้ว รออาจารย์พิจารณา",
-                        NotificationType.APPLICATION_FORWARDED, app);
-            }
+            // แจ้งเฉพาะอาจารย์ที่ปรึกษาของนักศึกษาเจ้าของคำร้อง ไม่ใช่อาจารย์ทุกคน
+            studentRepository.findById(app.getStudentId())
+                    .map(Student::getAdvisorId)
+                    .flatMap(userRepository::findById)
+                    .filter(u -> u.getRole() == Role.ADVISOR && !Boolean.FALSE.equals(u.getActive()))
+                    .ifPresentOrElse(
+                            advisor -> save(advisor.getId(), "มีใบสมัครรอพิจารณา",
+                                    "ใบสมัครเลขที่ " + app.getId() + " ผ่านการตรวจของเจ้าหน้าที่แล้ว รออาจารย์พิจารณา",
+                                    NotificationType.APPLICATION_FORWARDED, app),
+                            () -> log.warn("ใบสมัครเลขที่ {} ไม่มีอาจารย์ที่ปรึกษาที่ใช้งานอยู่ จึงไม่ได้แจ้งอาจารย์", app.getId()));
             notifyStudent(app, "เจ้าหน้าที่ตรวจใบสมัครแล้ว",
                     "ใบสมัครของคุณถูกส่งต่อให้อาจารย์พิจารณา",
                     NotificationType.APPLICATION_FORWARDED);
@@ -63,6 +76,37 @@ public class NotificationService {
                     "ใบสมัครฝึกสหกิจศึกษาของคุณไม่ได้รับการอนุมัติ." + reason,
                     NotificationType.APPLICATION_REJECTED);
         }
+    }
+
+    /**
+     * U5: แจ้งเจ้าหน้าที่ทุกคน (ที่ใช้งานอยู่) เมื่อมีคำร้องใหม่ หรือคำร้องที่แก้แล้วส่งกลับมา
+     * แจ้งเฉพาะในระบบ ไม่ส่ง Email เพื่อไม่ให้กล่องจดหมายเจ้าหน้าที่เต็ม
+     */
+    public void notifyStaffSubmitted(Application app, boolean resubmitted) {
+        String title = resubmitted ? "มีคำร้องที่แก้ไขแล้วส่งกลับมา" : "มีคำร้องใหม่รอตรวจ";
+        String message = resubmitted
+                ? "คำร้องเลขที่ " + app.getId() + " ถูกแก้ไขตามที่ส่งกลับและส่งเข้ามาใหม่แล้ว"
+                : "คำร้องเลขที่ " + app.getId() + " ถูกส่งเข้ามาในระบบ รอเจ้าหน้าที่ตรวจสอบ";
+        for (User staff : userRepository.findByRoleAndActiveTrue(Role.STAFF)) {
+            save(staff.getId(), title, message, NotificationType.APPLICATION_SUBMITTED, app);
+        }
+    }
+
+    /**
+     * U5: เตือนนักศึกษาที่ถูกตีกลับแต่ยังไม่ส่งใหม่ ว่าแบบฟอร์มใกล้หมดเขต
+     * เตือนไม่เกินวันละครั้งต่อคำร้อง (ถ้าวันนี้เตือนไปแล้วจะข้าม)
+     * @return true ถ้าสร้างการแจ้งเตือนใหม่
+     */
+    public boolean remindCorrection(Application app, LocalDateTime deadline, LocalDateTime now) {
+        if (notificationRepository.existsByApplicationIdAndTypeAndCreatedAtAfter(
+                app.getId(), NotificationType.CORRECTION_REMINDER, now.toLocalDate().atStartOfDay())) {
+            return false;
+        }
+        String when = deadline.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        notifyStudent(app, "ใกล้หมดเขตส่งคำร้องที่ต้องแก้ไข",
+                "คำร้องของคุณถูกส่งกลับให้แก้ไขและยังไม่ได้ส่งใหม่ กรุณาส่งภายใน " + when + " น.",
+                NotificationType.CORRECTION_REMINDER);
+        return true;
     }
 
     @Transactional(readOnly = true)
@@ -91,9 +135,33 @@ public class NotificationService {
                     // U3: แจ้งนักศึกษาทาง Email ด้วย (Sequence Diagram: Service → Email)
                     userRepository.findById(studentUserId)
                             .filter(u -> u.getEmail() != null && !u.getEmail().isBlank())
-                            .ifPresent(u -> emailNotifier.send(u.getEmail(), title,
+                            .ifPresent(u -> sendEmailAfterCommit(u.getEmail(), title,
                                     "คำร้องเลขที่ " + app.getId() + ": " + message));
                 });
+    }
+
+    /**
+     * ส่ง Email หลังบันทึกผลการพิจารณาลงฐานข้อมูลสำเร็จแล้วเท่านั้น
+     * ถ้าส่งไม่สำเร็จ ผลการพิจารณาและแจ้งเตือนในระบบยังอยู่ครบ และบันทึกความล้มเหลวไว้ใน log
+     */
+    void sendEmailAfterCommit(String to, String subject, String body) {
+        Runnable send = () -> {
+            try {
+                emailNotifier.send(to, subject, body);
+            } catch (RuntimeException e) {
+                log.warn("[EMAIL-FAILED] to={} subject={} reason={}", to, subject, e.getMessage());
+            }
+        };
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    send.run();
+                }
+            });
+        } else {
+            send.run();
+        }
     }
 
     private void save(Long userId, String title, String message, NotificationType type, Application app) {

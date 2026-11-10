@@ -28,11 +28,23 @@
       TU_API_KEY: ${TU_API_KEY:-}
       # U3: ที่เก็บไฟล์ Transcript (PDF) เก็บใน volume ไม่หายเมื่อสร้าง container ใหม่
       APP_UPLOAD_DIR: /app/uploads
+      # U5: ส่ง Email แจ้งผลการพิจารณาไปที่ Mailpit (ดูอีเมลที่ http://localhost:8025)
+      APP_MAIL_ENABLED: "true"
+      SPRING_MAIL_HOST: mailpit
+      SPRING_MAIL_PORT: 1025
     volumes:
       - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+  # U5: กล่องจดหมายจำลองสำหรับทดสอบ Email (ไม่ส่งออกไปนอกเครื่อง)
+  mailpit:
+    image: axllent/mailpit
+    container_name: cs261-mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
   web:
     image: nginx:alpine
     container_name: cs261-web

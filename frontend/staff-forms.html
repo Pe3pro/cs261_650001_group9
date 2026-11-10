@@ -4,12 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>ตรวจใบสมัคร · ระบบสหกิจศึกษา</title>
+    <title>แบบฟอร์มคำร้อง · ระบบสหกิจศึกษา</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="u5" data-page="review">
+<body class="u5" data-page="forms">
     <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
     </header>
     <nav id="u5nav"></nav>
@@ -17,87 +17,53 @@
     <main>
         <section id="vPick" hidden></section>
         <section id="vDenied" hidden>
-            <div class="card"><div class="alert bad" role="alert">หน้านี้สำหรับเจ้าหน้าที่และอาจารย์เท่านั้น</div>
+            <div class="card"><div class="alert bad" role="alert">หน้านี้สำหรับเจ้าหน้าที่เท่านั้น</div>
                 <a class="btn" href="notifications.html">ไปหน้าการแจ้งเตือน</a></div>
         </section>
 
-        <!-- 1. รายการใบสมัคร (Staff 1 / Advisor 1) -->
-        <section id="vList" hidden>
-            <h1 id="listTitle">ตรวจใบสมัคร</h1>
-            <p class="sub" id="listSub">ใบสมัครฝึกสหกิจศึกษาที่นักศึกษายื่นเข้ามา รอเจ้าหน้าที่ตรวจสอบ</p>
-            <div class="toolbar">
-                <div id="tabs" role="tablist" style="display:contents"></div>
-                <input id="search" class="search" type="search" placeholder="ค้นหาชื่อหรือรหัสนักศึกษา" aria-label="ค้นหาชื่อหรือรหัสนักศึกษา">
+        <!-- 1. รายการแบบฟอร์ม -->
+        <section id="vForms" hidden>
+            <div class="titlebar">
+                <div>
+                    <h1>แบบฟอร์มคำร้อง</h1>
+                    <p class="sub">สร้างแบบฟอร์มที่นักศึกษาใช้ยื่นคำร้องฝึกสหกิจศึกษา เปิดใช้งานได้ทีละ 1 ฉบับ</p>
+                </div>
+                <button class="btn" id="btnNew" type="button">+ สร้างแบบฟอร์มใหม่</button>
             </div>
-            <div id="listErr" class="alert bad" role="alert" hidden></div>
+            <div id="formsMsg" class="alert" role="status" hidden></div>
             <div class="card flush">
                 <table class="tbl">
-                    <thead id="appHead"></thead>
-                    <tbody id="appRows"></tbody>
+                    <thead>
+                        <tr><th>ฉบับที่</th><th>ชื่อแบบฟอร์ม</th><th>จำนวนช่อง</th><th>หมดเขต</th><th>สถานะ</th><th></th></tr>
+                    </thead>
+                    <tbody id="formRows"></tbody>
                 </table>
-                <p id="emptyMsg" class="empty" hidden>ไม่มีใบสมัครในสถานะนี้</p>
+                <p id="formsEmpty" class="empty" hidden>ยังไม่มีแบบฟอร์ม กด "สร้างแบบฟอร์มใหม่" เพื่อเริ่ม</p>
             </div>
         </section>
 
-        <!-- 2. ตรวจใบสมัคร (Staff 2 / Staff 4) -->
-        <section id="vDetail" hidden>
-            <h1 id="detailTitle">ตรวจใบสมัคร</h1>
-            <p class="sub">ตรวจข้อมูลและเอกสาร แล้วเลือกผลการพิจารณา</p>
-            <div class="steps"><span class="st"><i class="dot">1</i>นักศึกษายื่น</span><i></i><span class="st"><i
-                        class="dot">2</i>เจ้าหน้าที่ตรวจ</span><i></i><span class="st"><i
-                        class="dot">3</i>อาจารย์พิจารณา</span><i></i><span class="st"><i class="dot">4</i>อนุมัติ</span></div>
-            <div class="cols">
-                <div>
-                    <div class="card">
-                        <h2>ข้อมูลนักศึกษา</h2>
-                        <dl class="kv" id="dInfo"></dl>
-                    </div>
-                    <div class="card" id="decisionCard">
-                        <h2>ผลการพิจารณา</h2>
-                        <div id="decErr" class="alert bad" role="alert" hidden></div>
-                        <div class="opts" role="radiogroup" aria-label="ผลการพิจารณา">
-                            <label class="opt"><input type="radio" name="decision" value="APPROVE"><span
-                                    id="approveLabel">อนุมัติ ส่งต่ออาจารย์</span></label>
-                            <label class="opt"><input type="radio" name="decision" value="RETURN"><span>ส่งกลับแก้ไข</span></label>
-                            <label class="opt"><input type="radio" name="decision" value="REJECT"><span>ปฏิเสธ</span></label>
-                        </div>
-                        <label class="lab" for="comment">เหตุผล / ความคิดเห็น <em>*</em> (จำเป็นเมื่อส่งกลับแก้ไขหรือปฏิเสธ)</label>
-                        <textarea id="comment" rows="4" placeholder="ระบุสิ่งที่นักศึกษาต้องแก้ไข หรือเหตุผลที่ปฏิเสธ"></textarea>
-                        <div id="commentErr" class="errmsg" hidden></div>
-                        <div class="acts"><button class="btn muted" id="btnBack" type="button">ย้อนกลับ</button><button
-                                class="btn" id="btnDecide" type="button">บันทึกผลการพิจารณา</button></div>
-                    </div>
-                </div>
-                <div>
-                    <div class="card">
-                        <h2>เอกสารแนบ</h2>
-                        <div id="dDocs"></div>
-                    </div>
-                    <div class="card">
-                        <h2>ประวัติการพิจารณา</h2>
-                        <div id="dHistory"></div>
-                    </div>
-                    <div class="card">
-                        <h2>ข้อมูลในแบบฟอร์ม</h2>
-                        <dl class="kv one" id="dAnswers"></dl>
-                    </div>
-                </div>
+        <!-- 2. สร้าง / แก้ไขแบบฟอร์ม -->
+        <section id="vEdit" hidden>
+            <h1 id="editTitle">สร้างแบบฟอร์มใหม่</h1>
+            <p class="sub">กำหนดช่องที่นักศึกษาต้องกรอก บันทึกเป็นฉบับร่างก่อน แล้วค่อยเปิดใช้งาน</p>
+            <div class="card">
+                <h2>ข้อมูลแบบฟอร์ม</h2>
+                <div class="fld"><label for="fName">ชื่อแบบฟอร์ม *</label><input id="fName"
+                        placeholder="เช่น คำร้องขอฝึกสหกิจศึกษา 2/2569"></div>
+                <div class="fld"><label for="fDesc">คำอธิบายสำหรับนักศึกษา</label><textarea id="fDesc" rows="2"></textarea></div>
+                <div class="fld"><label for="fDeadline">วันเวลาหมดเขตยื่นคำร้อง (ต้องกำหนดก่อนเปิดใช้งาน)</label><input
+                        id="fDeadline" type="datetime-local"></div>
             </div>
-        </section>
-
-        <!-- 3. บันทึกผลสำเร็จ (Staff 3) -->
-        <section id="vDone" hidden>
-            <div style="max-width:712px;margin:0 auto">
-                <h1>ตรวจใบสมัคร</h1>
-                <p class="sub">ตรวจข้อมูลและเอกสาร แล้วเลือกผลการพิจารณา</p>
-                <div class="card center">
-                    <div class="big">✓</div>
-                    <h2 style="margin-bottom:8px">บันทึกผลการพิจารณาเรียบร้อย</h2>
-                    <p class="sub" id="doneMsg" style="margin-bottom:20px"></p>
-                    <div class="alert info" id="doneInfo" style="text-align:left"></div>
-                    <div class="btnrow"><button class="btn ghost" id="btnDoneView" type="button">ดูใบสมัครนี้</button><button
-                            class="btn" id="btnDoneBack" type="button">กลับไปหน้ารายการ</button></div>
-                </div>
+            <div class="card">
+                <h2>ช่องในแบบฟอร์ม</h2>
+                <div id="fieldList"></div>
+                <button class="btn ghost" id="btnAddField" type="button">+ เพิ่มช่อง</button>
+            </div>
+            <div id="editErr" class="alert bad" role="alert" hidden></div>
+            <div class="card preview" id="previewBox" hidden></div>
+            <div class="acts"><button class="btn muted" id="btnCancel" type="button">ยกเลิก</button>
+                <div><button class="btn ghost" id="btnPreview" type="button">ดูตัวอย่างหน้านักศึกษา</button><button class="btn ghost" id="btnSaveDraft" type="button">บันทึกฉบับร่าง</button><button class="btn"
+                        id="btnSavePublish" type="button">บันทึกและเปิดใช้งาน</button></div>
             </div>
         </section>
     </main>

@@ -178,7 +178,7 @@ docker exec -it cs261-db mysql -uroot -proot1234 cs261db
 | User Story | Method | Endpoint | หน้าที่ |
 |---|---|---|---|
 | U1 | `POST` | `/api/auth/login` | เข้าสู่ระบบสำหรับนักศึกษาและเจ้าหน้าที่ |
-| U2–U5 | — | ดูใน `.doc/UserStory/U2–U5/T5.md` | — |
+| U2–U5 | — | ดูใน `.doc/UserStory/U2–U4/T5.md` และ `.doc/UserStory/U5/T2.md` | — |
 
 การทดสอบ API ใช้ Postman โดยให้เก็บไฟล์ Postman Collection ไว้ที่ `.doc/postman/`
 

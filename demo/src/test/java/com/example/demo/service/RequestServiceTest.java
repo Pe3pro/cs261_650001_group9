@@ -3,6 +3,7 @@ package com.example.demo.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -65,6 +66,7 @@ class RequestServiceTest {
     private EligibilityRecordDao eligibility;
     private ApprovalRepository approvals;
     private EmailNotifier email;
+    private NotificationService notifications;
     private AccessGuard guard;
 
     private final User userA = user(3L, "6609650001", "somchai@dome.tu.ac.th");
@@ -83,6 +85,7 @@ class RequestServiceTest {
         eligibility = mock(EligibilityRecordDao.class);
         approvals = mock(ApprovalRepository.class);
         email = mock(EmailNotifier.class);
+        notifications = mock(NotificationService.class);
         guard = mock(AccessGuard.class);
 
         f1 = form(10L, F1_DEADLINE);
@@ -102,7 +105,7 @@ class RequestServiceTest {
 
     private RequestService service(Clock clock) {
         return new RequestService(applications, templates, fields, responses, documents, students, eligibility,
-                approvals, email, guard, clock);
+                approvals, email, notifications, guard, clock);
     }
 
     /** คำร้องของ นศ. A ที่กรอกครบ 4 ช่อง และแนบ PDF แล้ว */
@@ -180,6 +183,7 @@ class RequestServiceTest {
         assertThat(app.getSubmittedAt()).isEqualTo(LocalDateTime.of(2026, 10, 20, 10, 0));
         verify(applications).saveAndFlush(app);
         verify(email).send(any(), any(), any());
+        verify(notifications).notifyStaffSubmitted(app, false);
     }
 
     @Test
@@ -205,6 +209,57 @@ class RequestServiceTest {
 
         assertThat(res.id()).isEqualTo(500L);
         assertThat(app.getStatus()).isEqualTo(ApplicationStatus.SUBMITTED);
+        verify(notifications).notifyStaffSubmitted(app, true); // U5: แจ้งเจ้าหน้าที่ว่าเป็นฉบับแก้
+    }
+
+    @Test
+    @DisplayName("U5-RQ01 แบบฟอร์มมีช่องไฟล์บังคับ 2 ช่อง แนบแค่ Transcript: ส่งไม่ได้ บอกชื่อช่องที่ขาด")
+    void rejectMissingSecondFile() {
+        when(fields.findByFormTemplateIdOrderByDisplayOrderAsc(10L)).thenReturn(withExtraFile());
+        Application app = completeApplication(ApplicationStatus.DRAFT); // แนบ Transcript แบบไม่ระบุช่อง
+
+        assertThatThrownBy(() -> service(NOW).submit(500L, 3L))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("หนังสือรับรอง")
+                .extracting("status", "code").containsExactly(400, "MISSING_DOCUMENT");
+        assertThat(app.getStatus()).isEqualTo(ApplicationStatus.DRAFT);
+        verify(notifications, never()).notifyStaffSubmitted(any(), anyBoolean());
+    }
+
+    @Test
+    @DisplayName("U5-RQ02 แนบไฟล์ครบทุกช่องไฟล์บังคับ (Transcript ไม่ระบุช่อง + ช่องที่ 2 ระบุ fieldId): ส่งได้")
+    void submitWithAllFiles() {
+        when(fields.findByFormTemplateIdOrderByDisplayOrderAsc(10L)).thenReturn(withExtraFile());
+        Application app = completeApplication(ApplicationStatus.DRAFT);
+        when(documents.findByApplicationId(500L)).thenReturn(List.of(
+                new Document(500L, "transcript.pdf", "k1", 1000L),
+                new Document(500L, "letter.pdf", "k2", 1000L, 106L)));
+
+        service(NOW).submit(500L, 3L);
+
+        assertThat(app.getStatus()).isEqualTo(ApplicationStatus.SUBMITTED);
+    }
+
+    @Test
+    @DisplayName("U5-RQ03 แนบไฟล์ให้ช่องที่ไม่ใช่ช่องไฟล์ / ไม่อยู่ในแบบฟอร์ม: ปฏิเสธ 400")
+    void rejectWrongFileField() {
+        Application app = completeApplication(ApplicationStatus.DRAFT);
+        when(fields.findById(101L)).thenReturn(Optional.of(f1Fields.get(0)));
+        when(fields.findById(105L)).thenReturn(Optional.of(f1Fields.get(4)));
+        when(fields.findById(999L)).thenReturn(Optional.of(withId(new FormField(77L, "อื่น", FieldType.FILE, true, 1), 999L)));
+
+        assertThatThrownBy(() -> service(NOW).fileField(app, 101L))
+                .isInstanceOf(ApiException.class).extracting("status").isEqualTo(400);
+        assertThatThrownBy(() -> service(NOW).fileField(app, 999L))
+                .isInstanceOf(ApiException.class).extracting("status").isEqualTo(400);
+        assertThat(service(NOW).fileField(app, 105L)).isSameAs(f1Fields.get(4));
+    }
+
+    /** ฟอร์ม F1 + ช่องไฟล์บังคับช่องที่ 2 (id 106) */
+    private List<FormField> withExtraFile() {
+        List<FormField> list = new ArrayList<>(f1Fields);
+        list.add(field(106L, 6, "หนังสือรับรองจากบริษัท", FieldType.FILE));
+        return list;
     }
 
     @Test

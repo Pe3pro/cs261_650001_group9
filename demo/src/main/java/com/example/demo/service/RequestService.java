@@ -35,6 +35,7 @@ import com.example.demo.entity.Application;
 import com.example.demo.entity.ApplicationStatus;
 import com.example.demo.entity.Approval;
 import com.example.demo.entity.ApprovalDecision;
+import com.example.demo.entity.Document;
 import com.example.demo.entity.EligibilityRecord;
 import com.example.demo.entity.FieldType;
 import com.example.demo.entity.FormField;
@@ -71,6 +72,7 @@ public class RequestService {
     private final EligibilityRecordDao eligibilityRecordDao;
     private final ApprovalRepository approvalRepository;
     private final EmailNotifier emailNotifier;
+    private final NotificationService notificationService;
     private final AccessGuard guard;
     private final Clock clock;
 
@@ -78,7 +80,7 @@ public class RequestService {
             FormFieldRepository fieldRepository, FormResponseRepository responseRepository,
             DocumentRepository documentRepository, StudentRepository studentRepository,
             EligibilityRecordDao eligibilityRecordDao, ApprovalRepository approvalRepository,
-            EmailNotifier emailNotifier, AccessGuard guard, Clock clock) {
+            EmailNotifier emailNotifier, NotificationService notificationService, AccessGuard guard, Clock clock) {
         this.applicationRepository = applicationRepository;
         this.templateRepository = templateRepository;
         this.fieldRepository = fieldRepository;
@@ -88,6 +90,7 @@ public class RequestService {
         this.eligibilityRecordDao = eligibilityRecordDao;
         this.approvalRepository = approvalRepository;
         this.emailNotifier = emailNotifier;
+        this.notificationService = notificationService;
         this.guard = guard;
         this.clock = clock;
     }
@@ -175,12 +178,12 @@ public class RequestService {
         if (!errors.isEmpty()) {
             throw new FieldValidationException(errors);
         }
-        if (documentRepository.findByApplicationId(app.getId()).isEmpty()) {
-            throw new ApiException(400, "MISSING_DOCUMENT", "กรุณาแนบไฟล์ Transcript (PDF) ก่อนส่งคำร้อง");
-        }
+        requireDocuments(app, fields);
+        boolean resubmitted = app.getStatus() == ApplicationStatus.NEED_CORRECTION;
         moveTo(app, ApplicationStatus.SUBMITTED);
         app.submit(now);
         app = applicationRepository.saveAndFlush(app); // ถ้ามีคนส่งพร้อมกัน @Version จะทำให้ครั้งที่สองได้ 409
+        notificationService.notifyStaffSubmitted(app, resubmitted); // U5: แจ้งเจ้าหน้าที่ว่ามีคำร้องเข้ามา
         User user = guard.require(userId);
         if (user.getEmail() != null && !user.getEmail().isBlank()) {
             emailNotifier.send(user.getEmail(), "ได้รับคำร้องขอฝึกสหกิจศึกษาแล้ว",
@@ -229,6 +232,41 @@ public class RequestService {
                     "ไม่สามารถเปลี่ยนสถานะจาก " + app.getStatus() + " เป็น " + target + " ได้");
         }
         app.changeStatus(target);
+    }
+
+    /**
+     * ไฟล์แนบ: ต้องมีอย่างน้อย 1 ไฟล์ (Transcript) เหมือนเดิม
+     * และ U5: ช่องชนิดไฟล์ที่บังคับทุกช่องต้องมีไฟล์ · ไฟล์ที่แนบแบบไม่ระบุช่อง (ระบบเดิม) นับเป็นของช่องไฟล์ช่องแรก
+     */
+    void requireDocuments(Application app, List<FormField> fields) {
+        List<Document> docs = documentRepository.findByApplicationId(app.getId());
+        if (docs.isEmpty()) {
+            throw new ApiException(400, "MISSING_DOCUMENT", "กรุณาแนบไฟล์ Transcript (PDF) ก่อนส่งคำร้อง");
+        }
+        List<FormField> fileFields = fields.stream().filter(f -> f.getFieldType() == FieldType.FILE).toList();
+        for (int i = 0; i < fileFields.size(); i++) {
+            FormField field = fileFields.get(i);
+            if (!Boolean.TRUE.equals(field.getRequired())) {
+                continue;
+            }
+            boolean first = i == 0;
+            boolean attached = docs.stream().anyMatch(d -> field.getId().equals(d.getFormFieldId())
+                    || (first && d.getFormFieldId() == null));
+            if (!attached) {
+                throw new ApiException(400, "MISSING_DOCUMENT", "กรุณาแนบไฟล์ " + field.getLabel() + " ก่อนส่งคำร้อง");
+            }
+        }
+    }
+
+    /** U5: ช่องชนิดไฟล์ที่นักศึกษาแนบไฟล์ให้ ต้องอยู่ในแบบฟอร์มของคำร้องนี้ */
+    FormField fileField(Application app, Long fieldId) {
+        FormField field = fieldRepository.findById(fieldId)
+                .filter(f -> f.getFormTemplateId().equals(app.getFormTemplateId()))
+                .orElseThrow(() -> ApiException.badRequest("ไม่พบช่องแนบไฟล์นี้ในแบบฟอร์ม"));
+        if (field.getFieldType() != FieldType.FILE) {
+            throw ApiException.badRequest("ช่องนี้ไม่ใช่ช่องแนบไฟล์");
+        }
+        return field;
     }
 
     /** ตรวจคำตอบทุกช่อง: ช่องบังคับต้องไม่ว่าง (ตัดช่องว่างก่อน) · EMAIL / PHONE ต้องถูกรูปแบบ */

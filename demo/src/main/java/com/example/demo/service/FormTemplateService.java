@@ -124,6 +124,24 @@ public class FormTemplateService {
         return toResponse(templateRepository.save(template));
     }
 
+    /**
+     * U5: ปิดรับคำร้องก่อนวันหมดเขต · เลื่อนวันหมดเขตมาเป็นเวลานี้
+     * ผลเหมือนหมดเขตตามปกติ: นักศึกษายื่นใหม่ / ส่งฉบับแก้ไม่ได้อีก แต่คำร้องที่ส่งแล้วยังพิจารณาต่อได้
+     */
+    public FormTemplateResponse close(Long id, Long userId) {
+        guard.require(userId, Role.STAFF, Role.ADMIN);
+        FormTemplate template = findTemplate(id);
+        if (template.getStatus() != FormStatus.PUBLISHED) {
+            throw ApiException.conflict("ปิดรับได้เฉพาะแบบฟอร์มที่เปิดใช้งานอยู่");
+        }
+        LocalDateTime now = LocalDateTime.now(clock);
+        if (template.getDeadline() != null && !template.getDeadline().isAfter(now)) {
+            throw ApiException.conflict("แบบฟอร์มนี้หมดเขตรับคำร้องไปแล้ว");
+        }
+        template.setDeadline(now);
+        return toResponse(templateRepository.save(template));
+    }
+
     private FormTemplate findTemplate(Long id) {
         return templateRepository.findById(id)
                 .orElseThrow(() -> ApiException.notFound("ไม่พบแบบฟอร์ม"));

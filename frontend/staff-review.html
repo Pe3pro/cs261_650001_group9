@@ -28,8 +28,12 @@
             <div class="toolbar">
                 <div id="tabs" role="tablist" style="display:contents"></div>
                 <input id="search" class="search" type="search" placeholder="ค้นหาชื่อหรือรหัสนักศึกษา" aria-label="ค้นหาชื่อหรือรหัสนักศึกษา">
+                <button class="btn sm ghost" id="btnExport" type="button" title="ไฟล์ CSV เปิดด้วย Excel ได้">ดาวน์โหลด Excel</button>
             </div>
             <div id="listErr" class="alert bad" role="alert" hidden></div>
+            <div id="listMsg" class="alert ok" role="status" hidden></div>
+            <div id="bulkBar" class="bulkbar" hidden><span id="bulkCount"></span><button class="btn sm" id="btnBulk"
+                    type="button">อนุมัติที่เลือก</button></div>
             <div class="card flush">
                 <table class="tbl">
                     <thead id="appHead"></thead>
@@ -61,7 +65,12 @@
                             <label class="opt"><input type="radio" name="decision" value="RETURN"><span>ส่งกลับแก้ไข</span></label>
                             <label class="opt"><input type="radio" name="decision" value="REJECT"><span>ปฏิเสธ</span></label>
                         </div>
+                        <div id="fixFields" class="fixfields" hidden>
+                            <span class="lab">ช่องที่นักศึกษาต้องแก้ (เลือกได้หลายช่อง)</span>
+                            <div id="fixList" class="fixlist"></div>
+                        </div>
                         <label class="lab" for="comment">เหตุผล / ความคิดเห็น <em>*</em> (จำเป็นเมื่อส่งกลับแก้ไขหรือปฏิเสธ)</label>
+                        <select id="presetReason" class="preset" aria-label="เหตุผลที่ใช้บ่อย"></select>
                         <textarea id="comment" rows="4" placeholder="ระบุสิ่งที่นักศึกษาต้องแก้ไข หรือเหตุผลที่ปฏิเสธ"></textarea>
                         <div id="commentErr" class="errmsg" hidden></div>
                         <div class="acts"><button class="btn muted" id="btnBack" type="button">ย้อนกลับ</button><button

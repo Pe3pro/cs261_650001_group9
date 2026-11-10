@@ -1028,6 +1028,29 @@ function initSubmit() {
       $('#btnSend').disabled = true;
    }
 
+   /* U5: ช่องแนบไฟล์ที่เจ้าหน้าที่เพิ่มในแบบฟอร์ม (ช่องไฟล์ช่องแรกใช้ช่อง Transcript เดิม #s_tr) */
+   const extraFileFields = () => ((form && form.fields) || []).filter(x => x.fieldType === 'FILE').slice(1);
+
+   function renderExtraFiles() {
+      document.querySelectorAll('.u5-extra-file').forEach(el => el.remove());
+      const anchor = $('#s_err');
+      if (!anchor) return;
+      extraFileFields().forEach(f => {
+         const box = document.createElement('div');
+         box.className = 'fld u5-extra-file';
+         const label = document.createElement('label');
+         label.htmlFor = 's_file_' + f.id;
+         label.textContent = f.label + (f.required ? ' *' : '');
+         const input = document.createElement('input');
+         input.type = 'file';
+         input.id = 's_file_' + f.id;
+         input.accept = '.pdf,application/pdf';
+         input.dataset.fieldId = String(f.id);
+         box.append(label, input);
+         anchor.before(box);
+      });
+   }
+
    function fillAnswers(req) {
       if (!form || !req || !req.answers) return;
       Object.entries(INPUTS).forEach(([id, type]) => {
@@ -1054,6 +1077,7 @@ function initSubmit() {
          const pub = await call('/api/forms/published');
          if (pub.status === 200 && pub.data) {
             form = pub.data.form;
+            renderExtraFiles();
             if (pub.data.deadlinePassed) {
                lock(MSG.deadline + (form.deadline ? ' (หมดเขต ' + fmt(form.deadline) + ')' : ''));
             }
@@ -1138,7 +1162,9 @@ function initSubmit() {
          return result(false, MSG.duplicate, true, '-');
       }
       if (code === 'MISSING_DOCUMENT') {
-         return result(false, MSG.fail1, false, MSG.noFile, { retry: true, edit: true });
+         // U5: ขาดไฟล์ของช่องแนบไฟล์อื่น → แสดงข้อความจาก server ที่บอกชื่อช่อง
+         const other = /กรุณาแนบไฟล์ (?!Transcript)/.test(msg);
+         return result(false, MSG.fail1, false, other ? msg : MSG.noFile, { retry: true, edit: true });
       }
       if (code === 'INVALID_FILE' || code === 'FILE_TOO_LARGE') {
          return result(false, MSG.fail1, false, msg, { retry: true, edit: true });
@@ -1164,11 +1190,16 @@ function initSubmit() {
    async function send() {
       if (busy || locked) return;
       const file = $('#s_tr').files[0];
-      if (file && !/\.pdf$/i.test(file.name)) {
-         return result(false, MSG.fail1, false, MSG.pdf, { edit: true });
-      }
-      if (file && file.size > MAX_SIZE) {
-         return result(false, MSG.fail1, false, MSG.size, { edit: true });
+      // U5: ไฟล์ของช่องแนบไฟล์อื่นในแบบฟอร์ม [{fieldId, file}]
+      const extras = [...document.querySelectorAll('.u5-extra-file input[type=file]')]
+         .filter(i => i.files && i.files[0]).map(i => ({ fieldId: i.dataset.fieldId, file: i.files[0] }));
+      for (const f of [file, ...extras.map(x => x.file)]) {
+         if (f && !/\.pdf$/i.test(f.name)) {
+            return result(false, MSG.fail1, false, MSG.pdf, { edit: true });
+         }
+         if (f && f.size > MAX_SIZE) {
+            return result(false, MSG.fail1, false, MSG.size, { edit: true });
+         }
       }
       busy = true;
       $('#btnSend').disabled = true;
@@ -1192,6 +1223,12 @@ function initSubmit() {
             const fd = new FormData();
             fd.append('file', file, file.name);
             const up = await call('/api/requests/' + reqId + '/documents', 'POST', fd);
+            if (up.status !== 201) return fail(up);
+         }
+         for (const x of extras) {
+            const fd = new FormData();
+            fd.append('file', x.file, x.file.name);
+            const up = await call('/api/requests/' + reqId + '/documents?fieldId=' + encodeURIComponent(x.fieldId), 'POST', fd);
             if (up.status !== 201) return fail(up);
          }
          const done = await call('/api/requests/' + reqId + '/submit', 'POST');
