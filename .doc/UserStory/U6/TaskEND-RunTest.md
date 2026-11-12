@@ -136,7 +136,8 @@ Sequence Diagram ที่ใช้
 ![US6 Sequence 1 บันทึกอันดับ](<us6-07-sequence-1-preferences.png>)
 ![US6 Sequence 2 จับคู่อัตโนมัติ](<us6-07-sequence-2-auto-match.png>)
 ![US6 Sequence 3 เปิดรอบและประกาศผล](<us6-07-sequence-3-round-announce.png>)
-![US6 Sequence 4 ยืนยัน / สละสิทธิ์](<us6-07-sequence-4-respond.png>)
+![US6 Sequence 4a ดูผลการจับคู่](<us6-07-sequence-4a-summary.png>)
+![US6 Sequence 4b ยืนยัน / สละสิทธิ์](<us6-07-sequence-4b-respond.png>)
 
 ทดสอบทั้งระบบตามเส้นทางใน Sequence Diagram ① บันทึกอันดับ ② จับคู่อัตโนมัติ ③ เปิดรอบ / ประกาศผล ④ ยืนยัน / สละสิทธิ์ ด้วยหน้าเว็บจริง + backend จริง + MySQL แล้วตรวจ 3 จุดทุกข้อ: หน้าจอ · DevTools แท็บ Network · MySQL
 
