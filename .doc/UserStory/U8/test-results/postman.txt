@@ -1,0 +1,211 @@
+docker : Unable to find image 'postman/newman:6-alpine' locally
+At line:1 char:1
++ docker run --rm -v "${PWD}\.doc\postman:/etc/newman" postman/newman:6 ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Unable to find ...alpine' locally:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+6-alpine: Pulling from postman/newman
+e8d77df97bba: Pulling fs layer
+7264a8db6415: Pulling fs layer
+950c5e76b10c: Pulling fs layer
+93b3025fe103: Pulling fs layer
+d9059661ce70: Pulling fs layer
+eee371b9ce3f: Pulling fs layer
+e8d77df97bba: Download complete
+d9059661ce70: Download complete
+7264a8db6415: Download complete
+93b3025fe103: Download complete
+7264a8db6415: Pull complete
+2b4b48d1cd1c: Download complete
+950c5e76b10c: Download complete
+eee371b9ce3f: Download complete
+d9059661ce70: Pull complete
+93b3025fe103: Pull complete
+eee371b9ce3f: Pull complete
+e8d77df97bba: Pull complete
+950c5e76b10c: Pull complete
+Digest: sha256:d9b5e780ead0026bbb37f3759cd7b10fc8a88cd4030c8266a7c5e343d75a5198
+Status: Downloaded newer image for postman/newman:6-alpine
+newman
+
+U8 WorkLog ΓÇö α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕üα╕▓α╕úα╕ùα╕│α╕çα╕▓α╕Ö
+
+Γ¥Å 00 α╣Çα╕òα╕úα╕╡α╕óα╕íα╕éα╣ëα╕¡α╕íα╕╣α╕Ñ: α╕½α╕▓ userId α╕êα╕▓α╕ü username
+Γå│ 00 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓ A α╕¥α╕╢α╕üα╕çα╕▓α╕Öα╕¡α╕óα╕╣α╣ê (GET /api/users/6609650001)
+  GET http://host.docker.internal:8080/api/users/6609650001 [200 OK, 332B, 222ms]
+  Γ£ô  status 200
+  Γöî
+  Γöé 'studentA = 3'
+  Γöö
+
+Γå│ 00 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓ C (α╣äα╕íα╣êα╣âα╕èα╣êα╣Çα╕êα╣ëα╕▓α╕éα╕¡α╕çα╕üα╕▓α╕úα╕¥α╕╢α╕üα╕çα╕▓α╕Ö) (GET /api/users/6609650003)
+  GET http://host.docker.internal:8080/api/users/6609650003 [200 OK, 338B, 16ms]
+  Γ£ô  status 200
+  Γöî
+  Γöé 'studentC = 5'
+  Γöö
+
+Γå│ 00 α╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╕ùα╕╡α╣êα╕¢α╕úα╕╢α╕üα╕⌐α╕▓ (GET /api/users/advisor01)
+  GET http://host.docker.internal:8080/api/users/advisor01 [200 OK, 346B, 13ms]
+  Γ£ô  status 200
+  Γöî
+  Γöé 'advisorId = 2'
+  Γöö
+
+Γå│ 00 α╣Çα╕êα╣ëα╕▓α╕½α╕Öα╣ëα╕▓α╕ùα╕╡α╣ê (GET /api/users/staff01)
+  GET http://host.docker.internal:8080/api/users/staff01 [200 OK, 336B, 12ms]
+  Γ£ô  status 200
+  Γöî
+  Γöé 'staffId = 1'
+  Γöö
+
+Γ¥Å 01 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╕Üα╕▒α╕Öα╕ùα╕╢α╕ü α╣üα╕Öα╕Üα╣äα╕ƒα╕Ñα╣î α╣üα╕Ñα╕░α╕¬α╣êα╕çα╕Üα╕▒α╕Öα╕ùα╕╢α╕ü
+Γå│ 01-1 α╕½α╕▓α╕üα╕▓α╕úα╕¥α╕╢α╕üα╕çα╕▓α╕Öα╕éα╕¡α╕çα╕òα╕Öα╣Çα╕¡α╕ç (GET /api/internships/me)
+  GET http://host.docker.internal:8080/api/internships/me [200 OK, 338B, 25ms]
+  Γ£ô  status 200
+  Γ£ô  IN_PROGRESS
+
+Γå│ 01-2 α╕¬α╕úα╕╕α╕¢α╕Üα╕▒α╕Öα╕ùα╕╢α╕ü + α╣Çα╕Ñα╕╖α╕¡α╕üα╕ºα╕▒α╕Öα╕ùα╕╡α╣êα╕óα╕▒α╕çα╣äα╕íα╣êα╕Üα╕▒α╕Öα╕ùα╕╢α╕ü (GET summary)
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/summary [200 OK, 699B, 58ms]
+  Γ£ô  status 200
+  Γ£ô  α╕íα╕╡ totalHours / workingDays / missingDates
+
+Γå│ 01-3 α╣Çα╕ºα╕Ñα╕▓α╕¬α╕┤α╣ëα╕Öα╕¬α╕╕α╕öα╕üα╣êα╕¡α╕Öα╣Çα╕ºα╕Ñα╕▓α╣Çα╕úα╕┤α╣êα╕í ΓåÆ 400 INVALID_WORK_LOG
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [400 Bad Request, 357B, 80ms]
+  Γ£ô  status 400
+  Γ£ô  code = INVALID_WORK_LOG
+
+Γå│ 01-4 α╕ºα╕▒α╕Öα╕ùα╕╡α╣êα╣âα╕Öα╕¡α╕Öα╕▓α╕äα╕ò ΓåÆ 400 INVALID_WORK_LOG
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [400 Bad Request, 366B, 23ms]
+  Γ£ô  status 400
+  Γ£ô  code = INVALID_WORK_LOG
+
+Γå│ 01-5 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╕äα╕Öα╕¡α╕╖α╣êα╕Öα╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╣âα╕Öα╕üα╕▓α╕úα╕¥α╕╢α╕üα╕çα╕▓α╕Öα╕Öα╕╡α╣ë ΓåÆ 403
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [403 Forbidden, 374B, 23ms]
+  Γ£ô  status 403
+  Γ£ô  code = FORBIDDEN
+
+Γå│ 01-6 α╕¬α╕úα╣ëα╕▓α╕çα╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕¬α╕│α╣Çα╕úα╣çα╕ê ΓåÆ 201 DRAFT hours 3
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [201 Created, 537B, 84ms]
+  Γ£ô  status 201
+  Γ£ô  DRAFT, hours = 3
+
+Γå│ 01-7 α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ºα╕▒α╕Öα╣Çα╕öα╕╡α╕óα╕ºα╕üα╕▒α╕Öα╕ïα╣ëα╕│ ΓåÆ 409 DUPLICATE_LOG_DATE
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [409 Conflict, 373B, 22ms]
+  Γ£ô  status 409
+  Γ£ô  code = DUPLICATE_LOG_DATE
+
+Γå│ 01-8 α╣üα╕üα╣ëα╣äα╕éα╣Çα╕ºα╕Ñα╕▓α╕¬α╕┤α╣ëα╕Öα╕¬α╕╕α╕öα╣Çα╕¢α╣çα╕Ö 13:00 ΓåÆ 200 hours 4
+  PUT http://host.docker.internal:8080/api/work-logs/3 [200 OK, 525B, 40ms]
+  Γ£ô  status 200
+  Γ£ô  hours = 4
+
+Γå│ 01-9 α╣üα╕Öα╕Üα╣äα╕ƒα╕Ñα╣î PDF ΓåÆ 201
+  POST http://host.docker.internal:8080/api/work-logs/3/attachments [201 Created, 381B, 50ms]
+  Γ£ô  status 201
+  Γ£ô  application/pdf
+
+Γå│ 01-10 α╣üα╕Öα╕Üα╣äα╕ƒα╕Ñα╣îα╕èα╕Öα╕┤α╕öα╕ùα╕╡α╣êα╣äα╕íα╣êα╕úα╕¡α╕çα╕úα╕▒α╕Ü ΓåÆ 400 INVALID_ATTACHMENT
+  POST http://host.docker.internal:8080/api/work-logs/3/attachments [400 Bad Request, 357B, 19ms]
+  Γ£ô  status 400
+  Γ£ô  code = INVALID_ATTACHMENT
+
+Γå│ 01-11 α╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╣Çα╕¢α╕┤α╕öα╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╕óα╕▒α╕çα╣Çα╕¢α╣çα╕Öα╕úα╣êα╕▓α╕ç ΓåÆ 404
+  GET http://host.docker.internal:8080/api/work-logs/3 [404 Not Found, 350B, 24ms]
+  Γ£ô  status 404
+
+Γå│ 01-12 α╕¬α╣êα╕çα╣âα╕½α╣ëα╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╕òα╕úα╕ºα╕ê ΓåÆ 200 SUBMITTED
+  POST http://host.docker.internal:8080/api/work-logs/3/submit [200 OK, 556B, 31ms]
+  Γ£ô  status 200
+  Γ£ô  SUBMITTED
+
+Γå│ 01-13 α╕Ñα╕Üα╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╕¬α╣êα╕çα╣üα╕Ñα╣ëα╕º ΓåÆ 409 INVALID_STATUS
+  DELETE http://host.docker.internal:8080/api/work-logs/3 [409 Conflict, 369B, 14ms]
+  Γ£ô  status 409
+  Γ£ô  code = INVALID_STATUS
+
+Γå│ 01-14 α╕úα╕▓α╕óα╕üα╕▓α╕úα╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕üα╕úα╕¡α╕çα╕¬α╕ûα╕▓α╕Öα╕░ SUBMITTED ΓåÆ 200
+  GET http://host.docker.internal:8080/api/internships/1/work-logs?status=SUBMITTED [200 OK, 555B, 29ms]
+  Γ£ô  status 200
+  Γ£ô  α╕íα╕╡α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╣Çα╕₧α╕┤α╣êα╕çα╕¬α╣êα╕ç
+
+Γ¥Å 02 α╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╕òα╕úα╕ºα╕êα╕Üα╕▒α╕Öα╕ùα╕╢α╕ü
+Γå│ 02-1 α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕úα╕¡α╕òα╕úα╕ºα╕ê (GET /api/work-logs/pending-review)
+  GET http://host.docker.internal:8080/api/work-logs/pending-review [200 OK, 555B, 25ms]
+  Γ£ô  status 200
+  Γ£ô  α╕íα╕╡α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╕¬α╣êα╕ç
+
+Γå│ 02-2 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╣Çα╕úα╕╡α╕óα╕ü pending-review ΓåÆ 403
+  GET http://host.docker.internal:8080/api/work-logs/pending-review [403 Forbidden, 374B, 12ms]
+  Γ£ô  status 403
+
+Γå│ 02-3 α╕¬α╣êα╕çα╕üα╕Ñα╕▒α╕Üα╣üα╕üα╣ëα╣äα╕éα╣äα╕íα╣êα╕íα╕╡α╕äα╕ºα╕▓α╕íα╣Çα╕½α╣çα╕Ö ΓåÆ 400 COMMENT_REQUIRED
+  POST http://host.docker.internal:8080/api/work-logs/3/review [400 Bad Request, 375B, 23ms]
+  Γ£ô  status 400
+  Γ£ô  code = COMMENT_REQUIRED
+
+Γå│ 02-4 α╕¬α╣êα╕çα╕üα╕Ñα╕▒α╕Üα╣üα╕üα╣ëα╣äα╕éα╕₧α╕úα╣ëα╕¡α╕íα╕äα╕ºα╕▓α╕íα╣Çα╕½α╣çα╕Ö ΓåÆ 200 NEED_REVISION
+  POST http://host.docker.internal:8080/api/work-logs/3/review [200 OK, 584B, 31ms]
+  Γ£ô  status 200
+  Γ£ô  NEED_REVISION
+
+Γå│ 02-5 α╕òα╕úα╕ºα╕êα╕ïα╣ëα╕│α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╣äα╕íα╣êα╣äα╕öα╣ëα╕úα╕¡α╕òα╕úα╕ºα╕ê ΓåÆ 409 WORK_LOG_NOT_PENDING
+  POST http://host.docker.internal:8080/api/work-logs/3/review [409 Conflict, 399B, 15ms]
+  Γ£ô  status 409
+  Γ£ô  code = WORK_LOG_NOT_PENDING
+
+Γå│ 02-6 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╕öα╕╣α╕äα╕ºα╕▓α╕íα╣Çα╕½α╣çα╕Öα╕¡α╕▓α╕êα╕▓α╕úα╕óα╣î (GET /api/work-logs/{id})
+  GET http://host.docker.internal:8080/api/work-logs/3 [200 OK, 987B, 26ms]
+  Γ£ô  status 200
+  Γ£ô  α╕íα╕╡α╕äα╕ºα╕▓α╕íα╣Çα╕½α╣çα╕Öα╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╣üα╕Ñα╕░α╣äα╕ƒα╕Ñα╣îα╣üα╕Öα╕Ü
+
+Γå│ 02-7 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╣üα╕üα╣ëα╣üα╕Ñα╣ëα╕ºα╕¬α╣êα╕çα╣âα╕½α╕íα╣ê ΓåÆ 200 SUBMITTED
+  POST http://host.docker.internal:8080/api/work-logs/3/submit [200 OK, 580B, 23ms]
+  Γ£ô  status 200
+  Γ£ô  SUBMITTED
+
+Γå│ 02-8 α╕¡α╕Öα╕╕α╕íα╕▒α╕òα╕┤α╕½α╕Ñα╕▓α╕óα╕Üα╕▒α╕Öα╕ùα╕╢α╕ü (α╕íα╕╡ id α╕ùα╕╡α╣êα╣äα╕íα╣êα╕íα╕╡α╕¡α╕óα╕╣α╣ê) ΓåÆ approved + skipped
+  POST http://host.docker.internal:8080/api/work-logs/review-bulk [200 OK, 339B, 40ms]
+  Γ£ô  status 200
+  Γ£ô  α╕¡α╕Öα╕╕α╕íα╕▒α╕òα╕┤α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╕¬α╣êα╕ç
+  Γ£ô  id α╕ùα╕╡α╣êα╣äα╕íα╣êα╕íα╕╡α╕¡α╕óα╕╣α╣êα╕ûα╕╣α╕üα╕éα╣ëα╕▓α╕í
+
+Γ¥Å 03 α╕¬α╕úα╕╕α╕¢α╣üα╕Ñα╕░α╕¬α╣êα╕çα╕¡α╕¡α╕ü
+Γå│ 03-1 α╕¡α╕▓α╕êα╕▓α╕úα╕óα╣îα╕¬α╣êα╕çα╕¡α╕¡α╕ü CSV ΓåÆ 200 text/csv
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/export [200 OK, 793B, 24ms]
+  Γ£ô  status 200
+  Γ£ô  text/csv
+
+Γå│ 03-2 α╕Öα╕▒α╕üα╕¿α╕╢α╕üα╕⌐α╕▓α╕¬α╣êα╕çα╕¡α╕¡α╕ü CSV ΓåÆ 403
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/export [403 Forbidden, 374B, 12ms]
+  Γ£ô  status 403
+
+Γå│ 03-3 α╣Çα╕êα╣ëα╕▓α╕½α╕Öα╣ëα╕▓α╕ùα╕╡α╣êα╕öα╕╣α╕¬α╕úα╕╕α╕¢ ΓåÆ 200
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/summary [200 OK, 686B, 22ms]
+  Γ£ô  status 200
+  Γ£ô  α╕íα╕╡α╕Üα╕▒α╕Öα╕ùα╕╢α╕üα╕ùα╕╡α╣êα╕¡α╕Öα╕╕α╕íα╕▒α╕òα╕┤α╣üα╕Ñα╣ëα╕º
+
+Γå│ 03-4 α╣äα╕íα╣êα╕¬α╣êα╕ç X-User-Id ΓåÆ 401
+  GET http://host.docker.internal:8080/api/internships/1/work-logs [401 Unauthorized, 377B, 10ms]
+  Γ£ô  status 401
+
+ΓöîΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö¼ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÉ
+Γöé                         Γöé          executed Γöé            failed Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé              iterations Γöé                 1 Γöé                 0 Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé                requests Γöé                30 Γöé                 0 Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé            test-scripts Γöé                30 Γöé                 0 Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé      prerequest-scripts Γöé                 0 Γöé                 0 Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö╝ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé              assertions Γöé                53 Γöé                 0 Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓö┤ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé total run duration: 1613ms                                      Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé total data received: 6.39kB (approx)                            Γöé
+Γö£ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöñ
+Γöé average response time: 34ms [min: 10ms, max: 222ms, s.d.: 39ms] Γöé
+ΓööΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÿ

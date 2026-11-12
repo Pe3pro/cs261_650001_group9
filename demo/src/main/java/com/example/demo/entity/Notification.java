@@ -2,6 +2,9 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,7 +34,10 @@ public class Notification {
     @Column(length = 1000)
     private String message;
 
+    /** เก็บเป็น VARCHAR (ไม่ใช่ ENUM ของ MySQL) เพื่อให้เพิ่มค่า NotificationType ใหม่ได้โดยไม่ต้องแก้ schema */
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(length = 50)
     private NotificationType type;
 
     /** คำร้องที่เกี่ยวข้อง (ถ้ามี) */

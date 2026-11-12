@@ -1,0 +1,59 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T15:47:01.116Z  INFO 1 --- [demo] [           main] com.example.demo.DemoApplication         : Starting DemoApplication v0.0.1-SNAPSHOT using Java 21.0.13 with PID 1 (/app/app.war started by root in /app)
+2026-11-12T15:47:01.121Z  INFO 1 --- [demo] [           main] com.example.demo.DemoApplication         : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T15:47:02.034Z  INFO 1 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T15:47:02.149Z  INFO 1 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 95 ms. Found 16 JPA repository interfaces.
+2026-11-12T15:47:02.896Z  INFO 1 --- [demo] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-11-12T15:47:02.921Z  INFO 1 --- [demo] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-11-12T15:47:02.922Z  INFO 1 --- [demo] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-11-12T15:47:03.019Z  INFO 1 --- [demo] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1816 ms
+2026-11-12T15:47:03.365Z  INFO 1 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T15:47:03.454Z  INFO 1 --- [demo] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-11-12T15:47:04.011Z  INFO 1 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T15:47:04.055Z  INFO 1 --- [demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-11-12T15:47:04.532Z  INFO 1 --- [demo] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7977f046
+2026-11-12T15:47:04.535Z  INFO 1 --- [demo] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-11-12T15:47:04.617Z  INFO 1 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://db:3306/cs261db]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 8.4.13
+	Default catalog/schema: cs261db/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T15:47:05.773Z  INFO 1 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: alter table internship modify column status enum ('CANCELLED','COMPLETED','IN_PROGRESS','NOT_STARTED') not null
+Hibernate: alter table notifications modify column type varchar(50)
+Hibernate: alter table work_log modify column status enum ('APPROVED','DRAFT','NEED_REVISION','SUBMITTED') not null
+2026-11-12T15:47:05.947Z  INFO 1 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T15:47:06.030Z  INFO 1 --- [demo] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-11-12T15:47:07.362Z  WARN 1 --- [demo] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-11-12T15:47:07.840Z  INFO 1 --- [demo] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/'
+2026-11-12T15:47:07.855Z  INFO 1 --- [demo] [           main] com.example.demo.DemoApplication         : Started DemoApplication in 7.233 seconds (process running for 7.929)
+Hibernate: select count(*) from users u1_0
+Hibernate: select count(*) from companies c1_0
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select s1_0.id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0 where s1_0.user_id=?
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select s1_0.id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0 where s1_0.user_id=?
+Hibernate: select er1_0.id,er1_0.checked_at,er1_0.eligible,er1_0.message,er1_0.student_id from eligibility_records er1_0 where er1_0.student_id=? order by er1_0.checked_at desc
+Hibernate: select er1_0.id,er1_0.checked_at,er1_0.eligible,er1_0.message,er1_0.student_id from eligibility_records er1_0 where er1_0.student_id=? order by er1_0.checked_at desc
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.role=? and u1_0.active=true
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select i1_0.id,i1_0.end_date,i1_0.start_date,i1_0.status,i1_0.student_id from internship i1_0 where i1_0.student_id=? order by i1_0.start_date desc,i1_0.id desc limit ?
+Hibernate: select u1_0.id,u1_0.active,u1_0.advisor_id,u1_0.created_at,u1_0.email,u1_0.full_name,u1_0.password_hash,u1_0.role,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select i1_0.id,i1_0.end_date,i1_0.start_date,i1_0.status,i1_0.student_id from internship i1_0 where i1_0.student_id=? order by i1_0.start_date desc,i1_0.id desc limit ?
