@@ -122,12 +122,12 @@ class WorkLogReviewServiceTest {
     }
 
     @Test
-    @DisplayName("UT-RV-04 บันทึกไม่ใช่ SUBMITTED ได้ 409 WORK_LOG_NOT_PENDING · ไม่พบบันทึก 404")
+    @DisplayName("UT-RV-04 บันทึกไม่ใช่ SUBMITTED ได้ 409 INVALID_STATUS · ไม่พบบันทึก 404")
     void notPending() {
         log(1L, 3L, WorkLogStatus.DRAFT);
 
         assertThatThrownBy(() -> service.review(2L, 1L, ReviewDecision.APPROVE, null))
-                .satisfies(e -> assertApiError(e, 409, "WORK_LOG_NOT_PENDING"));
+                .satisfies(e -> assertApiError(e, 409, "INVALID_STATUS"));
         assertThatThrownBy(() -> service.review(2L, 999L, ReviewDecision.APPROVE, null))
                 .satisfies(e -> assertApiError(e, 404, "NOT_FOUND"));
     }

@@ -88,6 +88,16 @@ public class WorkLogService {
     public record FileContent(String fileName, String contentType, byte[] content) {
     }
 
+    /* ====================== นักศึกษา: การฝึกงานของตนเอง ====================== */
+
+    /** GET /api/work-logs/my-internship: การฝึกงานของนักศึกษาที่ login อยู่ (หน้าเว็บใช้หา internshipId) */
+    @Transactional(readOnly = true)
+    public Internship myInternship(Long studentId) {
+        User student = guard.require(studentId, Role.STUDENT);
+        return internshipDao.findByStudentId(student.getId())
+                .orElseThrow(() -> ApiException.notFound("ยังไม่มีข้อมูลการฝึกงาน"));
+    }
+
     /* ====================== นักศึกษา: สร้าง / แก้ไข / ลบ / ส่ง ====================== */
 
     /** POST /api/internships/{id}/work-logs: สร้างบันทึกฉบับร่าง · 1 วันได้ 1 บันทึก */

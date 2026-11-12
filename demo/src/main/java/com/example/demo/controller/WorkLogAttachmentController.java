@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,13 +40,14 @@ public class WorkLogAttachmentController {
                 .body(WorkLogAttachmentResponse.from(workLogService.addAttachment(userId, id, file)));
     }
 
-    /** เปิดไฟล์ด้วย window.open ใส่ header ไม่ได้ จึงรับ userId จาก query string ได้ด้วย */
+    /**
+     * ดาวน์โหลดไฟล์แนบ · รับผู้ใช้จาก header X-User-Id เท่านั้นเหมือนทุก endpoint
+     * (ไม่รับ ?userId= เพราะเปลี่ยนเลขใน URL แล้วเปิดไฟล์ของคนอื่นได้) หน้าเว็บโหลดด้วย fetch + blob
+     */
     @GetMapping("/api/work-logs/{id}/attachments/{attachmentId}")
-    public ResponseEntity<byte[]> download(@RequestHeader(value = USER, required = false) Long headerUserId,
-            @RequestParam(value = "userId", required = false) Long queryUserId, @PathVariable Long id,
-            @PathVariable Long attachmentId) {
-        FileContent file = workLogService.downloadAttachment(headerUserId != null ? headerUserId : queryUserId, id,
-                attachmentId);
+    public ResponseEntity<byte[]> download(@RequestHeader(value = USER, required = false) Long userId,
+            @PathVariable Long id, @PathVariable Long attachmentId) {
+        FileContent file = workLogService.downloadAttachment(userId, id, attachmentId);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(file.contentType()))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline()

@@ -138,7 +138,7 @@
       "name": "01 นักศึกษาบันทึก แนบไฟล์ และส่งบันทึก",
       "item": [
         {
-          "name": "01-1 หาการฝึกงานของตนเอง (GET /api/internships/me)",
+          "name": "01-1 หาการฝึกงานของตนเอง (GET /api/work-logs/my-internship)",
           "request": {
             "method": "GET",
             "header": [
@@ -148,14 +148,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/internships/me",
+              "raw": "{{baseUrl}}/api/work-logs/my-internship",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
-                "internships",
-                "me"
+                "work-logs",
+                "my-internship"
               ]
             }
           },
@@ -882,7 +882,7 @@
           ]
         },
         {
-          "name": "02-5 ตรวจซ้ำบันทึกที่ไม่ได้รอตรวจ → 409 WORK_LOG_NOT_PENDING",
+          "name": "02-5 ตรวจซ้ำบันทึกที่ไม่ได้รอตรวจ → 409 INVALID_STATUS",
           "request": {
             "method": "POST",
             "header": [
@@ -919,7 +919,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('status 409', () => pm.response.to.have.status(409));",
-                  "pm.test('code = WORK_LOG_NOT_PENDING', () => pm.expect(pm.response.json().code).to.eql('WORK_LOG_NOT_PENDING'));"
+                  "pm.test('code = INVALID_STATUS', () => pm.expect(pm.response.json().code).to.eql('INVALID_STATUS'));"
                 ]
               }
             }

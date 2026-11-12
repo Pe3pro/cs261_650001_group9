@@ -56,7 +56,7 @@ public class WorkLogReviewService {
         WorkLog log = workLogDao.findById(id).orElseThrow(() -> ApiException.notFound("ไม่พบบันทึกการทำงาน"));
         checkAdvisor(advisor, log);
         if (log.getStatus() != WorkLogStatus.SUBMITTED) {
-            throw new ApiException(409, "WORK_LOG_NOT_PENDING", "บันทึกนี้ไม่ได้อยู่ในสถานะรอตรวจ");
+            throw ApiException.conflict("บันทึกนี้ไม่ได้อยู่ในสถานะรอตรวจ");
         }
         if (decision == null) {
             throw ApiException.badRequest("กรุณาเลือกผลการตรวจ (APPROVE / REVISE)");

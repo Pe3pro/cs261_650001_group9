@@ -12,11 +12,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 /**
- * Entity ตาราง INTERNSHIP: การฝึกงานของนักศึกษา 1 ครั้ง
- * เป็นของ US7 (ยังไม่มีในโปรเจกต์) จึงสร้างเฉพาะคอลัมน์ที่ US8 ใช้ตาม ER Diagram ไว้ก่อน
+ * Entity ตาราง INTERNSHIPS: การฝึกงานของนักศึกษา 1 ครั้ง
+ *
+ * เจ้าของคลาสนี้คือ US7 (InternshipService / InternshipController ออกแบบไว้ใน T2 ของ US7 แต่ยังไม่มีโค้ด)
+ * US8 ใช้แค่ id, studentId, startDate, endDate, status จึงสร้างเฉพาะ field เหล่านี้ไว้ก่อน
+ * โดยใช้ชื่อตาราง ชื่อคอลัมน์ และค่าสถานะเดียวกับ US7 · ตอน merge กับ US7 ให้ใช้ไฟล์ของ US7 แทนไฟล์นี้
+ * (ไฟล์ของ US7 ต้องมี getter 5 ตัวข้างต้น)
  */
 @Entity
-@Table(name = "internship")
+@Table(name = "internships")
 public class Internship {
 
     @Id

@@ -46,6 +46,10 @@ import com.example.demo.entity.WorkLogStatus;
  * U8:T4 Unit test ส่วน Service: WorkLogService (กฎของบันทึกการทำงาน) · DAO ถูก mock
  * วันนี้ = อังคาร 2026-11-10 · internship 7 ของนักศึกษา A (userId 3) เริ่ม 2026-11-02 IN_PROGRESS
  * อาจารย์ที่ปรึกษาของ A = userId 2 · อาจารย์อื่น = 5 · นักศึกษา B = 4 · เจ้าหน้าที่ = 1
+ *
+ * หมายเหตุ: ข้อมูลการฝึกงาน (Internship) และสถานะ IN_PROGRESS เป็นข้อมูลจำลอง (mock InternshipDao)
+ * เพราะ US7 ซึ่งเป็นเจ้าของการฝึกงาน (สร้าง / เริ่ม / ปิดการฝึกงาน) ยังไม่มีโค้ด
+ * ทุก test จึงไม่ได้ทดสอบว่าการฝึกงานได้สถานะนั้นมาอย่างไร ทดสอบเฉพาะกฎของ US8 ที่ขึ้นกับสถานะ
  */
 class WorkLogServiceTest {
 
@@ -183,12 +187,17 @@ class WorkLogServiceTest {
     }
 
     @Test
-    @DisplayName("UT-SV-07 การฝึกงานไม่ใช่ IN_PROGRESS ได้ 409 INTERNSHIP_NOT_IN_PROGRESS")
+    @DisplayName("UT-SV-07 การฝึกงานไม่ใช่ IN_PROGRESS (จำลองสถานะของ US7) ได้ 409 INTERNSHIP_NOT_IN_PROGRESS")
     void notInProgress() {
-        internship.setStatus(InternshipStatus.COMPLETED);
+        // สถานะการฝึกงานจำลองใน mock เพราะ US7 (เจ้าของการเปลี่ยนสถานะการฝึกงาน) ยังไม่มีโค้ด
+        for (InternshipStatus status : new InternshipStatus[] { InternshipStatus.NOT_STARTED,
+                InternshipStatus.COMPLETED, InternshipStatus.TERMINATED }) {
+            internship.setStatus(status);
 
-        assertThatThrownBy(() -> service.create(3L, 7L, req("2026-11-09", "09:00", "12:00")))
-                .satisfies(e -> assertApiError(e, 409, "INTERNSHIP_NOT_IN_PROGRESS"));
+            assertThatThrownBy(() -> service.create(3L, 7L, req("2026-11-09", "09:00", "12:00")))
+                    .satisfies(e -> assertApiError(e, 409, "INTERNSHIP_NOT_IN_PROGRESS"));
+        }
+        verify(workLogDao, never()).save(any());
     }
 
     @Test
@@ -323,5 +332,16 @@ class WorkLogServiceTest {
         ArgumentCaptor<WorkLogStatus> status = ArgumentCaptor.forClass(WorkLogStatus.class);
         verify(workLogDao).existsByInternshipIdAndStatus(eq(7L), status.capture());
         assertThat(status.getValue()).isEqualTo(WorkLogStatus.SUBMITTED);
+    }
+
+    @Test
+    @DisplayName("UT-SV-17 myInternship: นักศึกษาได้การฝึกงานของตน · ยังไม่มี 404 · อาจารย์เรียก 403")
+    void myInternship() {
+        when(internshipDao.findByStudentId(3L)).thenReturn(Optional.of(internship));
+        when(internshipDao.findByStudentId(4L)).thenReturn(Optional.empty());
+
+        assertThat(service.myInternship(3L)).isSameAs(internship);
+        assertThatThrownBy(() -> service.myInternship(4L)).satisfies(e -> assertApiError(e, 404, "NOT_FOUND"));
+        assertThatThrownBy(() -> service.myInternship(2L)).satisfies(e -> assertApiError(e, 403, "FORBIDDEN"));
     }
 }

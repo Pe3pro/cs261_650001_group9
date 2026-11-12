@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.dto.WorkLogDetailResponse;
 import com.example.demo.dto.WorkLogFilter;
+import com.example.demo.dto.WorkLogInternshipResponse;
 import com.example.demo.dto.WorkLogRequest;
 import com.example.demo.dto.WorkLogResponse;
 import com.example.demo.dto.WorkLogSummaryResponse;
@@ -56,17 +57,22 @@ public class WorkLogController {
         return workLogService.summary(userId, internshipId);
     }
 
-    /** ดาวน์โหลดไฟล์ CSV · เปิดด้วย window.open ใส่ header ไม่ได้ จึงรับ userId จาก query string ได้ด้วย */
+    /** ดาวน์โหลดไฟล์ CSV · รับผู้ใช้จาก header X-User-Id เท่านั้น (หน้าเว็บดาวน์โหลดด้วย fetch + blob) */
     @GetMapping("/api/internships/{id}/work-logs/export")
-    public ResponseEntity<byte[]> export(@RequestHeader(value = USER, required = false) Long headerUserId,
-            @RequestParam(value = "userId", required = false) Long queryUserId,
+    public ResponseEntity<byte[]> export(@RequestHeader(value = USER, required = false) Long userId,
             @PathVariable("id") Long internshipId) {
-        byte[] csv = workLogService.export(headerUserId != null ? headerUserId : queryUserId, internshipId);
+        byte[] csv = workLogService.export(userId, internshipId);
         return ResponseEntity.ok()
                 .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
                 .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
                         .filename("work-logs-" + internshipId + ".csv").build().toString())
                 .body(csv);
+    }
+
+    /** การฝึกงานของนักศึกษาที่ login อยู่ (ไม่อยู่ใต้ /api/internships เพื่อไม่ชนกับ InternshipController ของ US7) */
+    @GetMapping("/api/work-logs/my-internship")
+    public WorkLogInternshipResponse myInternship(@RequestHeader(value = USER, required = false) Long userId) {
+        return WorkLogInternshipResponse.from(workLogService.myInternship(userId));
     }
 
     @PostMapping("/api/internships/{id}/work-logs")

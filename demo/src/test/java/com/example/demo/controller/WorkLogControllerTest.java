@@ -44,6 +44,8 @@ import com.example.demo.dto.WorkLogFilter;
 import com.example.demo.dto.WorkLogRequest;
 import com.example.demo.dto.WorkLogResponse;
 import com.example.demo.dto.WorkLogSummaryResponse;
+import com.example.demo.entity.Internship;
+import com.example.demo.entity.InternshipStatus;
 import com.example.demo.entity.ReviewDecision;
 import com.example.demo.entity.WorkLog;
 import com.example.demo.entity.WorkLogAttachment;
@@ -301,16 +303,20 @@ class WorkLogControllerTest {
     }
 
     @Test
-    @DisplayName("UT-API-16 ดาวน์โหลดไฟล์แนบด้วย ?userId= ได้ไฟล์ตาม content type")
+    @DisplayName("UT-API-16 ดาวน์โหลดไฟล์แนบด้วย header X-User-Id ได้ไฟล์ · ส่ง ?userId= แทน header ได้ 401")
     void download() throws Exception {
         byte[] bytes = "%PDF-1.4".getBytes(StandardCharsets.US_ASCII);
         when(service.downloadAttachment(3L, 1L, 5L))
                 .thenReturn(new WorkLogService.FileContent("proof.pdf", "application/pdf", bytes));
+        when(service.downloadAttachment(null, 1L, 5L)).thenThrow(ApiException.unauthorized());
 
-        mvc.perform(get("/api/work-logs/1/attachments/5").param("userId", "3"))
+        mvc.perform(get("/api/work-logs/1/attachments/5").header("X-User-Id", "3"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
                 .andExpect(content().bytes(bytes));
+        // ไม่รับ userId ทาง URL: เปลี่ยนเลขใน URL เพื่อเปิดไฟล์ของคนอื่นไม่ได้
+        mvc.perform(get("/api/work-logs/1/attachments/5").param("userId", "3"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -372,5 +378,23 @@ class WorkLogControllerTest {
                 .andExpect(jsonPath("$.approved[0]").value(1))
                 .andExpect(jsonPath("$.skipped[0].workLogId").value(2))
                 .andExpect(jsonPath("$.skipped[0].reason").value("บันทึกไม่ได้อยู่ในสถานะรอตรวจ"));
+    }
+
+    @Test
+    @DisplayName("UT-API-21 การฝึกงานของนักศึกษาที่ login (GET /api/work-logs/my-internship) ได้ 200 · ยังไม่มีได้ 404")
+    void myInternship() throws Exception {
+        Internship internship = new Internship(3L, LocalDate.of(2026, 11, 2), LocalDate.of(2027, 2, 19),
+                InternshipStatus.IN_PROGRESS);
+        ReflectionTestUtils.setField(internship, "id", 7L);
+        when(service.myInternship(3L)).thenReturn(internship);
+        when(service.myInternship(5L)).thenThrow(ApiException.notFound("ยังไม่มีข้อมูลการฝึกงาน"));
+
+        mvc.perform(get("/api/work-logs/my-internship").header("X-User-Id", "3"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(7))
+                .andExpect(jsonPath("$.startDate").value("2026-11-02"))
+                .andExpect(jsonPath("$.status").value("IN_PROGRESS"));
+        mvc.perform(get("/api/work-logs/my-internship").header("X-User-Id", "5"))
+                .andExpect(status().isNotFound());
     }
 }

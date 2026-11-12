@@ -38,15 +38,16 @@ function mockApi(options = {}) {
         json: async () => {
             if (data === undefined) throw new Error('no body');
             return data;
-        }
+        },
+        blob: async () => new Blob(['%PDF-1.4'], { type: 'application/pdf' })
     });
 
     async function fetch(url, init = {}) {
         const method = init.method || 'GET';
         const p = new URL(url).pathname;
-        db.calls.push({ method, path: p, headers: init.headers || {}, body: init.body });
+        db.calls.push({ method, path: p, url, headers: init.headers || {}, body: init.body });
 
-        if (p === '/api/internships/me') {
+        if (p === '/api/work-logs/my-internship') {
             return options.noInternship
                 ? reply(404, { code: 'NOT_FOUND', message: 'ยังไม่มีข้อมูลการฝึกงาน' })
                 : reply(200, { id: 7, studentId: 3, startDate: '2026-01-05', endDate: null, status: 'IN_PROGRESS' });
@@ -63,10 +64,16 @@ function mockApi(options = {}) {
             db.logs.push(log);
             return reply(201, view(log));
         }
+        const file = p.match(/^\/api\/work-logs\/(\d+)\/attachments\/(\d+)$/);
+        if (file && method === 'GET') {
+            return init.headers && init.headers['X-User-Id'] === '3'
+                ? reply(200)
+                : reply(401, { code: 'UNAUTHORIZED', message: 'กรุณาเข้าสู่ระบบก่อนใช้งาน' });
+        }
         const m = p.match(/^\/api\/work-logs\/(\d+)(\/\w+)?$/);
         const log = m && db.logs.find(l => String(l.id) === m[1]);
         if (m && !log) return reply(404, { code: 'NOT_FOUND', message: 'ไม่พบบันทึกการทำงาน' });
-        if (m && !m[2] && method === 'GET') return reply(200, { ...view(log), attachments: [] });
+        if (m && !m[2] && method === 'GET') return reply(200, { attachments: [], ...view(log) });
         if (m && !m[2] && method === 'PUT') {
             Object.assign(log, JSON.parse(init.body));
             return reply(200, view(log));
@@ -97,6 +104,14 @@ async function openWorklogPage(options = {}) {
     const api = mockApi(options);
     window.fetch = api.fetch;
     window.confirm = () => options.confirm !== false;
+    // jsdom ไม่มี URL.createObjectURL และเปิดลิงก์ไม่ได้ จึงจำลองไว้แล้วจดลิงก์ที่หน้าเว็บกด
+    const opened = [];
+    window.URL.createObjectURL = () => 'blob:http://localhost/file';
+    window.URL.revokeObjectURL = () => {};
+    window.HTMLAnchorElement.prototype.click = function () {
+        opened.push({ href: this.href, download: this.download });
+    };
+    api.opened = opened;
 
     window.eval(script);
     window.document.dispatchEvent(new window.Event('DOMContentLoaded'));
@@ -288,5 +303,25 @@ describe('U8-UI หน้าบันทึกการทำงาน (worklog.
         expect($(window, '#wState').hidden).toBe(false);
         expect($(window, '#wState').textContent).toContain('ยังไม่มีข้อมูลการฝึกงาน');
         expect($(window, '#wSend').disabled).toBe(true);
+    });
+
+    test('UT-UI-15 เปิดไฟล์แนบ: โหลดด้วย fetch + header X-User-Id ไม่ส่ง userId ทาง URL', async () => {
+        const logs = [{ id: 9, logDate: '2026-11-03', startTime: '09:00:00', endTime: '12:00:00', hours: 3,
+            activity: 'งาน', learning: 'เรียนรู้', status: 'SUBMITTED',
+            attachments: [{ id: 5, fileName: 'proof.pdf', contentType: 'application/pdf', size: 8 }] }];
+        const { window, api } = await openWorklogPage({ logs });
+        window.open = () => { throw new Error('ห้ามเปิดไฟล์ด้วย window.open'); };
+        $(window, '#wHist button.wl-hist').click();
+        await settle();
+
+        $(window, '#wFiles button[data-attachment="5"]').click();
+        await settle();
+
+        const call = api.db.calls.find(c => c.path === '/api/work-logs/9/attachments/5');
+        expect(call.method).toBe('GET');
+        expect(call.headers['X-User-Id']).toBe('3');
+        expect(api.db.calls.some(c => c.url.includes('userId='))).toBe(false);
+        expect(api.opened).toEqual([{ href: 'blob:http://localhost/file', download: 'proof.pdf' }]);
+        expect($(window, '#wErr').hidden).toBe(true);
     });
 });

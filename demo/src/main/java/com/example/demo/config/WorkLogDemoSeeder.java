@@ -60,7 +60,7 @@ public class WorkLogDemoSeeder {
 
     private void ensureInternship(String username, LocalDate start) {
         users.findByUsername(username).ifPresent(student -> {
-            if (internships.findFirstByStudentIdOrderByStartDateDescIdDesc(student.getId()).isEmpty()) {
+            if (internships.findByStudentId(student.getId()).isEmpty()) {
                 internships.save(new Internship(student.getId(), start, start.plusWeeks(16).minusDays(3),
                         InternshipStatus.IN_PROGRESS));
             }

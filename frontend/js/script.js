@@ -1416,13 +1416,14 @@ function initRanking() {
 /* =========================================================
    หน้าบันทึกการทำงาน (US8)
    API (ดู .doc/UserStory/U8/us8-01-api-spec.png) · ทุก request ส่ง header X-User-Id
-   GET  /api/internships/me                         หา internshipId ของนักศึกษา
+   GET  /api/work-logs/my-internship                หา internshipId ของนักศึกษา
    GET  /api/internships/{id}/work-logs              ประวัติบันทึก
    GET  /api/internships/{id}/work-logs/summary      สรุปชั่วโมง / วันที่ขาดบันทึก
    POST /api/internships/{id}/work-logs              สร้างบันทึกฉบับร่าง
    GET / PUT / DELETE /api/work-logs/{id}            รายละเอียด / แก้ไข / ลบ (เฉพาะ DRAFT)
    POST /api/work-logs/{id}/submit                   ส่งให้อาจารย์ตรวจ
    POST / GET / DELETE /api/work-logs/{id}/attachments[/{attachmentId}]
+   (ดาวน์โหลดไฟล์แนบด้วย fetch + header แล้วเปิดเป็น blob ไม่ส่ง userId ทาง URL)
    ========================================================= */
 const WL = {
    api: () => window.U8_API_BASE || 'http://localhost:8080',
@@ -1616,8 +1617,8 @@ function initWorklog() {
          open.type = 'button';
          open.className = 'link';
          open.textContent = file.fileName;
-         open.onclick = () => window.open(WL.api() + '/api/work-logs/' + current.id + '/attachments/'
-            + file.id + '?userId=' + encodeURIComponent(userId()), '_blank');
+         open.dataset.attachment = file.id;
+         open.onclick = () => downloadFile(file);
          li.append(open);
          if (editable()) {
             const del = document.createElement('button');
@@ -1630,6 +1631,35 @@ function initWorklog() {
          }
          list.append(li);
       });
+   }
+
+   /**
+    * เปิดไฟล์แนบ: ดาวน์โหลดด้วย fetch พร้อม header X-User-Id (เหมือน request อื่น) แล้วเปิดจาก blob
+    * ไม่ใช้ window.open กับ URL ที่มี ?userId= เพราะเปลี่ยนเลขใน URL แล้วเปิดไฟล์ของคนอื่นได้
+    */
+   async function downloadFile(file) {
+      try {
+         const res = await fetch(WL.api() + '/api/work-logs/' + current.id + '/attachments/' + file.id, {
+            headers: { 'X-User-Id': userId() }
+         });
+         if (res.status !== 200) {
+            let data = null;
+            try { data = await res.json(); } catch (e) { data = null; }
+            return showError(message({ data }, 'เปิดไฟล์ ' + file.fileName + ' ไม่สำเร็จ'));
+         }
+         const url = URL.createObjectURL(await res.blob());
+         const link = document.createElement('a');
+         link.href = url;
+         link.target = '_blank';
+         link.rel = 'noopener';
+         link.download = file.fileName;
+         document.body.append(link);
+         link.click();
+         link.remove();
+         setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (e) {
+         showError('ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง');
+      }
    }
 
    /** ตรวจข้อมูลก่อนเรียก API (ฝั่ง API ตรวจซ้ำอีกครั้ง) คืนข้อความ error แรกที่เจอ */
@@ -1846,7 +1876,7 @@ function initWorklog() {
    window.U8Worklog = {
       ready: (async () => {
          try {
-            const res = await call('/api/internships/me');
+            const res = await call('/api/work-logs/my-internship');
             if (res.status !== 200) {
                showState(res.status === 404
                   ? 'ยังไม่มีข้อมูลการฝึกงาน จึงยังบันทึกการทำงานไม่ได้'
