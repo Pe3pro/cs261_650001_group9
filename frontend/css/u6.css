@@ -1,0 +1,21 @@
+/* U6: หน้าเลือกตำแหน่ง / ผลการจับคู่ (matching.html) และหน้าเจ้าหน้าที่ (staff-matching.html) · ใช้สีชุดเดียวกับ U5 */
+body.u6 .ranks { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 12px }
+body.u6 .ranks li { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: center }
+body.u6 .ranks li b { color: var(--u5-mute); font-weight: 500 }
+body.u6 .ranks select { width: 100% }
+body.u6 .res { margin-left: 8px }
+body.u6 .badge.MATCHED, body.u6 .badge.CONFIRMED { background: var(--u5-ok-bg); color: var(--u5-ok) }
+body.u6 .badge.PROPOSED, body.u6 .badge.PENDING, body.u6 .badge.OPEN { background: var(--u5-warn-bg); color: var(--u5-warn) }
+body.u6 .badge.ANNOUNCED { background: var(--u5-info-bg); color: var(--u5-info) }
+body.u6 .badge.NOT_SELECTED, body.u6 .badge.DECLINED, body.u6 .badge.CANCELLED, body.u6 .badge.CLOSED { background: var(--u5-bad-bg); color: var(--u5-bad) }
+body.u6 .row-actions { display: flex; gap: 12px; margin: 12px 0 20px }
+body.u6 .inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--u5-soft); padding-top: 16px; margin-top: 8px }
+body.u6 .inline-form .lab { margin: 0; width: 100% }
+body.u6 .inline-form input { width: auto; flex: 1; min-width: 160px }
+body.u6 .company { border: 1px solid var(--u5-line); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px }
+body.u6 .company h3 { font-size: 15px; margin: 0 0 8px }
+body.u6 .pos { display: flex; gap: 10px; align-items: center; padding: 6px 0; flex-wrap: wrap }
+body.u6 .pos span { flex: 1; min-width: 180px }
+body.u6 .pos input { width: 72px }
+body.u6 h2.pad { padding: 16px 16px 0 }
+body.u6 .unmatched { margin: 12px 0 0; padding-left: 20px; color: var(--u5-mute) }

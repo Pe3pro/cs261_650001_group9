@@ -3,6 +3,7 @@ package com.example.demo.service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,9 @@ import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.dto.NotificationResponse;
 import com.example.demo.entity.Application;
+import com.example.demo.entity.Match;
+import com.example.demo.entity.MatchStatus;
+import com.example.demo.entity.MatchingRound;
 import com.example.demo.entity.ApprovalDecision;
 import com.example.demo.entity.ApprovalLevel;
 import com.example.demo.entity.Notification;
@@ -107,6 +111,42 @@ public class NotificationService {
                 "คำร้องของคุณถูกส่งกลับให้แก้ไขและยังไม่ได้ส่งใหม่ กรุณาส่งภายใน " + when + " น.",
                 NotificationType.CORRECTION_REMINDER);
         return true;
+    }
+
+    /**
+     * U6: ประกาศผลการจับคู่ แจ้งนักศึกษาทุกคนในรอบ
+     * matched = ใบสมัครที่ได้รับการจับคู่ (คีย์ = ใบสมัคร, ค่า = ข้อความตำแหน่ง/บริษัท) · notMatched = ใบสมัครที่ไม่ได้
+     */
+    public void notifyMatchAnnounced(MatchingRound round, Map<Application, String> matched,
+            List<Application> notMatched) {
+        String deadline = round.getConfirmDeadline().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        matched.forEach((app, where) -> notifyStudent(app, "ประกาศผลการจับคู่ รอบที่ " + round.getRoundNo(),
+                "คุณได้รับการจับคู่กับ " + where + " กรุณายืนยันหรือสละสิทธิ์ภายใน " + deadline + " น.",
+                NotificationType.MATCH_ANNOUNCED));
+        for (Application app : notMatched) {
+            notifyStudent(app, "ประกาศผลการจับคู่ รอบที่ " + round.getRoundNo(),
+                    "รอบนี้คุณยังไม่ได้รับการจับคู่ สามารถแก้อันดับเพื่อรอจับคู่ในรอบถัดไปได้",
+                    NotificationType.MATCH_ANNOUNCED);
+        }
+    }
+
+    /** U6: นักศึกษายืนยัน / สละสิทธิ์ แจ้งเจ้าหน้าที่ทุกคน (ในระบบ) */
+    public void notifyMatchResponded(Match match, String studentName, String where) {
+        boolean confirmed = match.getStatus() == MatchStatus.CONFIRMED;
+        String title = confirmed ? "นักศึกษายืนยันสิทธิ์" : "นักศึกษาสละสิทธิ์";
+        String message = studentName + (confirmed ? " ยืนยันสิทธิ์ " : " สละสิทธิ์ ") + where
+                + (confirmed ? "" : " เหตุผล: " + match.getDeclineReason());
+        for (User staff : userRepository.findByRoleAndActiveTrue(Role.STAFF)) {
+            notificationRepository.save(new Notification(staff.getId(), title, message,
+                    NotificationType.MATCH_RESPONDED, match.getApplicationId()));
+        }
+    }
+
+    /** U6: เจ้าหน้าที่ยกเลิกผลจับคู่ แจ้งนักศึกษา */
+    public void notifyMatchCancelled(Application app, String where) {
+        notifyStudent(app, "ผลการจับคู่ถูกยกเลิก",
+                "เจ้าหน้าที่ยกเลิกผลการจับคู่กับ " + where + " กรุณาติดต่อเจ้าหน้าที่ฝ่ายสหกิจศึกษา",
+                NotificationType.MATCH_CANCELLED);
     }
 
     @Transactional(readOnly = true)

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>จับคู่บริษัท · ระบบสหกิจศึกษา</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/u6.css">
+</head>
+
+<!-- U6: เจ้าหน้าที่จัดการบริษัท ตำแหน่ง โควตา เปิดรอบ จับคู่ และประกาศผล -->
+<body class="u5 u6" data-page="staff-matching">
+    <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
+    </header>
+    <nav id="u6nav"></nav>
+    <main>
+        <div id="err" class="alert bad" role="alert" hidden></div>
+        <section id="vLoading"><p class="mute">กำลังโหลด...</p></section>
+        <section id="vDenied" hidden>
+            <h1>จับคู่บริษัท</h1>
+            <div class="card"><p>หน้านี้สำหรับเจ้าหน้าที่เท่านั้น</p></div>
+        </section>
+
+        <section id="vStaff" hidden>
+            <h1>จับคู่บริษัท</h1>
+            <p class="sub">เปิดรอบ → จับคู่อัตโนมัติ / จับคู่เอง → ประกาศผล · นักศึกษายืนยันหรือสละสิทธิ์ภายในวันหมดเขต</p>
+            <div id="msg" class="alert ok" role="status" hidden></div>
+
+            <div class="card" id="roundCard">
+                <h2>รอบการจับคู่</h2>
+                <p id="roundText" class="mute"></p>
+                <div class="row-actions">
+                    <button class="btn" type="button" id="btnAuto" hidden>จับคู่อัตโนมัติ</button>
+                    <button class="btn warn" type="button" id="btnAnnounce" hidden>ประกาศผลรอบนี้</button>
+                </div>
+                <form id="openForm" class="inline-form">
+                    <label class="lab" for="deadline">วันหมดเขตยืนยันสิทธิ์ของรอบใหม่</label>
+                    <input type="datetime-local" id="deadline">
+                    <button class="btn ghost sm" type="submit">เปิดรอบใหม่</button>
+                </form>
+                <div id="autoResult" hidden></div>
+            </div>
+
+            <div class="card flush">
+                <h2 class="pad">ผลการจับคู่</h2>
+                <table class="tbl">
+                    <thead><tr><th>นักศึกษา</th><th>ตำแหน่ง</th><th>อันดับ</th><th>รอบ</th><th>สถานะ</th><th></th></tr></thead>
+                    <tbody id="matchRows"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>บริษัทและตำแหน่ง</h2>
+                <div id="companyList"></div>
+                <form id="companyForm" class="inline-form">
+                    <label class="lab" for="newCompany">เพิ่มบริษัท</label>
+                    <input id="newCompany" placeholder="ชื่อบริษัท">
+                    <input id="newAddress" placeholder="ที่ตั้ง">
+                    <button class="btn ghost sm" type="submit">เพิ่มบริษัท</button>
+                </form>
+            </div>
+
+            <div class="card" id="candidateCard" hidden>
+                <h2 id="candTitle">นักศึกษาที่เลือกตำแหน่งนี้</h2>
+                <table class="tbl">
+                    <thead><tr><th>นักศึกษา</th><th>อันดับ</th><th>สถานะ</th><th></th></tr></thead>
+                    <tbody id="candRows"></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script src="js/u6.js"></script>
+</body>
+
+</html>
