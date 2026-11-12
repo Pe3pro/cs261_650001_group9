@@ -1,0 +1,809 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] --------------------------< com.example:demo >--------------------------
+[INFO] Building demo 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO]
+[INFO] --- resources:3.5.0:resources (default-resources) @ demo ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO]
+[INFO] --- compiler:3.15.0:compile (default-compile) @ demo ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ demo ---
+[INFO] skip non existing resourceDirectory /app/src/test/resources
+[INFO]
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ demo ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO]
+[INFO] --- surefire:3.5.6:test (default-test) @ demo ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO]
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running U7 Internship Controller
+docker : Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please
+add Mockito as an agent to your build as described in Mockito's documentation:
+https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+At line:1 char:1
++ docker run --rm `
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Mockito is curr...ockito.html#0.3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/root/.m2/repository/net/bytebuddy/byte-buddy-agent/1.18.11/byte-buddy-agent-1.18.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+20:56:58.248 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:58.255 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:58.266 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 9 ms
+20:56:59.510 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.510 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.511 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+20:56:59.563 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.564 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.564 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:56:59.618 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.618 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.618 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:56:59.641 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.641 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.641 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:56:59.661 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.661 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.661 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:56:59.681 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.681 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.682 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+20:56:59.703 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.703 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.703 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.720 s -- in U7 Internship Controller
+[INFO] Running U7 Student Status Controller
+20:56:59.912 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.912 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.912 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:56:59.976 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:56:59.976 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:56:59.976 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.058 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.058 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.059 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+20:57:00.085 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.085 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.085 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.116 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.116 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.116 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.244 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.244 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.244 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.259 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.259 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.260 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 1 ms
+20:57:00.283 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.283 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.283 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.330 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.330 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.330 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.347 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.348 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.348 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+20:57:00.381 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
+20:57:00.381 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
+20:57:00.381 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.655 s -- in U7 Student Status Controller
+[INFO] Running U7 Internship Repository
+20:57:00.542 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.demo.dao.InternshipRepositoryTest]: InternshipRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:57:01.328 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.InternshipRepositoryTest
+20:57:01.343 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.demo.dao.InternshipRepositoryTest]: InternshipRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+20:57:01.449 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.InternshipRepositoryTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T20:57:02.868Z  INFO 139 --- [demo] [           main] c.e.demo.dao.InternshipRepositoryTest    : Starting InternshipRepositoryTest using Java 21.0.12.1 with PID 139 (started by root in /app)
+2026-11-12T20:57:02.871Z  INFO 139 --- [demo] [           main] c.e.demo.dao.InternshipRepositoryTest    : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T20:57:05.421Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T20:57:06.491Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1043 ms. Found 19 JPA repository interfaces.
+2026-11-12T20:57:06.684Z  INFO 139 --- [demo] [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-11-12T20:57:06.934Z  INFO 139 --- [demo] [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:314f05eb-6a17-417f-a0a2-ae41ff8670d1;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-11-12T20:57:08.472Z  INFO 139 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T20:57:08.896Z  INFO 139 --- [demo] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-11-12T20:57:10.716Z  INFO 139 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T20:57:11.124Z  INFO 139 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:314f05eb-6a17-417f-a0a2-ae41ff8670d1]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: 314F05EB-6A17-417F-A0A2-AE41FF8670D1/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T20:57:17.824Z  INFO 139 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table answer_snapshots (id bigint generated by default as identity, approval_id bigint not null, form_field_id bigint not null, field_value varchar(2000), primary key (id))
+Hibernate: create table applications (id bigint generated by default as identity, created_at timestamp(6), form_template_id bigint not null, status enum ('APPROVED','DRAFT','NEED_CORRECTION','REJECTED','SUBMITTED','UNDER_REVIEW') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), version bigint not null, primary key (id))
+Hibernate: create table approvals (id bigint generated by default as identity, application_id bigint not null, approval_level enum ('ADVISOR','STAFF') not null, approver_id bigint not null, comment varchar(1000), created_at timestamp(6), decided_at timestamp(6), decision enum ('APPROVE','REJECT','RETURN') not null, primary key (id))
+Hibernate: create table companies (id bigint generated by default as identity, address varchar(255), company_name varchar(255) not null, contact_person varchar(255), email varchar(255), phone varchar(255), status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_positions (id bigint generated by default as identity, available_slots integer not null, company_id bigint not null, description varchar(255), position_name varchar(255) not null, quota integer not null, status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_preferences (id bigint generated by default as identity, application_id bigint not null, created_at timestamp(6) not null, position_id bigint not null, rank_no integer not null, primary key (id))
+Hibernate: create table company_rankings (id bigint generated by default as identity, company_id bigint not null, created_at timestamp(6) not null, rank_no integer not null, student_id bigint not null, primary key (id))
+Hibernate: create table documents (id bigint generated by default as identity, application_id bigint not null, content_type varchar(255), file_name varchar(255) not null, file_size bigint, form_field_id bigint, status enum ('REJECTED','UPLOADED','VERIFIED') not null, storage_key varchar(255), uploaded_at timestamp(6), primary key (id))
+Hibernate: create table eligibility_records (id bigint generated by default as identity, checked_at timestamp(6) not null, eligible boolean not null, message varchar(255) not null, student_id varchar(10) not null, primary key (id))
+Hibernate: create table form_fields (id bigint generated by default as identity, display_order integer not null, field_name varchar(255) not null, field_type enum ('DATE','EMAIL','FILE','NUMBER','PHONE','SELECT','TEXT','TEXTAREA') not null, form_template_id bigint not null, label varchar(255) not null, options varchar(2000), required boolean not null, primary key (id))
+Hibernate: create table form_responses (id bigint generated by default as identity, application_id bigint not null, form_field_id bigint not null, updated_at timestamp(6), field_value varchar(2000), primary key (id))
+Hibernate: create table form_templates (id bigint generated by default as identity, created_at timestamp(6), created_by bigint not null, deadline timestamp(6), description varchar(1000), name varchar(255) not null, published_at timestamp(6), status enum ('ARCHIVED','DRAFT','PUBLISHED') not null, version integer not null, primary key (id))
+Hibernate: create table internships (id bigint generated by default as identity, created_at timestamp(6) not null, end_date date, match_id bigint not null, start_date date, status enum ('COMPLETED','IN_PROGRESS','NOT_STARTED','TERMINATED') not null, student_id bigint not null, supervisor_email varchar(255), supervisor_name varchar(255), supervisor_phone varchar(255), terminated_reason varchar(1000), updated_at timestamp(6) not null, updated_by bigint not null, primary key (id))
+Hibernate: create table matches (id bigint generated by default as identity, application_id bigint not null, decline_reason varchar(500), matched_at timestamp(6) not null, matched_by bigint not null, position_id bigint not null, rank_no integer, responded_at timestamp(6), round_id bigint not null, status enum ('CANCELLED','CONFIRMED','DECLINED','PROPOSED') not null, primary key (id))
+Hibernate: create table matching_rounds (id bigint generated by default as identity, announced_at timestamp(6), confirm_deadline timestamp(6) not null, opened_at timestamp(6) not null, opened_by bigint not null, round_no integer not null, status enum ('ANNOUNCED','CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table notifications (id bigint generated by default as identity, application_id bigint, created_at timestamp(6), is_read boolean not null, message varchar(1000), title varchar(255) not null, type enum ('APPLICATION_APPROVED','APPLICATION_FORWARDED','APPLICATION_REJECTED','APPLICATION_RETURNED','APPLICATION_SUBMITTED','CORRECTION_REMINDER','INTERNSHIP_STATUS_CHANGED','INTERNSHIP_UPDATED','MATCH_ANNOUNCED','MATCH_CANCELLED','MATCH_RESPONDED'), user_id bigint not null, primary key (id))
+Hibernate: create table status_history (id bigint generated by default as identity, changed_at timestamp(6) not null, changed_by bigint not null, from_status varchar(255), note varchar(1000), student_id bigint not null, to_status varchar(255) not null, type enum ('APPLICATION','INTERNSHIP','MATCH') not null, primary key (id))
+Hibernate: create table students (id bigint generated by default as identity, advisor_id bigint, faculty varchar(255), gpa float(53), major varchar(255), student_id varchar(255) not null, total_credits integer, user_id bigint not null, primary key (id))
+Hibernate: create table users (id bigint generated by default as identity, active boolean not null, created_at timestamp(6), email varchar(255), full_name varchar(255) not null, password_hash varchar(255), role enum ('ADMIN','ADVISOR','STAFF','STUDENT') not null, username varchar(255) not null, primary key (id))
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_rank
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_rank unique (application_id, rank_no)
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_position
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_position unique (application_id, position_id)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_rank
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_rank unique (student_id, rank_no)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_company
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_company unique (student_id, company_id)
+Hibernate: alter table if exists internships drop constraint if exists uk_internships_match
+Hibernate: alter table if exists internships add constraint uk_internships_match unique (match_id)
+Hibernate: alter table if exists matching_rounds drop constraint if exists UKfomubw85w76lywiyg60ukjrk1
+Hibernate: alter table if exists matching_rounds add constraint UKfomubw85w76lywiyg60ukjrk1 unique (round_no)
+Hibernate: alter table if exists students drop constraint if exists UK5mbus2m1tm2acucrp6t627jmx
+Hibernate: alter table if exists students add constraint UK5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: alter table if exists students drop constraint if exists UKg4fwvutq09fjdlb4bb0byp7t
+Hibernate: alter table if exists students add constraint UKg4fwvutq09fjdlb4bb0byp7t unique (user_id)
+Hibernate: alter table if exists users drop constraint if exists UKr43af9ap4edm43mmtq01oddj6
+Hibernate: alter table if exists users add constraint UKr43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: alter table if exists applications add constraint fk_applications_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_match foreign key (match_id) references matches
+Hibernate: alter table if exists internships add constraint fk_internships_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_updated_by foreign key (updated_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_changed_by foreign key (changed_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_student foreign key (student_id) references students
+2026-11-12T20:57:18.112Z  INFO 139 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T20:57:18.452Z  INFO 139 --- [demo] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-11-12T20:57:21.490Z  INFO 139 --- [demo] [           main] c.e.demo.dao.InternshipRepositoryTest    : Started InternshipRepositoryTest in 19.789 seconds (process running for 30.22)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.match_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.match_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 22.34 s -- in U7 Internship Repository
+[INFO] Running U7 Status History Repository
+2026-11-12T20:57:22.754Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StatusHistoryRepositoryTest]: StatusHistoryRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:22.864Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StatusHistoryRepositoryTest
+2026-11-12T20:57:22.877Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StatusHistoryRepositoryTest]: StatusHistoryRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:22.976Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StatusHistoryRepositoryTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T20:57:23.081Z  INFO 139 --- [demo] [           main] c.e.d.dao.StatusHistoryRepositoryTest    : Starting StatusHistoryRepositoryTest using Java 21.0.12.1 with PID 139 (started by root in /app)
+2026-11-12T20:57:23.081Z  INFO 139 --- [demo] [           main] c.e.d.dao.StatusHistoryRepositoryTest    : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T20:57:24.839Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T20:57:25.957Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 1115 ms. Found 19 JPA repository interfaces.
+2026-11-12T20:57:25.974Z  INFO 139 --- [demo] [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-11-12T20:57:25.985Z  INFO 139 --- [demo] [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:09eaa7f4-b0c4-48f9-a807-6c2c308f1bd2;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-11-12T20:57:26.254Z  INFO 139 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T20:57:26.480Z  INFO 139 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T20:57:26.493Z  INFO 139 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:09eaa7f4-b0c4-48f9-a807-6c2c308f1bd2]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: 09EAA7F4-B0C4-48F9-A807-6C2C308F1BD2/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T20:57:29.999Z  INFO 139 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table answer_snapshots (id bigint generated by default as identity, approval_id bigint not null, form_field_id bigint not null, field_value varchar(2000), primary key (id))
+Hibernate: create table applications (id bigint generated by default as identity, created_at timestamp(6), form_template_id bigint not null, status enum ('APPROVED','DRAFT','NEED_CORRECTION','REJECTED','SUBMITTED','UNDER_REVIEW') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), version bigint not null, primary key (id))
+Hibernate: create table approvals (id bigint generated by default as identity, application_id bigint not null, approval_level enum ('ADVISOR','STAFF') not null, approver_id bigint not null, comment varchar(1000), created_at timestamp(6), decided_at timestamp(6), decision enum ('APPROVE','REJECT','RETURN') not null, primary key (id))
+Hibernate: create table companies (id bigint generated by default as identity, address varchar(255), company_name varchar(255) not null, contact_person varchar(255), email varchar(255), phone varchar(255), status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_positions (id bigint generated by default as identity, available_slots integer not null, company_id bigint not null, description varchar(255), position_name varchar(255) not null, quota integer not null, status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_preferences (id bigint generated by default as identity, application_id bigint not null, created_at timestamp(6) not null, position_id bigint not null, rank_no integer not null, primary key (id))
+Hibernate: create table company_rankings (id bigint generated by default as identity, company_id bigint not null, created_at timestamp(6) not null, rank_no integer not null, student_id bigint not null, primary key (id))
+Hibernate: create table documents (id bigint generated by default as identity, application_id bigint not null, content_type varchar(255), file_name varchar(255) not null, file_size bigint, form_field_id bigint, status enum ('REJECTED','UPLOADED','VERIFIED') not null, storage_key varchar(255), uploaded_at timestamp(6), primary key (id))
+Hibernate: create table eligibility_records (id bigint generated by default as identity, checked_at timestamp(6) not null, eligible boolean not null, message varchar(255) not null, student_id varchar(10) not null, primary key (id))
+Hibernate: create table form_fields (id bigint generated by default as identity, display_order integer not null, field_name varchar(255) not null, field_type enum ('DATE','EMAIL','FILE','NUMBER','PHONE','SELECT','TEXT','TEXTAREA') not null, form_template_id bigint not null, label varchar(255) not null, options varchar(2000), required boolean not null, primary key (id))
+Hibernate: create table form_responses (id bigint generated by default as identity, application_id bigint not null, form_field_id bigint not null, updated_at timestamp(6), field_value varchar(2000), primary key (id))
+Hibernate: create table form_templates (id bigint generated by default as identity, created_at timestamp(6), created_by bigint not null, deadline timestamp(6), description varchar(1000), name varchar(255) not null, published_at timestamp(6), status enum ('ARCHIVED','DRAFT','PUBLISHED') not null, version integer not null, primary key (id))
+Hibernate: create table internships (id bigint generated by default as identity, created_at timestamp(6) not null, end_date date, match_id bigint not null, start_date date, status enum ('COMPLETED','IN_PROGRESS','NOT_STARTED','TERMINATED') not null, student_id bigint not null, supervisor_email varchar(255), supervisor_name varchar(255), supervisor_phone varchar(255), terminated_reason varchar(1000), updated_at timestamp(6) not null, updated_by bigint not null, primary key (id))
+Hibernate: create table matches (id bigint generated by default as identity, application_id bigint not null, decline_reason varchar(500), matched_at timestamp(6) not null, matched_by bigint not null, position_id bigint not null, rank_no integer, responded_at timestamp(6), round_id bigint not null, status enum ('CANCELLED','CONFIRMED','DECLINED','PROPOSED') not null, primary key (id))
+Hibernate: create table matching_rounds (id bigint generated by default as identity, announced_at timestamp(6), confirm_deadline timestamp(6) not null, opened_at timestamp(6) not null, opened_by bigint not null, round_no integer not null, status enum ('ANNOUNCED','CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table notifications (id bigint generated by default as identity, application_id bigint, created_at timestamp(6), is_read boolean not null, message varchar(1000), title varchar(255) not null, type enum ('APPLICATION_APPROVED','APPLICATION_FORWARDED','APPLICATION_REJECTED','APPLICATION_RETURNED','APPLICATION_SUBMITTED','CORRECTION_REMINDER','INTERNSHIP_STATUS_CHANGED','INTERNSHIP_UPDATED','MATCH_ANNOUNCED','MATCH_CANCELLED','MATCH_RESPONDED'), user_id bigint not null, primary key (id))
+Hibernate: create table status_history (id bigint generated by default as identity, changed_at timestamp(6) not null, changed_by bigint not null, from_status varchar(255), note varchar(1000), student_id bigint not null, to_status varchar(255) not null, type enum ('APPLICATION','INTERNSHIP','MATCH') not null, primary key (id))
+Hibernate: create table students (id bigint generated by default as identity, advisor_id bigint, faculty varchar(255), gpa float(53), major varchar(255), student_id varchar(255) not null, total_credits integer, user_id bigint not null, primary key (id))
+Hibernate: create table users (id bigint generated by default as identity, active boolean not null, created_at timestamp(6), email varchar(255), full_name varchar(255) not null, password_hash varchar(255), role enum ('ADMIN','ADVISOR','STAFF','STUDENT') not null, username varchar(255) not null, primary key (id))
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_rank
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_rank unique (application_id, rank_no)
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_position
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_position unique (application_id, position_id)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_rank
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_rank unique (student_id, rank_no)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_company
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_company unique (student_id, company_id)
+Hibernate: alter table if exists internships drop constraint if exists uk_internships_match
+Hibernate: alter table if exists internships add constraint uk_internships_match unique (match_id)
+Hibernate: alter table if exists matching_rounds drop constraint if exists UKfomubw85w76lywiyg60ukjrk1
+Hibernate: alter table if exists matching_rounds add constraint UKfomubw85w76lywiyg60ukjrk1 unique (round_no)
+Hibernate: alter table if exists students drop constraint if exists UK5mbus2m1tm2acucrp6t627jmx
+Hibernate: alter table if exists students add constraint UK5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: alter table if exists students drop constraint if exists UKg4fwvutq09fjdlb4bb0byp7t
+Hibernate: alter table if exists students add constraint UKg4fwvutq09fjdlb4bb0byp7t unique (user_id)
+Hibernate: alter table if exists users drop constraint if exists UKr43af9ap4edm43mmtq01oddj6
+Hibernate: alter table if exists users add constraint UKr43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: alter table if exists applications add constraint fk_applications_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_match foreign key (match_id) references matches
+Hibernate: alter table if exists internships add constraint fk_internships_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_updated_by foreign key (updated_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_changed_by foreign key (changed_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_student foreign key (student_id) references students
+2026-11-12T20:57:30.051Z  INFO 139 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T20:57:30.455Z  INFO 139 --- [demo] [           main] c.e.d.dao.StatusHistoryRepositoryTest    : Started StatusHistoryRepositoryTest in 7.466 seconds (process running for 39.186)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into status_history (changed_at,changed_by,from_status,note,student_id,to_status,type,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into status_history (changed_at,changed_by,from_status,note,student_id,to_status,type,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select sh1_0.id,sh1_0.changed_at,sh1_0.changed_by,sh1_0.from_status,sh1_0.note,sh1_0.student_id,sh1_0.to_status,sh1_0.type from status_history sh1_0 where sh1_0.student_id=? order by sh1_0.changed_at
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select sh1_0.id,sh1_0.changed_at,sh1_0.changed_by,sh1_0.from_status,sh1_0.note,sh1_0.student_id,sh1_0.to_status,sh1_0.type from status_history sh1_0 where sh1_0.student_id=? order by sh1_0.changed_at
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.916 s -- in U7 Status History Repository
+[INFO] Running U7 Student Status Lookup Repository
+2026-11-12T20:57:30.669Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StudentStatusLookupRepositoryTest]: StudentStatusLookupRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:30.776Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StudentStatusLookupRepositoryTest
+2026-11-12T20:57:30.791Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StudentStatusLookupRepositoryTest]: StudentStatusLookupRepositoryTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:30.887Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StudentStatusLookupRepositoryTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T20:57:30.990Z  INFO 139 --- [demo] [           main] .e.d.d.StudentStatusLookupRepositoryTest : Starting StudentStatusLookupRepositoryTest using Java 21.0.12.1 with PID 139 (started by root in /app)
+2026-11-12T20:57:30.991Z  INFO 139 --- [demo] [           main] .e.d.d.StudentStatusLookupRepositoryTest : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T20:57:32.759Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T20:57:33.487Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 724 ms. Found 19 JPA repository interfaces.
+2026-11-12T20:57:33.498Z  INFO 139 --- [demo] [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-11-12T20:57:33.504Z  INFO 139 --- [demo] [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:e4df727a-e56a-4603-9642-7949a38b1ecb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-11-12T20:57:33.880Z  INFO 139 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T20:57:34.087Z  INFO 139 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T20:57:34.096Z  INFO 139 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:e4df727a-e56a-4603-9642-7949a38b1ecb]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: E4DF727A-E56A-4603-9642-7949A38B1ECB/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T20:57:37.498Z  INFO 139 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table answer_snapshots (id bigint generated by default as identity, approval_id bigint not null, form_field_id bigint not null, field_value varchar(2000), primary key (id))
+Hibernate: create table applications (id bigint generated by default as identity, created_at timestamp(6), form_template_id bigint not null, status enum ('APPROVED','DRAFT','NEED_CORRECTION','REJECTED','SUBMITTED','UNDER_REVIEW') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), version bigint not null, primary key (id))
+Hibernate: create table approvals (id bigint generated by default as identity, application_id bigint not null, approval_level enum ('ADVISOR','STAFF') not null, approver_id bigint not null, comment varchar(1000), created_at timestamp(6), decided_at timestamp(6), decision enum ('APPROVE','REJECT','RETURN') not null, primary key (id))
+Hibernate: create table companies (id bigint generated by default as identity, address varchar(255), company_name varchar(255) not null, contact_person varchar(255), email varchar(255), phone varchar(255), status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_positions (id bigint generated by default as identity, available_slots integer not null, company_id bigint not null, description varchar(255), position_name varchar(255) not null, quota integer not null, status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_preferences (id bigint generated by default as identity, application_id bigint not null, created_at timestamp(6) not null, position_id bigint not null, rank_no integer not null, primary key (id))
+Hibernate: create table company_rankings (id bigint generated by default as identity, company_id bigint not null, created_at timestamp(6) not null, rank_no integer not null, student_id bigint not null, primary key (id))
+Hibernate: create table documents (id bigint generated by default as identity, application_id bigint not null, content_type varchar(255), file_name varchar(255) not null, file_size bigint, form_field_id bigint, status enum ('REJECTED','UPLOADED','VERIFIED') not null, storage_key varchar(255), uploaded_at timestamp(6), primary key (id))
+Hibernate: create table eligibility_records (id bigint generated by default as identity, checked_at timestamp(6) not null, eligible boolean not null, message varchar(255) not null, student_id varchar(10) not null, primary key (id))
+Hibernate: create table form_fields (id bigint generated by default as identity, display_order integer not null, field_name varchar(255) not null, field_type enum ('DATE','EMAIL','FILE','NUMBER','PHONE','SELECT','TEXT','TEXTAREA') not null, form_template_id bigint not null, label varchar(255) not null, options varchar(2000), required boolean not null, primary key (id))
+Hibernate: create table form_responses (id bigint generated by default as identity, application_id bigint not null, form_field_id bigint not null, updated_at timestamp(6), field_value varchar(2000), primary key (id))
+Hibernate: create table form_templates (id bigint generated by default as identity, created_at timestamp(6), created_by bigint not null, deadline timestamp(6), description varchar(1000), name varchar(255) not null, published_at timestamp(6), status enum ('ARCHIVED','DRAFT','PUBLISHED') not null, version integer not null, primary key (id))
+Hibernate: create table internships (id bigint generated by default as identity, created_at timestamp(6) not null, end_date date, match_id bigint not null, start_date date, status enum ('COMPLETED','IN_PROGRESS','NOT_STARTED','TERMINATED') not null, student_id bigint not null, supervisor_email varchar(255), supervisor_name varchar(255), supervisor_phone varchar(255), terminated_reason varchar(1000), updated_at timestamp(6) not null, updated_by bigint not null, primary key (id))
+Hibernate: create table matches (id bigint generated by default as identity, application_id bigint not null, decline_reason varchar(500), matched_at timestamp(6) not null, matched_by bigint not null, position_id bigint not null, rank_no integer, responded_at timestamp(6), round_id bigint not null, status enum ('CANCELLED','CONFIRMED','DECLINED','PROPOSED') not null, primary key (id))
+Hibernate: create table matching_rounds (id bigint generated by default as identity, announced_at timestamp(6), confirm_deadline timestamp(6) not null, opened_at timestamp(6) not null, opened_by bigint not null, round_no integer not null, status enum ('ANNOUNCED','CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table notifications (id bigint generated by default as identity, application_id bigint, created_at timestamp(6), is_read boolean not null, message varchar(1000), title varchar(255) not null, type enum ('APPLICATION_APPROVED','APPLICATION_FORWARDED','APPLICATION_REJECTED','APPLICATION_RETURNED','APPLICATION_SUBMITTED','CORRECTION_REMINDER','INTERNSHIP_STATUS_CHANGED','INTERNSHIP_UPDATED','MATCH_ANNOUNCED','MATCH_CANCELLED','MATCH_RESPONDED'), user_id bigint not null, primary key (id))
+Hibernate: create table status_history (id bigint generated by default as identity, changed_at timestamp(6) not null, changed_by bigint not null, from_status varchar(255), note varchar(1000), student_id bigint not null, to_status varchar(255) not null, type enum ('APPLICATION','INTERNSHIP','MATCH') not null, primary key (id))
+Hibernate: create table students (id bigint generated by default as identity, advisor_id bigint, faculty varchar(255), gpa float(53), major varchar(255), student_id varchar(255) not null, total_credits integer, user_id bigint not null, primary key (id))
+Hibernate: create table users (id bigint generated by default as identity, active boolean not null, created_at timestamp(6), email varchar(255), full_name varchar(255) not null, password_hash varchar(255), role enum ('ADMIN','ADVISOR','STAFF','STUDENT') not null, username varchar(255) not null, primary key (id))
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_rank
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_rank unique (application_id, rank_no)
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_position
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_position unique (application_id, position_id)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_rank
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_rank unique (student_id, rank_no)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_company
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_company unique (student_id, company_id)
+Hibernate: alter table if exists internships drop constraint if exists uk_internships_match
+Hibernate: alter table if exists internships add constraint uk_internships_match unique (match_id)
+Hibernate: alter table if exists matching_rounds drop constraint if exists UKfomubw85w76lywiyg60ukjrk1
+Hibernate: alter table if exists matching_rounds add constraint UKfomubw85w76lywiyg60ukjrk1 unique (round_no)
+Hibernate: alter table if exists students drop constraint if exists UK5mbus2m1tm2acucrp6t627jmx
+Hibernate: alter table if exists students add constraint UK5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: alter table if exists students drop constraint if exists UKg4fwvutq09fjdlb4bb0byp7t
+Hibernate: alter table if exists students add constraint UKg4fwvutq09fjdlb4bb0byp7t unique (user_id)
+Hibernate: alter table if exists users drop constraint if exists UKr43af9ap4edm43mmtq01oddj6
+Hibernate: alter table if exists users add constraint UKr43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: alter table if exists applications add constraint fk_applications_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_match foreign key (match_id) references matches
+Hibernate: alter table if exists internships add constraint fk_internships_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_updated_by foreign key (updated_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_changed_by foreign key (changed_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_student foreign key (student_id) references students
+2026-11-12T20:57:37.542Z  INFO 139 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T20:57:37.845Z  INFO 139 --- [demo] [           main] .e.d.d.StudentStatusLookupRepositoryTest : Started StudentStatusLookupRepositoryTest in 6.946 seconds (process running for 46.575)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.432 s -- in U7 Student Status Lookup Repository
+[INFO] Running U7 Student Status Query DAO
+2026-11-12T20:57:38.105Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StudentStatusQueryDaoTest]: StudentStatusQueryDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:38.204Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StudentStatusQueryDaoTest
+2026-11-12T20:57:38.218Z  INFO 139 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.StudentStatusQueryDaoTest]: StudentStatusQueryDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T20:57:38.315Z  INFO 139 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.StudentStatusQueryDaoTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T20:57:38.427Z  INFO 139 --- [demo] [           main] c.e.demo.dao.StudentStatusQueryDaoTest   : Starting StudentStatusQueryDaoTest using Java 21.0.12.1 with PID 139 (started by root in /app)
+2026-11-12T20:57:38.427Z  INFO 139 --- [demo] [           main] c.e.demo.dao.StudentStatusQueryDaoTest   : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T20:57:40.137Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T20:57:40.915Z  INFO 139 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 776 ms. Found 19 JPA repository interfaces.
+2026-11-12T20:57:40.927Z  INFO 139 --- [demo] [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-11-12T20:57:40.933Z  INFO 139 --- [demo] [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:b8f485eb-9695-4ba4-8e94-6c1c84991968;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-11-12T20:57:41.205Z  INFO 139 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T20:57:41.411Z  INFO 139 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T20:57:41.421Z  INFO 139 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:b8f485eb-9695-4ba4-8e94-6c1c84991968]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: B8F485EB-9695-4BA4-8E94-6C1C84991968/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T20:57:44.726Z  INFO 139 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table answer_snapshots (id bigint generated by default as identity, approval_id bigint not null, form_field_id bigint not null, field_value varchar(2000), primary key (id))
+Hibernate: create table applications (id bigint generated by default as identity, created_at timestamp(6), form_template_id bigint not null, status enum ('APPROVED','DRAFT','NEED_CORRECTION','REJECTED','SUBMITTED','UNDER_REVIEW') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), version bigint not null, primary key (id))
+Hibernate: create table approvals (id bigint generated by default as identity, application_id bigint not null, approval_level enum ('ADVISOR','STAFF') not null, approver_id bigint not null, comment varchar(1000), created_at timestamp(6), decided_at timestamp(6), decision enum ('APPROVE','REJECT','RETURN') not null, primary key (id))
+Hibernate: create table companies (id bigint generated by default as identity, address varchar(255), company_name varchar(255) not null, contact_person varchar(255), email varchar(255), phone varchar(255), status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_positions (id bigint generated by default as identity, available_slots integer not null, company_id bigint not null, description varchar(255), position_name varchar(255) not null, quota integer not null, status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_preferences (id bigint generated by default as identity, application_id bigint not null, created_at timestamp(6) not null, position_id bigint not null, rank_no integer not null, primary key (id))
+Hibernate: create table company_rankings (id bigint generated by default as identity, company_id bigint not null, created_at timestamp(6) not null, rank_no integer not null, student_id bigint not null, primary key (id))
+Hibernate: create table documents (id bigint generated by default as identity, application_id bigint not null, content_type varchar(255), file_name varchar(255) not null, file_size bigint, form_field_id bigint, status enum ('REJECTED','UPLOADED','VERIFIED') not null, storage_key varchar(255), uploaded_at timestamp(6), primary key (id))
+Hibernate: create table eligibility_records (id bigint generated by default as identity, checked_at timestamp(6) not null, eligible boolean not null, message varchar(255) not null, student_id varchar(10) not null, primary key (id))
+Hibernate: create table form_fields (id bigint generated by default as identity, display_order integer not null, field_name varchar(255) not null, field_type enum ('DATE','EMAIL','FILE','NUMBER','PHONE','SELECT','TEXT','TEXTAREA') not null, form_template_id bigint not null, label varchar(255) not null, options varchar(2000), required boolean not null, primary key (id))
+Hibernate: create table form_responses (id bigint generated by default as identity, application_id bigint not null, form_field_id bigint not null, updated_at timestamp(6), field_value varchar(2000), primary key (id))
+Hibernate: create table form_templates (id bigint generated by default as identity, created_at timestamp(6), created_by bigint not null, deadline timestamp(6), description varchar(1000), name varchar(255) not null, published_at timestamp(6), status enum ('ARCHIVED','DRAFT','PUBLISHED') not null, version integer not null, primary key (id))
+Hibernate: create table internships (id bigint generated by default as identity, created_at timestamp(6) not null, end_date date, match_id bigint not null, start_date date, status enum ('COMPLETED','IN_PROGRESS','NOT_STARTED','TERMINATED') not null, student_id bigint not null, supervisor_email varchar(255), supervisor_name varchar(255), supervisor_phone varchar(255), terminated_reason varchar(1000), updated_at timestamp(6) not null, updated_by bigint not null, primary key (id))
+Hibernate: create table matches (id bigint generated by default as identity, application_id bigint not null, decline_reason varchar(500), matched_at timestamp(6) not null, matched_by bigint not null, position_id bigint not null, rank_no integer, responded_at timestamp(6), round_id bigint not null, status enum ('CANCELLED','CONFIRMED','DECLINED','PROPOSED') not null, primary key (id))
+Hibernate: create table matching_rounds (id bigint generated by default as identity, announced_at timestamp(6), confirm_deadline timestamp(6) not null, opened_at timestamp(6) not null, opened_by bigint not null, round_no integer not null, status enum ('ANNOUNCED','CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table notifications (id bigint generated by default as identity, application_id bigint, created_at timestamp(6), is_read boolean not null, message varchar(1000), title varchar(255) not null, type enum ('APPLICATION_APPROVED','APPLICATION_FORWARDED','APPLICATION_REJECTED','APPLICATION_RETURNED','APPLICATION_SUBMITTED','CORRECTION_REMINDER','INTERNSHIP_STATUS_CHANGED','INTERNSHIP_UPDATED','MATCH_ANNOUNCED','MATCH_CANCELLED','MATCH_RESPONDED'), user_id bigint not null, primary key (id))
+Hibernate: create table status_history (id bigint generated by default as identity, changed_at timestamp(6) not null, changed_by bigint not null, from_status varchar(255), note varchar(1000), student_id bigint not null, to_status varchar(255) not null, type enum ('APPLICATION','INTERNSHIP','MATCH') not null, primary key (id))
+Hibernate: create table students (id bigint generated by default as identity, advisor_id bigint, faculty varchar(255), gpa float(53), major varchar(255), student_id varchar(255) not null, total_credits integer, user_id bigint not null, primary key (id))
+Hibernate: create table users (id bigint generated by default as identity, active boolean not null, created_at timestamp(6), email varchar(255), full_name varchar(255) not null, password_hash varchar(255), role enum ('ADMIN','ADVISOR','STAFF','STUDENT') not null, username varchar(255) not null, primary key (id))
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_rank
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_rank unique (application_id, rank_no)
+Hibernate: alter table if exists company_preferences drop constraint if exists uk_pref_application_position
+Hibernate: alter table if exists company_preferences add constraint uk_pref_application_position unique (application_id, position_id)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_rank
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_rank unique (student_id, rank_no)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_company
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_company unique (student_id, company_id)
+Hibernate: alter table if exists internships drop constraint if exists uk_internships_match
+Hibernate: alter table if exists internships add constraint uk_internships_match unique (match_id)
+Hibernate: alter table if exists matching_rounds drop constraint if exists UKfomubw85w76lywiyg60ukjrk1
+Hibernate: alter table if exists matching_rounds add constraint UKfomubw85w76lywiyg60ukjrk1 unique (round_no)
+Hibernate: alter table if exists students drop constraint if exists UK5mbus2m1tm2acucrp6t627jmx
+Hibernate: alter table if exists students add constraint UK5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: alter table if exists students drop constraint if exists UKg4fwvutq09fjdlb4bb0byp7t
+Hibernate: alter table if exists students add constraint UKg4fwvutq09fjdlb4bb0byp7t unique (user_id)
+Hibernate: alter table if exists users drop constraint if exists UKr43af9ap4edm43mmtq01oddj6
+Hibernate: alter table if exists users add constraint UKr43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: alter table if exists applications add constraint fk_applications_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_match foreign key (match_id) references matches
+Hibernate: alter table if exists internships add constraint fk_internships_student foreign key (student_id) references students
+Hibernate: alter table if exists internships add constraint fk_internships_updated_by foreign key (updated_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_changed_by foreign key (changed_by) references users
+Hibernate: alter table if exists status_history add constraint fk_status_history_student foreign key (student_id) references students
+2026-11-12T20:57:44.762Z  INFO 139 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T20:57:45.295Z  INFO 139 --- [demo] [           main] c.e.demo.dao.StudentStatusQueryDaoTest   : Started StudentStatusQueryDaoTest in 6.967 seconds (process running for 54.025)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into students (advisor_id,faculty,gpa,major,student_id,total_credits,user_id,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into applications (created_at,form_template_id,status,student_id,submitted_at,updated_at,version,id) values (?,?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into companies (address,company_name,contact_person,email,phone,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into company_positions (available_slots,company_id,description,position_name,quota,status,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into matches (application_id,decline_reason,matched_at,matched_by,position_id,rank_no,responded_at,round_id,status,id) values (?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into internships (created_at,end_date,match_id,start_date,status,student_id,supervisor_email,supervisor_name,supervisor_phone,terminated_reason,updated_at,updated_by,id) values (?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+Hibernate: select s1_0.id,s1_0.advisor_id,s1_0.faculty,s1_0.gpa,s1_0.major,s1_0.student_id,s1_0.total_credits,s1_0.user_id from students s1_0
+Hibernate: select a1_0.id,a1_0.created_at,a1_0.form_template_id,a1_0.status,a1_0.student_id,a1_0.submitted_at,a1_0.updated_at,a1_0.version from applications a1_0 where a1_0.student_id=? order by a1_0.id desc fetch first ? rows only
+Hibernate: select m1_0.id,m1_0.application_id,m1_0.decline_reason,m1_0.matched_at,m1_0.matched_by,m1_0.position_id,m1_0.rank_no,m1_0.responded_at,m1_0.round_id,m1_0.status from matches m1_0 where m1_0.application_id=? and m1_0.status in (?,?) fetch first ? rows only
+Hibernate: select i1_0.id,i1_0.created_at,i1_0.end_date,i1_0.match_id,i1_0.start_date,i1_0.status,i1_0.student_id,i1_0.supervisor_email,i1_0.supervisor_name,i1_0.supervisor_phone,i1_0.terminated_reason,i1_0.updated_at,i1_0.updated_by from internships i1_0 where i1_0.student_id=?
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.983 s -- in U7 Student Status Query DAO
+[INFO] Running com.example.demo.service.InternshipServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.643 s -- in com.example.demo.service.InternshipServiceTest
+[INFO] Running com.example.demo.service.StudentStatusServiceTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.428 s -- in com.example.demo.service.StudentStatusServiceTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 52, Failures: 0, Errors: 0, Skipped: 0
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:23 min
+[INFO] Finished at: 2026-11-12T20:57:47Z
+[INFO] ------------------------------------------------------------------------
