@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>สถานะของฉัน · ระบบสหกิจศึกษา</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/u7.css">
+</head>
+
+<body class="u7" data-page="my-status">
+
+    <header>
+        ระบบสหกิจศึกษา
+
+        <span>
+            <span id="who"></span> ·
+        <button id="logout" type="button">
+                ออกจากระบบ
+            </button>
+        </span>
+    </header>
+
+    <nav>
+        <a href="check.html">
+            ตรวจสอบคุณสมบัติ
+        </a>
+
+        <a href="submit.html">
+            ยื่นคำร้อง
+        </a>
+
+        <a href="ranking.html">
+            จับคู่บริษัท
+        </a>
+
+        <a href="my-status.html" class="on" aria-current="page">
+            สถานะของฉัน
+        </a>
+
+        <a href="notifications.html">
+            การแจ้งเตือน
+        </a>
+    </nav>
+
+    <main>
+
+        <!-- ผู้ใช้ที่ไม่ใช่นักศึกษา -->
+        <section id="myDenied" hidden>
+            <div class="card">
+                <div class="alert bad" role="alert">
+                    หน้านี้สำหรับนักศึกษาเท่านั้น
+                </div>
+
+                <a class="btn" href="student-status.html">
+                    ไปหน้าสถานะนักศึกษา
+                </a>
+            </div>
+        </section>
+
+        <section id="myView" hidden>
+
+            <h1>สถานะของฉัน</h1>
+
+            <p class="sub">
+                ติดตามขั้นตอนตั้งแต่ยื่นใบสมัคร จับคู่บริษัท เริ่มฝึกงาน จนถึงเสร็จสิ้น
+            </p>
+
+            <div id="myLoading" class="card" role="status">
+                กำลังโหลดสถานะ...
+            </div>
+
+            <div id="myError" class="alert bad" role="alert" hidden>
+            </div>
+
+            <div id="myContent" hidden>
+
+                <section class="card progress-card">
+                    <h2>ความคืบหน้า</h2>
+
+                    <div id="stageProgress" class="stage-progress">
+
+                        <div class="progress-item" data-progress="NOT_APPLIED">
+                            <span class="circle">1</span>
+                            <span>ยังไม่ยื่น</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="APPLYING">
+                            <span class="circle">2</span>
+                            <span>กำลังยื่น</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="WAITING_MATCH">
+                            <span class="circle">3</span>
+                            <span>รอจับคู่</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="MATCHING">
+                            <span class="circle">4</span>
+                            <span>กำลังจับคู่</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="READY">
+                            <span class="circle">5</span>
+                            <span>พร้อมฝึกงาน</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="IN_PROGRESS">
+                            <span class="circle">6</span>
+                            <span>กำลังฝึกงาน</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="COMPLETED">
+                            <span class="circle">7</span>
+                            <span>เสร็จสิ้น</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="REJECTED">
+                            <span class="circle">!</span>
+                            <span>ไม่อนุมัติ</span>
+                        </div>
+
+                        <div class="progress-item" data-progress="TERMINATED">
+                            <span class="circle">!</span>
+                            <span>ยุติ</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+
+                    <div class="status-hero">
+
+                        <div class="icon" id="myStatusIcon">
+                            ✓
+                        </div>
+
+                        <div>
+                            <h2 id="myStageTitle">
+                                -
+                            </h2>
+
+                            <p id="myStageMessage">
+                                -
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="myAttention" class="alert" role="status" hidden style="margin-top:16px">
+                    </div>
+                </section>
+
+                <div class="detail-grid">
+
+                    <section class="card">
+                        <h2>ข้อมูลนักศึกษา</h2>
+                        <dl class="kv" id="myStudent"></dl>
+                    </section>
+
+                    <section class="card">
+                        <h2>ใบสมัคร</h2>
+
+                        <div id="myApplication">
+                            ยังไม่ยื่นใบสมัคร
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <h2>ผลการจับคู่</h2>
+
+                        <div id="myMatch">
+                            ยังไม่มีผลการจับคู่
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <h2>ข้อมูลการฝึกงาน</h2>
+
+                        <div id="myInternship">
+                            ยังไม่มีข้อมูลการฝึกงาน
+                        </div>
+                    </section>
+
+                    <section class="card wide">
+                        <h2>อันดับบริษัทที่เลือก</h2>
+
+                        <div id="myPreferences">
+                            ยังไม่มีอันดับที่เลือก
+                        </div>
+                    </section>
+
+                    <section class="card wide">
+                        <h2>ประวัติสถานะ</h2>
+
+                        <ol id="myTimeline" class="timeline">
+                        </ol>
+
+                        <p id="myTimelineEmpty" class="empty">
+                            ยังไม่มีประวัติการเปลี่ยนสถานะ
+                        </p>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/u7.js"></script>
+</body>
+
+</html>

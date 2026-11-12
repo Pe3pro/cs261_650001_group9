@@ -1,0 +1,416 @@
+/* =========================================================
+   U7: หน้าติดตามสถานะนักศึกษาและการฝึกงาน
+   ========================================================= */
+
+body.u7 main {
+    max-width: 1180px;
+}
+
+.u7 .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.u7 .toolbar .search {
+    flex: 1;
+    min-width: 240px;
+}
+
+.u7 .stage-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.u7 .stage-tab {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink);
+    padding: 7px 12px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.u7 .stage-tab:hover {
+    border-color: var(--navy);
+}
+
+.u7 .stage-tab.on {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: #fff;
+}
+
+.u7 .stage-tab .count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .2);
+    font-size: 11px;
+}
+
+.u7 .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.u7 .status-table {
+    width: 100%;
+    min-width: 960px;
+    border-collapse: collapse;
+}
+
+.u7 .status-table th,
+.u7 .status-table td {
+    padding: 11px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.u7 .status-table th {
+    color: var(--mute);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.u7 .status-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.u7 .status-table tbody tr:hover {
+    background: color-mix(in srgb, var(--navy) 4%, transparent);
+}
+
+.u7 .status-table tr.attn {
+    background: color-mix(in srgb, var(--warn) 10%, transparent);
+}
+
+.u7 .student-link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--navy);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    text-decoration: underline;
+}
+
+.u7 .badge {
+    display: inline-block;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    background: var(--field);
+    color: var(--ink);
+}
+
+.u7 .badge.not-applied {
+    color: var(--mute);
+}
+
+.u7 .badge.applying,
+.u7 .badge.matching {
+    color: #8a5b00;
+    background: #fff3cd;
+}
+
+.u7 .badge.waiting-match,
+.u7 .badge.ready {
+    color: #075985;
+    background: #e0f2fe;
+}
+
+.u7 .badge.in-progress {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.u7 .badge.completed {
+    color: var(--ok);
+    background: var(--okbg);
+}
+
+.u7 .badge.rejected,
+.u7 .badge.terminated {
+    color: var(--bad);
+    background: var(--badbg);
+}
+
+.u7 .attention {
+    display: inline-block;
+    color: #8a5b00;
+    background: #fff3cd;
+    border-radius: 5px;
+    padding: 4px 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.u7 .pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.u7 .pager .btn {
+    padding: 7px 13px;
+}
+
+.u7 .empty {
+    padding: 28px 16px;
+    margin: 0;
+    color: var(--mute);
+    text-align: center;
+}
+
+.u7 .detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.u7 .detail-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+}
+
+.u7 .detail-grid .card {
+    margin-bottom: 0;
+}
+
+.u7 .detail-grid .wide {
+    grid-column: 1 / -1;
+}
+
+.u7 .kv {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 8px 14px;
+    margin: 0;
+}
+
+.u7 .kv dt {
+    color: var(--mute);
+}
+
+.u7 .kv dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.u7 .internship-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.u7 .internship-form .wide {
+    grid-column: 1 / -1;
+}
+
+.u7 .internship-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.u7 .btn.danger {
+    background: var(--bad);
+}
+
+.u7 .timeline {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.u7 .timeline::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--line);
+}
+
+.u7 .timeline li {
+    position: relative;
+    padding: 0 0 18px 28px;
+}
+
+.u7 .timeline li:last-child {
+    padding-bottom: 0;
+}
+
+.u7 .timeline li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border: 3px solid var(--card);
+    border-radius: 50%;
+    background: var(--navy);
+    box-shadow: 0 0 0 1px var(--line);
+}
+
+.u7 .timeline time {
+    display: block;
+    color: var(--mute);
+    font-size: 11px;
+}
+
+.u7 .progress-card {
+    overflow-x: auto;
+}
+
+.u7 .stage-progress {
+    display: flex;
+    min-width: 880px;
+    align-items: flex-start;
+    padding: 8px 0;
+}
+
+.u7 .stage-progress .progress-item {
+    position: relative;
+    flex: 1;
+    text-align: center;
+    color: var(--mute);
+    font-size: 11px;
+}
+
+.u7 .stage-progress .progress-item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 58%;
+    right: -42%;
+    top: 14px;
+    height: 2px;
+    background: var(--line);
+}
+
+.u7 .stage-progress .circle {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 7px;
+    border: 2px solid var(--line);
+    border-radius: 50%;
+    background: var(--card);
+}
+
+.u7 .stage-progress .done,
+.u7 .stage-progress .current {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.u7 .stage-progress .done .circle {
+    border-color: var(--ok);
+    background: var(--ok);
+    color: #fff;
+}
+
+.u7 .stage-progress .done:not(:last-child)::after {
+    background: var(--ok);
+}
+
+.u7 .stage-progress .current .circle {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: #fff;
+}
+
+.u7 .status-hero {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.u7 .status-hero .icon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex: 0 0 48px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--navy);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.u7 .status-hero h2,
+.u7 .status-hero p {
+    margin: 0;
+}
+
+.u7 .status-hero p {
+    color: var(--mute);
+    margin-top: 3px;
+}
+
+.u7 .readonly-note {
+    color: var(--mute);
+    font-size: 12px;
+    margin: 0 0 12px;
+}
+
+.u7 [aria-invalid="true"] {
+    border-color: var(--bad);
+}
+
+.u7 .field-error {
+    color: var(--bad);
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+    .u7 .detail-grid,
+    .u7 .internship-form {
+        grid-template-columns: 1fr;
+    }
+    .u7 .detail-grid .wide,
+    .u7 .internship-form .wide {
+        grid-column: auto;
+    }
+    .u7 .kv {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+    .u7 .kv dd {
+        margin-bottom: 8px;
+    }
+    .u7 .detail-head {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
