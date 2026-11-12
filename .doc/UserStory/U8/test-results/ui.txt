@@ -1,52 +1,6 @@
-docker : Unable to find image 'node:22' locally
-At line:1 char:1
-+ docker run --rm -v "${PWD}:/app" -v cs261-node-modules:/app/node_modu ...
-+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    + CategoryInfo          : NotSpecified: (Unable to find image 'node:22' locally:String) [], RemoteException
-    + FullyQualifiedErrorId : NativeCommandError
- 
-22: Pulling from library/node
-450e9cb70a64: Pulling fs layer
-338554e9113f: Pulling fs layer
-2abb2fbacec9: Pulling fs layer
-69245854ad58: Pulling fs layer
-d6c30932f8d3: Pulling fs layer
-9bab93d346cd: Pulling fs layer
-7cd13466dc1b: Pulling fs layer
-172a422ce4a3: Pulling fs layer
-450e9cb70a64: Download complete
-2abb2fbacec9: Download complete
-338554e9113f: Download complete
-172a422ce4a3: Download complete
-69245854ad58: Download complete
-d6c30932f8d3: Download complete
-f679bfbbca07: Download complete
-ca58bfb5cfd7: Download complete
-69245854ad58: Pull complete
-7cd13466dc1b: Download complete
-338554e9113f: Pull complete
-d6c30932f8d3: Pull complete
-9bab93d346cd: Download complete
-9bab93d346cd: Pull complete
-2abb2fbacec9: Pull complete
-7cd13466dc1b: Pull complete
-450e9cb70a64: Pull complete
-172a422ce4a3: Pull complete
-Digest: sha256:e13726ca604184d7a91fcacab1fc09eefd642dc28e79ac34e85540dd93b78cfb
-Status: Downloaded newer image for node:22
-npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster 
-implementation
-
-added 89 packages in 2s
-npm notice
-npm notice New major version of npm available! 10.9.9 -> 12.2.2
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.2
-npm notice To update run: npm install -g npm@12.2.2
-npm notice
-
  RUN  v3.2.7 /app
 
- Γ£ô frontend/tests/u8.test.js (14 tests) 1018ms
+ ✓ frontend/tests/u8.test.js (14 tests) 1018ms
 
  Test Files  1 passed (1)
       Tests  14 passed (14)
