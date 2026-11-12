@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,12 +66,14 @@ public class MatchingService {
     private final MatchViews views;
     private final AccessGuard guard;
     private final Clock clock;
+    private final ApplicationEventPublisher events;
 
     public MatchingService(ApplicationRepository applicationRepository, StudentRepository studentRepository,
             CompanyPreferenceRepository preferenceRepository, CompanyPositionRepository positionRepository,
             CompanyRepository companyRepository, MatchRepository matchRepository,
             MatchingRoundRepository roundRepository, PreferenceService preferenceService,
-            NotificationService notificationService, MatchViews views, AccessGuard guard, Clock clock) {
+            NotificationService notificationService, MatchViews views, AccessGuard guard, Clock clock,
+            ApplicationEventPublisher events) {
         this.applicationRepository = applicationRepository;
         this.studentRepository = studentRepository;
         this.preferenceRepository = preferenceRepository;
@@ -83,6 +86,7 @@ public class MatchingService {
         this.views = views;
         this.guard = guard;
         this.clock = clock;
+        this.events = events;
     }
 
     /* ===================== เจ้าหน้าที่ ===================== */
@@ -248,7 +252,7 @@ public class MatchingService {
         return toRoundResponse(round);
     }
 
-    /** U6-SVC-R03: ประกาศผลรอบ OPEN → ANNOUNCED แล้วแจ้งเตือนนักศึกษาทุกคนในรอบ */
+    /** U6-SVC-R03: ประกาศผลรอบ OPEN → ANNOUNCED แล้วแจ้งเตือนนักศึกษาที่ได้รับการจับคู่ และที่เลือกอันดับไว้แต่ยังไม่ได้ (T2 · ผู้รับแจ้งเตือน) */
     public MatchingRoundResponse announce(Long userId, Long roundId) {
         guard.require(userId, Role.STAFF);
         MatchingRound round = roundRepository.findById(roundId)
@@ -337,6 +341,11 @@ public class MatchingService {
             releaseSlot(match.getPositionId());
         }
         matchRepository.save(match);
+        if (match.getStatus() == MatchStatus.CONFIRMED) {
+            // T2 ข้อ S8: US7 สร้าง internship จาก event นี้ใน transaction เดียวกัน
+            events.publishEvent(new MatchConfirmedEvent(match.getId(), match.getApplicationId(),
+                    match.getPositionId(), match.getRoundId()));
+        }
         notificationService.notifyMatchResponded(match, views.studentOf(app)[1], views.placeOf(match.getPositionId()));
         return views.toResponse(match, app);
     }
@@ -359,7 +368,9 @@ public class MatchingService {
             LocalDateTime now) {
         position.takeSlot();
         positionRepository.save(position);
-        return matchRepository.save(new Match(app.getId(), position.getId(), round.getId(), rank, staff.getId(), now));
+        Match saved = matchRepository.save(new Match(app.getId(), position.getId(), round.getId(), rank, staff.getId(), now));
+        matchRepository.flush(); // ชน uk_match_active_application ที่นี่ → ApiExceptionHandler ตอบ 409 ALREADY_MATCHED
+        return saved;
     }
 
     private void releaseSlot(Long positionId) {

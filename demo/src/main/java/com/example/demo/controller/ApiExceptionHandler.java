@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -10,6 +11,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.example.demo.dto.ErrorResponse;
 import com.example.demo.dto.FieldErrorResponse;
+import com.example.demo.entity.Match;
 import com.example.demo.service.ApiException;
 import com.example.demo.service.FieldValidationException;
 import com.example.demo.service.FileStorage;
@@ -52,6 +54,17 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErrorResponse> handleConcurrentUpdate(ObjectOptimisticLockingFailureException e) {
         return ResponseEntity.status(409).body(
                 new ErrorResponse("INVALID_STATUS", "มีผู้บันทึกผลคำร้องนี้ไปก่อนแล้ว กรุณาโหลดหน้าใหม่"));
+    }
+
+    /** U6: ใบสมัครเดียวมีผลจับคู่ที่ใช้อยู่ 2 รายการ (ชน uk_match_active_application) → 409 ALREADY_MATCHED · constraint อื่นส่งต่อตามเดิม */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraint(DataIntegrityViolationException e) {
+        String detail = String.valueOf(e.getMostSpecificCause().getMessage());
+        if (detail.toLowerCase().contains(Match.UK_ACTIVE_APPLICATION)) {
+            return ResponseEntity.status(409).body(
+                    new ErrorResponse("ALREADY_MATCHED", "ใบสมัครนี้มีผลการจับคู่อยู่แล้ว"));
+        }
+        throw e;
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)

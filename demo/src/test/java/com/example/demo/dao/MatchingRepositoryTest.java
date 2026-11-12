@@ -142,6 +142,23 @@ class MatchingRepositoryTest {
     }
 
     @Test
+    @DisplayName("DAO-U6-05b ใบสมัครเดียวมีผล PROPOSED / CONFIRMED 2 รายการไม่ได้ (uk_match_active_application) แต่ผลที่ยกเลิกแล้วซ้ำได้")
+    void oneActiveMatchPerApplication() {
+        Match cancelled = new Match(second.getId(), backend.getId(), round1.getId(), 1, 1L, T0);
+        cancelled.cancel();
+        matches.saveAndFlush(cancelled);
+        Match declined = new Match(second.getId(), analyst.getId(), round1.getId(), 2, 1L, T0);
+        declined.decline("ได้ที่อื่นแล้ว", T0);
+        matches.saveAndFlush(declined);
+        matches.saveAndFlush(new Match(second.getId(), backend.getId(), round1.getId(), 1, 1L, T0.plusHours(1)));
+
+        assertThatThrownBy(() -> matches.saveAndFlush(
+                new Match(second.getId(), analyst.getId(), round1.getId(), 2, 1L, T0.plusHours(2))))
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .satisfies(e -> assertThat(e.getMessage().toLowerCase()).contains(Match.UK_ACTIVE_APPLICATION));
+    }
+
+    @Test
     @DisplayName("DAO-U6-06 รอบล่าสุด และรอบที่ประกาศผลแล้วล่าสุด")
     void rounds() {
         round1.announce(T0.plusDays(1));

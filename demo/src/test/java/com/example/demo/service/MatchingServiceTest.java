@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.demo.dao.ApplicationRepository;
@@ -64,6 +65,7 @@ class MatchingServiceTest {
     private NotificationService notifications;
     private MatchViews views;
     private AccessGuard guard;
+    private ApplicationEventPublisher events;
     private MatchingService service;
 
     private final User staff = user(1L, Role.STAFF);
@@ -81,10 +83,11 @@ class MatchingServiceTest {
         notifications = mock(NotificationService.class);
         views = mock(MatchViews.class);
         guard = mock(AccessGuard.class);
+        events = mock(ApplicationEventPublisher.class);
         Clock clock = Clock.fixed(Instant.parse("2026-11-10T03:00:00Z"), ZoneId.of("Asia/Bangkok"));
         PreferenceService preferenceService = mock(PreferenceService.class);
         service = new MatchingService(applications, students, preferences, positions, companies, matches, rounds,
-                preferenceService, notifications, views, guard, clock);
+                preferenceService, notifications, views, guard, clock, events);
 
         when(guard.require(1L, Role.STAFF)).thenReturn(staff);
         when(guard.require(9L, Role.STUDENT)).thenReturn(studentUser);
@@ -310,7 +313,7 @@ class MatchingServiceTest {
     }
 
     @Test
-    @DisplayName("U6-SVC-S03 ยืนยันสิทธิ์ เปลี่ยนเป็น CONFIRMED และแจ้งเจ้าหน้าที่")
+    @DisplayName("U6-SVC-S03 ยืนยันสิทธิ์ เปลี่ยนเป็น CONFIRMED แจ้งเจ้าหน้าที่ และส่ง MatchConfirmedEvent ให้ US7")
     void confirm() {
         Match m = announcedMatchOfStudent(NOW.plusDays(3));
 
@@ -318,6 +321,7 @@ class MatchingServiceTest {
 
         assertThat(m.getStatus()).isEqualTo(MatchStatus.CONFIRMED);
         verify(notifications).notifyMatchResponded(any(), anyString(), anyString());
+        verify(events).publishEvent(new MatchConfirmedEvent(m.getId(), 40L, 11L, 5L));
     }
 
     @Test
@@ -342,6 +346,8 @@ class MatchingServiceTest {
         assertThat(m.getStatus()).isEqualTo(MatchStatus.DECLINED);
         assertThat(m.getDeclineReason()).isEqualTo("ได้ที่ฝึกงานอื่นแล้ว");
         assertThat(p.getAvailableSlots()).isEqualTo(1);
+        assertThat(m.getActiveApplicationId()).isNull();
+        verify(events, never()).publishEvent(any(Object.class));
     }
 
     @Test
