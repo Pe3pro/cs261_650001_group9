@@ -116,7 +116,7 @@ public class PreferenceService {
         return views.preferences(prefs, announced);
     }
 
-    /** U6-SVC-P03..P06: 1–5 อันดับ ไม่ว่าง ไม่ซ้ำ ตำแหน่งมีอยู่จริง และเปิดรับ (บริษัทต้องเปิดรับด้วย) */
+    /** U6-SVC-P03..P06: 1–5 อันดับ ไม่ว่าง ไม่ซ้ำ ตำแหน่งมีอยู่จริง เปิดรับ (บริษัทต้องเปิดรับด้วย) และยังมีที่ว่าง */
     private List<Long> validate(PreferenceRequest request) {
         List<Long> ids = request == null ? null : request.positionIds();
         if (ids == null || ids.isEmpty() || ids.size() > MAX_RANKS) {
@@ -139,6 +139,9 @@ public class PreferenceService {
                     .map(Company::getStatus).map(s -> s == CompanyStatus.OPEN).orElse(false);
             if (!p.isOpen() || !companyOpen) {
                 throw invalid("ตำแหน่ง " + p.getPositionName() + " ปิดรับแล้ว");
+            }
+            if (!p.hasAvailableSlot()) {
+                throw invalid("ตำแหน่ง " + p.getPositionName() + " โควตาเต็มแล้ว เลือกไม่ได้");
             }
         }
         return ids;

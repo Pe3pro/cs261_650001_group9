@@ -184,6 +184,19 @@ class PreferenceServiceTest {
     }
 
     @Test
+    @DisplayName("U6-SVC-P06 เลือกตำแหน่งที่โควตาเต็ม ได้ 400 INVALID_PREFERENCE")
+    void fullPosition() {
+        CompanyPosition full = position(14L, 1L, PositionStatus.OPEN);
+        full.setAvailableSlots(0);
+        when(positions.findAllById(any())).thenReturn(List.of(position(11L, 1L, PositionStatus.OPEN), full));
+        assertThatThrownBy(() -> service.savePreferences(9L, 40L, new PreferenceRequest(List.of(11L, 14L))))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("โควตาเต็ม")
+                .extracting("code").isEqualTo("INVALID_PREFERENCE");
+        verify(preferences, never()).saveAll(any());
+    }
+
+    @Test
     @DisplayName("U6-SVC-P01 เจ้าของใบสมัครดูอันดับที่เลือกไว้ได้")
     void getPreferences() {
         List<PreferenceResponse> result = service.getPreferences(9L, 40L);

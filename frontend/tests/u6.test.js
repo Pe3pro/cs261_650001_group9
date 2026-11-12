@@ -91,6 +91,15 @@ describe('U6:T4 หน้าเลือกตำแหน่งและผล�
         expect(calls[0].headers['X-User-Id']).toBe('9');
     });
 
+    test('UI-02b ตำแหน่งที่โควตาเต็ม แสดงว่าโควตาเต็มและเลือกไม่ได้ (UC3)', async () => {
+        const full = { ...DETAIL[2], positions: [{ ...DETAIL[2].positions[0], availableSlots: 0 }] };
+        const { doc } = await open('matching.html', USERS.student, studentRoutes({ 'GET /api/companies/2': [200, full] }));
+        const opt = doc.querySelector('select[data-rank="3"] option[value="21"]');
+        expect(opt.disabled).toBe(true);
+        expect(opt.textContent).toContain('โควตาเต็ม 0/2');
+        expect(doc.querySelector('select[data-rank="3"] option[value="12"]').disabled).toBe(false);
+    });
+
     test('UI-03 ตรวจอันดับก่อนส่ง: ว่างทั้งหมด / เว้นอันดับ / ซ้ำ ไม่ผ่าน', async () => {
         const { window } = await open('matching.html', USERS.student, studentRoutes());
         const v = window.U6.validatePreferences;

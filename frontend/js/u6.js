@@ -147,8 +147,14 @@
    function optionsHtml(selected) {
       const groups = {};
       S.positions.forEach(p => { (groups[p.companyName] = groups[p.companyName] || []).push(p); });
+      /* ตำแหน่งที่โควตาเต็มแสดงไว้แต่เลือกไม่ได้ (UC3) · ถ้าเคยเลือกไว้ก่อนเต็มยังแสดงค่าเดิมให้เห็น */
+      const opt = p => {
+         const full = !(p.availableSlots > 0);
+         return `<option value="${p.id}"${String(p.id) === String(selected) ? ' selected' : ''}${full ? ' disabled' : ''}>`
+            + `${esc(p.positionName)} (${full ? 'โควตาเต็ม' : 'ว่าง'} ${p.availableSlots}/${p.quota})</option>`;
+      };
       return '<option value="">— ไม่เลือก —</option>' + Object.entries(groups).map(([company, list]) =>
-         `<optgroup label="${esc(company)}">${list.map(p => `<option value="${p.id}"${String(p.id) === String(selected) ? ' selected' : ''}>${esc(p.positionName)} (ว่าง ${p.availableSlots}/${p.quota})</option>`).join('')}</optgroup>`).join('');
+         `<optgroup label="${esc(company)}">${list.map(opt).join('')}</optgroup>`).join('');
    }
 
    async function loadPreferences() {
