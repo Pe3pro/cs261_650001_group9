@@ -1,0 +1,186 @@
+{
+    "info": {
+        "_postman_id": "b19686e5-47fd-48ce-8c82-u7statuscheck",
+        "name": "U7 Student Status Check",
+        "description": "Postman Collection สำหรับ U7 ตรวจสอบข้อมูลนักศึกษาและสถานะคำร้อง",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [{
+            "key": "baseUrl",
+            "value": "http://localhost:8080"
+        },
+        {
+            "key": "username",
+            "value": "6609650001"
+        },
+        {
+            "key": "password",
+            "value": "1234"
+        },
+        {
+            "key": "userId",
+            "value": ""
+        }
+    ],
+    "item": [{
+            "name": "01 Login Student",
+            "request": {
+                "method": "POST",
+                "header": [{
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/api/auth/login",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "login"
+                    ]
+                }
+            },
+            "event": [{
+                "listen": "test",
+                "script": {
+                    "exec": [
+                        "pm.test('Status 200', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "const body = pm.response.json();",
+                        "",
+                        "pm.test('Login response has userId', function () {",
+                        "    pm.expect(body.userId).to.exist;",
+                        "});",
+                        "",
+                        "pm.collectionVariables.set('userId', body.userId);"
+                    ],
+                    "type": "text/javascript"
+                }
+            }]
+        },
+        {
+            "name": "02 Get Student Profile",
+            "request": {
+                "method": "GET",
+                "header": [{
+                    "key": "X-User-Id",
+                    "value": "{{userId}}"
+                }],
+                "url": {
+                    "raw": "{{baseUrl}}/api/students/me",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "me"
+                    ]
+                }
+            },
+            "event": [{
+                "listen": "test",
+                "script": {
+                    "exec": [
+                        "pm.test('Status 200', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "const body = pm.response.json();",
+                        "",
+                        "pm.test('Student profile contains required fields', function () {",
+                        "    pm.expect(body.studentId).to.eql('6609650001');",
+                        "    pm.expect(body.fullName).to.exist;",
+                        "    pm.expect(body.faculty).to.exist;",
+                        "    pm.expect(body.major).to.exist;",
+                        "    pm.expect(body.gpa).to.be.a('number');",
+                        "});"
+                    ],
+                    "type": "text/javascript"
+                }
+            }]
+        },
+        {
+            "name": "03 Get Student Requests",
+            "request": {
+                "method": "GET",
+                "header": [{
+                    "key": "X-User-Id",
+                    "value": "{{userId}}"
+                }],
+                "url": {
+                    "raw": "{{baseUrl}}/api/requests/me",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "requests",
+                        "me"
+                    ]
+                }
+            },
+            "event": [{
+                "listen": "test",
+                "script": {
+                    "exec": [
+                        "pm.test('Status 200', function () {",
+                        "    pm.response.to.have.status(200);",
+                        "});",
+                        "",
+                        "const body = pm.response.json();",
+                        "",
+                        "pm.test('Response is an array', function () {",
+                        "    pm.expect(body).to.be.an('array');",
+                        "});",
+                        "",
+                        "pm.test('Latest request contains status', function () {",
+                        "    pm.expect(body.length).to.be.greaterThan(0);",
+                        "    pm.expect(body[0].id).to.exist;",
+                        "    pm.expect(body[0].status).to.exist;",
+                        "    pm.expect(body[0].formName).to.exist;",
+                        "});"
+                    ],
+                    "type": "text/javascript"
+                }
+            }]
+        },
+        {
+            "name": "04 Profile Without User Header",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/students/me",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "me"
+                    ]
+                }
+            },
+            "event": [{
+                "listen": "test",
+                "script": {
+                    "exec": [
+                        "pm.test('Status 401', function () {",
+                        "    pm.response.to.have.status(401);",
+                        "});"
+                    ],
+                    "type": "text/javascript"
+                }
+            }]
+        }
+    ]
+}

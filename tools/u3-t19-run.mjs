@@ -11,7 +11,8 @@
    - ตรวจผลบนหน้าจอ + ในฐานข้อมูล (ผ่าน API ที่อ่านจากตาราง) + ไฟล์ในที่เก็บ PDF (เปิดไฟล์กลับมาเทียบ byte)
      + Email (ระบบยังไม่มี mail server: LoggingEmailNotifier เขียนบรรทัด [EMAIL] ลง log ของ backend
        สคริปต์อ่าน log ด้วย U3_LOG_CMD ค่าเริ่มต้น "docker compose logs app")
-   - ตาราง T15 → บัญชีที่ใช้: นศ. A = 6609650003 · นศ. B = 6609650002 · นศ. ที่ใช้ทดสอบหมดเขต = 6609650004
+   - บทบาทในตาราง T15 → บัญชี seed: บทบาท A = F 6609650006 · บทบาท B = B 6609650002 (อ่านอย่างเดียว) · ทดสอบหมดเขต = G 6609650007
+     (ไม่ใช้ C 6609650003 / D 6609650004 ซึ่งเป็นข้อมูลของ U4)
    - ลำดับที่รัน: ST-01 → ST-02 → ST-04 → ST-03 (ST-03 ทำให้แบบฟอร์มหมดเขต จึงรันท้ายสุด)
    - ST-03 ขั้น 1 "ตั้งวันหมดเขตเป็นเมื่อวาน": API ของ U5 ไม่ยอมเปิดใช้ฟอร์มที่หมดเขตแล้ว
      จึงเปิดฟอร์มใหม่ที่หมดเขตในอีก ~15 วินาที (เวลา server) แล้วรอให้เลยเวลา
@@ -22,7 +23,7 @@ import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import {
    OUT, API, ACC, PDF, ANSWERS, sh, sleep, api, backendUp, publishForm, serverTime, addSeconds,
-   startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, apiLog, shot
+   ensureRanked, startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, apiLog, shot
 } from './u3-common.mjs';
 
 const PORT = Number(process.env.T19_PORT) || 5596;
@@ -53,11 +54,12 @@ async function main() {
       console.error('❌ เรียก backend ที่ ' + API + ' ไม่ได้');
       process.exit(1);
    }
+   await ensureRanked(ACC.s3, ACC.s4);   // flow ใหม่: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่นคำร้อง
    const { server, base } = await startStatic(PORT);
    const browser = await chromium.launch();
    console.log(`U3:T19 System test · ${new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })} · Chromium ${browser.version()} · API ${API}`);
    const A = ACC.s3, B = ACC.s2, D = ACC.s4;
-   const mailA = 'sompong@dome.tu.ac.th';
+   const mailA = 'frankfurt@dome.tu.ac.th';
    let requestA;
 
    /* ---------- ST-01 ยื่นคำร้องสำเร็จครบ flow (TC1) ---------- */
@@ -139,7 +141,7 @@ async function main() {
    /* ---------- ST-02 ยื่นซ้ำ (TC3) ---------- */
    await scenario('ST-02', async () => {
       const before = (await api('GET', '/api/requests/me', B.id)).data;
-      const mailsBefore = emails('somying@dome.tu.ac.th').length;
+      const mailsBefore = emails('berlin@dome.tu.ac.th').length;
       const p = await newPage(browser, base);
       await loginStudent(p, B.username);
       const note = await text(p.page, '#s_note');
@@ -152,7 +154,7 @@ async function main() {
       const after = (await api('GET', '/api/requests/me', B.id)).data;
       step('ST-02', 3, after.length === 1 && after[0].status === 'SUBMITTED' && after[0].submittedAt === before[0].submittedAt,
          `ฐานข้อมูล: คำร้องของ B ${after.length} แถว สถานะ ${after[0].status} submittedAt ไม่เปลี่ยน`);
-      const mails = emails('somying@dome.tu.ac.th').length;
+      const mails = emails('berlin@dome.tu.ac.th').length;
       step('ST-02', 4, after[0].documents.length === before[0].documents.length && mails === mailsBefore,
          `เอกสาร ${before[0].documents.length} → ${after[0].documents.length} ไฟล์ · Email ถึง B ${mailsBefore} → ${mails}`);
       return 'ผ่านครบ 4 ขั้น';
@@ -176,7 +178,7 @@ async function main() {
       await sleep(500);
       const mails = emails(mailA);
       step('ST-04', 1, st1.data.status === 'NEED_CORRECTION' && mails.length === mailsBefore + 1,
-         `สถานะ ${st1.data.status} (= CORRECTION_REQUIRED ในเอกสาร) · Email: ${mails.at(-1)?.replace(/^.*\[EMAIL\]/, '[EMAIL]')}`);
+         `สถานะ ${st1.data.status} · Email: ${mails.at(-1)?.replace(/^.*\[EMAIL\]/, '[EMAIL]')}`);
 
       const p = await newPage(browser, base);
       await loginStudent(p, A.username);
@@ -239,7 +241,7 @@ async function main() {
          `นาฬิกาเบราว์เซอร์ = ${clientNow.slice(0, 24)} ยังแจ้งหมดเขต และส่งจากหน้าเว็บได้ ${fromBrowser} (ใช้เวลา server)`);
 
       const db = await api('GET', '/api/requests/' + id, D.id);
-      const mails = emails('somjai@dome.tu.ac.th').length;
+      const mails = emails('geneva@dome.tu.ac.th').length;
       step('ST-03', 5, db.data.status !== 'SUBMITTED' && mails === 0, `ฐานข้อมูล: สถานะ ${db.data.status} · Email ถึงนักศึกษา ${mails} ฉบับ`);
       return 'ผ่านครบ 5 ขั้น';
    });

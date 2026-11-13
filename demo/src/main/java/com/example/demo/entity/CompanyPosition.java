@@ -56,6 +56,29 @@ public class CompanyPosition {
         return availableSlots != null && availableSlots > 0;
     }
 
+    /** U6: จับคู่แล้วกินโควตา 1 ที่ */
+    public void takeSlot() {
+        if (!hasAvailableSlot()) {
+            throw new IllegalStateException("ตำแหน่งนี้เต็มแล้ว");
+        }
+        this.availableSlots = this.availableSlots - 1;
+    }
+
+    /** U6: สละสิทธิ์ / ยกเลิกแล้วคืนโควตา 1 ที่ (ไม่เกินโควตาทั้งหมด) */
+    public void releaseSlot() {
+        if (this.availableSlots < this.quota) {
+            this.availableSlots = this.availableSlots + 1;
+        }
+    }
+
+    /** U6: จำนวนที่จับคู่ไปแล้ว */
+    public int usedSlots() {
+        return this.quota - this.availableSlots;
+    }
+
+    /** U6: แก้ชื่อตำแหน่ง */
+    public void setPositionName(String positionName) { this.positionName = positionName; }
+
     /** เปลี่ยนโควตา และปรับจำนวนที่ว่างตามจำนวนที่ถูกใช้ไปแล้ว */
     public void updateQuota(Integer newQuota) {
         if (newQuota == null || newQuota < 0) {

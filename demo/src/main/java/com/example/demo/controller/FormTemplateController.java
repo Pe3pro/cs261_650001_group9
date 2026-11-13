@@ -62,4 +62,11 @@ public class FormTemplateController {
             @RequestHeader(value = "X-User-Id", required = false) Long userId) {
         return formTemplateService.publish(id, userId);
     }
+
+    /** U5: ปิดรับคำร้องก่อนกำหนด */
+    @PostMapping("/{id}/close")
+    public FormTemplateResponse close(@PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", required = false) Long userId) {
+        return formTemplateService.close(id, userId);
+    }
 }

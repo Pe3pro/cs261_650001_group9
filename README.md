@@ -87,7 +87,20 @@ cd cs261_650001_group9
 git checkout Develop
 ```
 
-### 2. เปิด Web Server และ DB Server
+### 2. ตั้งค่า TU API Key (ทำครั้งแรกครั้งเดียว)
+ระบบ login (U1) ยืนยันบัญชี มธ. ผ่าน TU REST API ซึ่งต้องใช้ Application-Key ค่านี้เก็บในไฟล์ `.env` ที่ไม่ถูก commit ขึ้น GitHub (repo เป็น public) เครื่องที่ clone ใหม่จึงต้องสร้างไฟล์นี้เอง
+```powershell
+Copy-Item .env.example .env
+```
+จากนั้นเปิดไฟล์ `.env` แล้วใส่ key ที่ได้จากหัวหน้ากลุ่ม (ส่งทางแชตส่วนตัว)
+```
+TU_API_KEY=<Application-Key>
+```
+- ห้าม commit ไฟล์ `.env` หรือนำค่า key ไปใส่ใน README, Pull Request, Trello หรือแชตกลุ่ม
+- ถ้าไม่ได้ตั้งค่า บัญชีทดลอง (`staff01`, `advisor01`, `66096500xx` รหัสผ่าน `1234`) ยังใช้ได้ แต่บัญชี มธ. จริงจะ login ไม่ได้ (502 `TU_API_UNAVAILABLE`)
+- แก้ `.env` แล้วต้องรัน `docker compose up -d --build` ใหม่ทุกครั้ง
+
+### 3. เปิด Web Server และ DB Server
 ```powershell
 docker compose up -d --build
 ```
@@ -98,7 +111,7 @@ docker compose up -d --build
 | `cs261-db` | MySQL 8.4 | 3306 |
 | `cs261-app` | Spring Boot | 8080 |
 
-### 3. ตรวจสอบว่าระบบทำงานแล้ว
+### 4. ตรวจสอบว่าระบบทำงานแล้ว
 ```powershell
 docker ps
 ```
@@ -111,7 +124,7 @@ docker compose logs -f app
 
 เมื่อเปิด http://localhost:8080 แล้วพบหน้า Whitelabel Error Page ถือว่าปกติ เพราะ server ทำงานแล้วแต่ยังไม่มีหน้าที่ path `/`
 
-### 4. เปิดหน้าเว็บ
+### 5. เปิดหน้าเว็บ
 ใน VS Code ให้คลิกขวาที่ไฟล์ `frontend/index.html` แล้วเลือก Open with Live Server
 
 ### คำสั่ง Docker ที่ใช้บ่อย
@@ -139,7 +152,10 @@ docker compose up -d db
 # 2. ปิด container ของแอปก่อน (ถ้าเปิดอยู่) เพื่อไม่ให้ใช้ port 8080 ซ้ำกัน
 docker compose stop app
 
-# 3. รัน Spring Boot
+# 3. ตั้งค่า TU API Key ให้ Terminal นี้ (ไฟล์ .env ใช้กับ Docker เท่านั้น mvnw จะไม่อ่าน)
+$env:TU_API_KEY="<Application-Key>"
+
+# 4. รัน Spring Boot
 cd demo
 .\mvnw.cmd spring-boot:run
 ```
@@ -178,7 +194,7 @@ docker exec -it cs261-db mysql -uroot -proot1234 cs261db
 | User Story | Method | Endpoint | หน้าที่ |
 |---|---|---|---|
 | U1 | `POST` | `/api/auth/login` | เข้าสู่ระบบสำหรับนักศึกษาและเจ้าหน้าที่ |
-| U2–U5 | — | ดูใน `.doc/UserStory/U2–U5/T5.md` | — |
+| U2–U5 | — | ดูใน `.doc/UserStory/U2–U4/T5.md` และ `.doc/UserStory/U5/T2.md` | — |
 
 การทดสอบ API ใช้ Postman โดยให้เก็บไฟล์ Postman Collection ไว้ที่ `.doc/postman/`
 
@@ -249,6 +265,7 @@ git push origin Feature-/-<ชื่องาน>
 | `cannot find symbol SpringApplication` | รันด้วยปุ่มของ Code Runner ให้ใช้ `.\mvnw.cmd spring-boot:run` แทน |
 | คำสั่งใน Terminal ซ้ำกันหลายรอบในบรรทัดเดียว | วางข้อความซ้ำ (กด `Ctrl+V` และคลิกขวาพร้อมกัน) ให้เลือกใช้วิธีวางเพียงวิธีเดียว |
 | หน้าจอหยุดนิ่งหลังขึ้น `Started DemoApplication` | ไม่ได้ค้าง server กำลังทำงานรอรับคำขออยู่ หากต้องการหยุดให้กด `Ctrl+C` |
+| login ด้วยบัญชี มธ. แล้วขึ้น 502 `TU_API_UNAVAILABLE` | ยังไม่ได้ตั้งค่า `TU_API_KEY` หรือเครื่องออกอินเทอร์เน็ตไปที่ `restapi.tu.ac.th` ไม่ได้ ให้สร้างไฟล์ `.env` ตามหัวข้อ [ตั้งค่า TU API Key](#2-ตั้งค่า-tu-api-key-ทำครั้งแรกครั้งเดียว) แล้วรัน `docker compose up -d --build` ใหม่ (ถ้ารันด้วย `mvnw` ให้ตั้ง `$env:TU_API_KEY` ก่อน) |
 
 ---
 

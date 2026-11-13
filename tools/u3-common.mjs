@@ -19,13 +19,17 @@ export const START_CMD = process.env.U3_START_CMD || 'docker compose start app';
 /* บัญชีทดลองจาก DemoDataSeeder (ฐานข้อมูลใหม่) */
 export const ACC = {
    staff: { username: 'staff01', id: 1 },
-   s1: { username: '6609650001', id: 3 },   // สมชาย ใจดี   · seed: มีคำร้อง SUBMITTED
-   s2: { username: '6609650002', id: 4 },   // สมหญิง รักเรียน · seed: มีคำร้อง SUBMITTED
-   s3: { username: '6609650003', id: 5 },   // สมปอง ตั้งใจ  · seed: ยังไม่มีคำร้อง
-   s4: { username: '6609650004', id: 6 }    // สมใจ ขยันยิ่ง · seed: ยังไม่มีคำร้อง
+   // ใช้ได้แค่ "อ่าน" เท่านั้น: A, B เป็นข้อมูลร่วมของ U4/U5 (U4 คาดว่า A, B ยื่นแล้ว → 409) ห้ามส่งกลับ/ปฏิเสธคำร้องของ A, B
+   s1: { username: '6609650001', id: 3 },   // A arizona · seed: มีคำร้อง SUBMITTED
+   s2: { username: '6609650002', id: 4 },   // B berlin  · seed: มีคำร้อง SUBMITTED (ใช้ทดสอบยื่นซ้ำ ไม่มีการเปลี่ยนข้อมูล)
+   // นักศึกษาตัวอย่างของ U3 โดยเฉพาะ (ไม่ใช้ C 6609650003 / D 6609650004 ซึ่งเป็นข้อมูลของ U4)
+   s3: { username: '6609650006', id: 8 },   // F frankfurt · seed: ผ่าน U2 ยังไม่มีคำร้อง → ยื่นสำเร็จ / ถูกส่งกลับแก้
+   s4: { username: '6609650007', id: 9 },   // G geneva    · seed: ผ่าน U2 ยังไม่มีคำร้อง → ยื่นหลังหมดเขต
+   s5: { username: '6609650005', id: 7 },   // E essen     · seed: ยังไม่เคยตรวจ U2 → ยื่นได้ 403 NOT_ELIGIBLE
+   s6: { username: '6609650008', id: 10 }   // H hamburg   · seed: ผ่าน U2 ยังไม่มีคำร้อง → ใช้ใน UAT (ถูกปฏิเสธแล้วยื่นใหม่)
 };
 
-export const ANSWERS = { s_name: 'สมชาย ใจดี', s_tel: '0812345678', s_mail: 'somchai@dome.tu.ac.th', s_addr: '99 ม.ธ. รังสิต' };
+export const ANSWERS = { s_name: 'F frankfurt', s_tel: '0812345678', s_mail: 'frankfurt@dome.tu.ac.th', s_addr: '99 ม.ธ. รังสิต' };
 export const PDF = Buffer.from('%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n% U3 transcript (test)\n%%EOF\n');
 
 export const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -86,6 +90,33 @@ export async function publishForm(name, deadline) {
 }
 
 /* เวลา server ปัจจุบัน (LocalDateTime) จาก GET /api/forms/published */
+/* Flow ใหม่: ต้องจัดอันดับบริษัท (U4) ครบ 5 อันดับก่อน หน้าเว็บจึงยอมส่งคำร้อง
+   ใช้บริษัทที่เปิดรับ 5 แห่งแรกจาก GET /api/companies (RankingDemoSeeder) บันทึกผ่าน API ของ U4 */
+export async function ensureRanked(...accs) {
+   for (const acc of accs) {
+      const mine = await api('GET', '/api/students/me/company-ranking', acc.id);
+      if (mine.status === 200 && Array.isArray(mine.data) && mine.data.length >= 5) continue;
+      const companies = await api('GET', '/api/companies', acc.id);
+      const ids = (companies.data || []).filter(c => c.status === 'OPEN').slice(0, 5).map(c => c.id);
+      const saved = await api('PUT', '/api/students/me/company-ranking', acc.id, { companyIds: ids });
+      if (saved.status !== 200) throw new Error(`จัดอันดับบริษัทให้ ${acc.username} ไม่สำเร็จ: ${saved.status} ${JSON.stringify(saved.data)}`);
+   }
+}
+
+/* ยื่นคำร้องผ่าน API ตรง (สร้าง → กรอก → แนบ PDF → ส่ง) คืนเลขที่คำร้อง ใช้เตรียมข้อมูลก่อนทดสอบ */
+export async function submitViaApi(acc, values = ANSWERS) {
+   const created = await api('POST', '/api/requests', acc.id, {});
+   const id = created.data.id;
+   await api('PUT', `/api/requests/${id}/form`, acc.id,
+      { answers: { field_1: values.s_name, field_2: values.s_tel, field_3: values.s_mail, field_4: values.s_addr } });
+   const fd = new FormData();
+   fd.append('file', new Blob([PDF], { type: 'application/pdf' }), 'transcript.pdf');
+   await fetch(`${API}/api/requests/${id}/documents`, { method: 'POST', headers: { 'X-User-Id': String(acc.id) }, body: fd });
+   const sent = await api('POST', `/api/requests/${id}/submit`, acc.id);
+   if (sent.status !== 200) throw new Error(`เตรียมคำร้องของ ${acc.username} ไม่สำเร็จ: ${sent.status} ${JSON.stringify(sent.data)}`);
+   return id;
+}
+
 export async function serverTime(userId) {
    const r = await api('GET', '/api/forms/published', userId);
    return r.data.serverTime;

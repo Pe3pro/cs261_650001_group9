@@ -12,7 +12,8 @@
    - สคริปต์ทำตาม scenario ใน T16 ผ่านหน้าเว็บจริงเหมือนผู้ทดสอบ (login.html → submit.html / staff-review.html)
      แล้วตรวจ "เกณฑ์ผ่านที่ user ยอมรับได้" เท่าที่ตรวจด้วยเครื่องได้ (ข้อความบนจอ ข้อมูลที่เจ้าหน้าที่เห็น ไฟล์ PDF)
    - ข้ามหน้าตรวจคุณสมบัติ U2 (ตั้ง unlocked = 2) เหมือนสคริปต์ T17/T19 · U2 มี UAT ของตัวเองแล้ว
-   - บัญชี: P1 = 6609650003 · P2 = 6609650004 · P3 = 6609650001 (เจ้าหน้าที่ปฏิเสธคำร้องเดิมจาก seed ก่อน)
+   - บัญชี: P1 = F 6609650006 · P2 = G 6609650007 · P3 = H 6609650008 (สคริปต์ยื่นคำร้องให้ H ผ่าน API แล้วให้เจ้าหน้าที่ปฏิเสธก่อน)
+     ไม่ใช้ C/D (ข้อมูล U4) และไม่ปฏิเสธคำร้อง seed ของ A (ข้อมูลร่วม U4/U5)
      UAT-03 ใช้ 6609650002 · เจ้าหน้าที่ P4 = staff01
    - ลำดับ: UAT-02a → UAT-01 (P1, P2, P3) → UAT-02b → UAT-03 → UAT-05 → UAT-04 (ทำให้ฟอร์มหมดเขต จึงรันท้ายสุด)
      จบแล้วเปิดแบบฟอร์มใหม่ที่ยังไม่หมดเขต (ตามขั้นเตรียมระบบข้อ 5 ใน T20.md)
@@ -22,8 +23,8 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import {
-   OUT, API, ACC, PDF, ANSWERS, sh, sleep, api, backendUp, publishForm, serverTime, addSeconds,
-   startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, shot
+   OUT, API, ACC, PDF, ANSWERS, sh, sleep, api, backendUp, publishForm, serverTime, addSeconds, submitViaApi,
+   ensureRanked, startStatic, newPage, loginStudent, loginStaff, fillForm, clickSend, text, shot
 } from './u3-common.mjs';
 
 const PORT = Number(process.env.T20_PORT) || 5597;
@@ -54,9 +55,9 @@ async function uat(id, tester, fn) {
 
 /* ข้อมูลที่ผู้ทดสอบแต่ละคนกรอก */
 const DATA = {
-   P1: { s_name: 'สมปอง ตั้งใจ', s_tel: '0811111111', s_mail: 'sompong@dome.tu.ac.th', s_addr: '1 ม.ธ. รังสิต อ.คลองหลวง จ.ปทุมธานี' },
-   P2: { s_name: 'สมใจ ขยันยิ่ง', s_tel: '0822222222', s_mail: 'somjai@dome.tu.ac.th', s_addr: '2 ถ.พหลโยธิน อ.คลองหลวง จ.ปทุมธานี' },
-   P3: { s_name: 'สมชาย ใจดี', s_tel: '0833333333', s_mail: 'somchai@dome.tu.ac.th', s_addr: '3 หอพักเชียงราก จ.ปทุมธานี' }
+   P1: { s_name: 'F frankfurt', s_tel: '0811111111', s_mail: 'frankfurt@dome.tu.ac.th', s_addr: '1 ม.ธ. รังสิต อ.คลองหลวง จ.ปทุมธานี' },
+   P2: { s_name: 'G geneva', s_tel: '0822222222', s_mail: 'geneva@dome.tu.ac.th', s_addr: '2 ถ.พหลโยธิน อ.คลองหลวง จ.ปทุมธานี' },
+   P3: { s_name: 'H hamburg', s_tel: '0833333333', s_mail: 'hamburg@dome.tu.ac.th', s_addr: '3 หอพักเชียงราก จ.ปทุมธานี' }
 };
 
 /* เจ้าหน้าที่เปิดคำร้องของนักศึกษาในหน้า staff-review แล้วบันทึกผล (RETURN / REJECT) */
@@ -98,12 +99,13 @@ async function main() {
       console.error('❌ เรียก backend ที่ ' + API + ' ไม่ได้ (รัน docker compose up -d --build ก่อน)');
       process.exit(1);
    }
+   await ensureRanked(ACC.s3, ACC.s4, ACC.s6);   // flow ใหม่: จัดอันดับบริษัท (U4) ให้ครบก่อนยื่นคำร้อง
    const { server, base } = await startStatic(PORT);
    const kind = process.env.U3_BROWSER || 'msedge';
    const browser = kind === 'chromium' ? await chromium.launch() : await chromium.launch({ channel: kind });
    const started = new Date();
    log(`U3:T20 UAT (dry-run) · ${started.toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' })} · ${kind} ${browser.version()} · API ${API} · Web ${base}`);
-   const P1 = ACC.s3, P2 = ACC.s4, P3 = ACC.s1, B = ACC.s2;
+   const P1 = ACC.s3, P2 = ACC.s4, P3 = ACC.s6, B = ACC.s2;
    const ids = {};
 
    /* ---------- UAT-02a กรอกไม่ครบ: รู้ทันทีว่าต้องแก้ช่องไหน ข้อมูลเดิมไม่หาย ---------- */
@@ -128,8 +130,9 @@ async function main() {
    });
 
    /* ---------- UAT-01 ยื่นสำเร็จ (P1, P2, P3) ---------- */
-   await staffDecide(browser, base, P3.username, 'REJECT', 'UAT: ล้างคำร้องเดิมจาก seed เพื่อให้ P3 ยื่นใหม่');
-   log('   (เตรียม) เจ้าหน้าที่ปฏิเสธคำร้องเดิมของ ' + P3.username + ' แล้ว');
+   await submitViaApi(P3, DATA.P3);
+   await staffDecide(browser, base, P3.username, 'REJECT', 'UAT: ปฏิเสธคำร้องเดิมเพื่อให้ P3 ยื่นใหม่');
+   log('   (เตรียม) ยื่นคำร้องให้ ' + P3.username + ' ผ่าน API แล้วเจ้าหน้าที่ปฏิเสธแล้ว');
    for (const [tag, acc] of [['P1', P1], ['P2', P2], ['P3', P3]]) {
       await uat('UAT-01', tag, async () => {
          const t0 = Date.now();
@@ -231,7 +234,7 @@ async function main() {
       await publishForm('U3 T20 ฟอร์มหมดเขต', deadline);
       while (!(await api('GET', '/api/forms/published', P2.id)).data.deadlinePassed) await sleep(1000);
       log(`   (เตรียม) เปิดแบบฟอร์มที่หมดเขต ${deadline} (เวลา server) และรอจนเลยเวลาแล้ว`);
-      const mailsBefore = emails('somjai@dome.tu.ac.th').length;
+      const mailsBefore = emails('geneva@dome.tu.ac.th').length;
       const p = await newPage(browser, base);
       await loginStudent(p, P2.username);
       const note = await text(p.page, '#s_note');
@@ -250,7 +253,7 @@ async function main() {
       check('UAT-04', note.startsWith('เกินระยะเวลาที่กำหนด') && note.includes('หมดเขต') && disabled, `หน้าเว็บ "${note}" · ปุ่มส่ง${disabled ? 'กดไม่ได้' : 'ยังกดได้'}`);
       const mine = (await api('GET', '/api/requests/me', P2.id)).data;
       const active = mine.filter(r => r.status === 'SUBMITTED');
-      const mails = emails('somjai@dome.tu.ac.th').length;
+      const mails = emails('geneva@dome.tu.ac.th').length;
       check('UAT-04', active.length === 0 && tries.every(s => s === 409) && mails === mailsBefore,
          `ลองส่ง 3 ครั้ง: POST submit ${tries.length ? tries.join(', ') : 'ไม่ถูกส่งจากหน้าเว็บ'} · ไม่มีคำร้อง SUBMITTED ของ P2 · Email ใหม่ ${mails - mailsBefore} ฉบับ`);
       return 'ส่งไม่ได้ทุกครั้ง แจ้งวันหมดเขตชัดเจน';
