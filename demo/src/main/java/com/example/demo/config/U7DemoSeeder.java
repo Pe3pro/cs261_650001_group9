@@ -647,9 +647,11 @@ public class U7DemoSeeder {
                                 )
                         );
 
+        // NOT_STARTED (S5) เริ่มอีก 7 วัน จึงยังไม่มีป้าย START_OVERDUE · คนอื่นเริ่มไปแล้วเมื่อวาน
         LocalDate startDate =
-                LocalDate.now()
-                        .minusDays(1);
+                targetStatus == InternshipStatus.NOT_STARTED ?
+                LocalDate.now().plusDays(7) :
+                LocalDate.now().minusDays(1);
 
         LocalDate endDate =
                 startDate.plusMonths(4);

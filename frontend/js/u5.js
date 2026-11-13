@@ -140,9 +140,9 @@
       $('#who').textContent = user ? ROLE_TH[user.role] + ' ' + user.name : (loginName() || 'ยังไม่ได้เข้าสู่ระบบ');
       $('#logout').onclick = logout;
       let links = [];
-      if (user?.role === 'STAFF') links = [['staff-review.html', 'ตรวจใบสมัคร', 'review'], ['staff-forms.html', 'แบบฟอร์มคำร้อง', 'forms'], ['staff-matching.html', 'จับคู่บริษัท', 'staff-matching']];
-      if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร', 'review']];
-      if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ', 'check'], ['submit.html', 'ยื่นคำร้อง', 'submit'], ['ranking.html', 'จับคู่บริษัท', 'ranking'], ['matching.html', 'เลือกตำแหน่ง / ผลจับคู่', 'matching']];
+      if (user?.role === 'STAFF') links = [['staff-review.html', 'ตรวจใบสมัคร', 'review'], ['staff-forms.html', 'แบบฟอร์มคำร้อง', 'forms'], ['staff-matching.html', 'จับคู่บริษัท', 'staff-matching'], ['student-status.html', 'สถานะนักศึกษา', 'student-status']];
+      if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร', 'review'], ['student-status.html', 'สถานะนักศึกษา', 'student-status']];
+      if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ', 'check'], ['submit.html', 'ยื่นคำร้อง', 'submit'], ['ranking.html', 'จับคู่บริษัท', 'ranking'], ['matching.html', 'เลือกตำแหน่ง / ผลจับคู่', 'matching'], ['my-status.html', 'สถานะของฉัน', 'my-status']];
       if (user) links.push(['notifications.html', 'การแจ้งเตือน', 'notifications']);
       if (user?.role === 'STUDENT') links.push(['worklog.html', 'บันทึกการทำงาน', 'worklog']);
       /* นักศึกษา: ขั้นที่ยังทำไม่ถึงกดไม่ได้และแสดงจางๆ (ใช้ coop-state.unlocked เดียวกับหน้าตรวจสอบคุณสมบัติ) */

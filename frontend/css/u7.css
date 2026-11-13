@@ -237,6 +237,7 @@ body.u7 main {
 
 .u7 .btn.danger {
     background: var(--bad);
+    color: #fff;
 }
 
 .u7 .timeline {
