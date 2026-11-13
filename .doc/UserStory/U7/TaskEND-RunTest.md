@@ -13,17 +13,20 @@ User story U7: เจ้าหน้าที่และอาจารย์�
 | บัญชี | บทบาท | อาจารย์ที่ปรึกษา | ข้อมูลตั้งต้น | stage ที่ควรได้ | attention ที่ควรได้ |
 |---|---|---|---|---|---|
 | `staff01` | เจ้าหน้าที่ (id 1) | – | – | – | – |
-| `advisor01` | อาจารย์ (id 2) | – | ดูแล S1–S6 | – | – |
-| `advisor02` | อาจารย์ | – | ดูแล S7 | – | – |
-| `6609650021` (S1) | นักศึกษา | advisor01 | ไม่มีใบสมัคร | NOT_APPLIED | null |
-| `6609650022` (S2) | นักศึกษา | advisor01 | ใบสมัคร SUBMITTED | APPLYING | null |
-| `6609650023` (S3) | นักศึกษา | advisor01 | ใบสมัคร APPROVED เมื่อ D−15 ไม่มี match | WAITING_MATCH | NO_MATCH |
-| `6609650024` (S4) | นักศึกษา | advisor01 | match PROPOSED เมื่อ D−8 (บริษัท X) | MATCHING | NOT_CONFIRMED |
-| `6609650025` (S5) | นักศึกษา | advisor01 | match CONFIRMED + internship NOT_STARTED ข้อมูลครบ startDate D+3 (บริษัท X) | READY | null |
-| `6609650026` (S6) | นักศึกษา | advisor01 | internship IN_PROGRESS (บริษัท Y) | IN_PROGRESS | null |
-| `6609650027` (S7) | นักศึกษา | advisor02 | internship COMPLETED (บริษัท Y) | COMPLETED | null |
+| `advisor01` | อาจารย์ (id 2) | – | ไม่ได้ดูแล S1–S7 (ดูแลนักศึกษาของ Story อื่น) | – | – |
+| `advisor02` | อาจารย์ | – | ดูแล S1–S7 | – | – |
+| `6609650021` (S1) | นักศึกษา | advisor02 | ไม่มีใบสมัคร | NOT_APPLIED | null |
+| `6609650022` (S2) | นักศึกษา | advisor02 | ใบสมัคร SUBMITTED | APPLYING | null |
+| `6609650023` (S3) | นักศึกษา | advisor02 | ใบสมัคร APPROVED เมื่อ D−5 ไม่มี match | WAITING_MATCH | null (NO_MATCH เมื่อเตรียมข้อมูลตามข้อ ก) |
+| `6609650024` (S4) | นักศึกษา | advisor02 | match PROPOSED ในรอบที่ประกาศผลแล้ว `confirmDeadline` = D+14 | MATCHING | null (NOT_CONFIRMED เมื่อเตรียมข้อมูลตามข้อ ข) |
+| `6609650025` (S5) | นักศึกษา | advisor02 | match CONFIRMED + internship NOT_STARTED ข้อมูลครบ (ผู้ดูแล "U7 Supervisor") | READY | null |
+| `6609650026` (S6) | นักศึกษา | advisor02 | internship IN_PROGRESS | IN_PROGRESS | null |
+| `6609650027` (S7) | นักศึกษา | advisor02 | internship COMPLETED | COMPLETED | null |
 
-- ต้องมี seeder ของ U7 (เช่น `StatusDemoSeeder`) สร้างข้อมูลชุดนี้ เหมือน `RankingDemoSeeder` ของ U4 และ `MatchingDemoSeeder` ของ U6
+- ข้อมูลชุดนี้สร้างโดย `U7DemoSeeder` (Task4) · S4–S7 จับคู่กับตำแหน่งจาก `MatchingDemoSeeder` (บริษัทของแต่ละคนดูได้จากหน้ารายละเอียด)
+- ป้ายเตือน NO_MATCH / NOT_CONFIRMED ไม่เกิดจาก seeder (วันที่ยังไม่เกินกำหนด) ก่อนทดสอบป้ายเตือนให้เตรียมข้อมูลด้วย SQL:
+  - ก. S3 อนุมัติเกิน 14 วัน: `UPDATE applications SET updated_at = NOW() - INTERVAL 15 DAY WHERE student_id = <S3>`
+  - ข. รอบของ S4 เลยกำหนดยืนยัน: `UPDATE matching_rounds SET confirm_deadline = NOW() - INTERVAL 1 DAY WHERE id = <รอบของ S4>`
 - Integration Test API–DAO ใช้ชุดเดียวกันแต่สร้างเองใน test (ฐานข้อมูลว่าง) จึงนับจำนวนได้แน่นอน · System Test / UAT ใช้ระบบจริงที่มีนักศึกษาของ Story อื่นอยู่ด้วย จึงค้นด้วย `q=660965002` หรือตรวจด้วย SQL แทนการนับทั้งตาราง
 
 
@@ -41,20 +44,20 @@ Design Integration Test ระหว่าง UI กับ API
 | IT-UA-01 | รายการนักศึกษา (TC1) | `staff01` เปิด `student-status.html` | GET /api/students/status?page=0 แล้ว GET /api/students/status/summary (`X-User-Id: 1`) | 200 `PageResponse` · 200 Map 9 stage | ตารางแสดงรหัส ชื่อ อาจารย์ บริษัท ตำแหน่ง ป้ายขั้น วันที่อัปเดต · S1–S7 อยู่ในรายการ |
 | IT-UA-02 | ตัวเลขแต่ละขั้น (TC8) | ดูแท็บ stage | GET /api/students/status/summary | 200 | ตัวเลขบนแท็บตรงกับ response · ขั้นที่เป็น 0 ไม่มีตัวเลข |
 | IT-UA-03 | กรองขั้น + ค้นหา (TC1) | กดแท็บ "กำลังจับคู่" แล้วพิมพ์ "6609650024" | GET /api/students/status?stage=MATCHING&q=6609650024&page=0 | 200 1 แถว | เหลือแถว S4 แถวเดียว · กลับไปหน้า 1 |
-| IT-UA-04 | กรองบริษัท (TC1) | เลือกบริษัท Y | GET /api/students/status?companyId={Y}&page=0 | 200 | เห็นเฉพาะ S6, S7 |
+| IT-UA-04 | กรองบริษัท (TC1) | เลือกบริษัทของ S6 | GET /api/students/status?companyId={บริษัทของ S6}&page=0 | 200 | เห็น S6 และไม่เห็นนักศึกษาที่จับคู่บริษัทอื่น |
 | IT-UA-05 | แบ่งหน้า (TC1) | มีนักศึกษาเกิน 20 คน กด "ถัดไป" | GET ...&page=1 | 200 `page: 1` | แสดง "หน้า 2 จาก N" · หน้าสุดท้ายปุ่ม "ถัดไป" กดไม่ได้ |
-| IT-UA-06 | ป้ายเตือน (TC3) | ดูแถว S3, S4 | (ใช้ response จาก IT-UA-01) | `attention: NO_MATCH`, `NOT_CONFIRMED` | แถว S3, S4 ไฮไลต์ มีป้าย "ยังไม่ได้จับคู่เกิน 14 วัน" / "ยังไม่ยืนยันเกิน 7 วัน" · แถวอื่นไม่มีป้าย |
-| IT-UA-07 | อาจารย์เห็นเฉพาะของตน (TC2) | `advisor02` เปิดหน้า | GET /api/students/status?page=0 (`X-User-Id` ของ advisor02) | 200 1 แถว | เห็นเฉพาะ S7 · ไม่มีตัวกรองอาจารย์ ไม่มีปุ่มแก้ไข / เปลี่ยนสถานะ |
+| IT-UA-06 | ป้ายเตือน (TC3) | เตรียมข้อมูลข้อ ก, ข แล้วโหลดหน้าใหม่ ดูแถว S3, S4 | GET /api/students/status?page=0 | `attention: NO_MATCH`, `NOT_CONFIRMED` | แถว S3, S4 ไฮไลต์ มีป้าย "ยังไม่ได้จับคู่เกิน 14 วัน" / "เลยกำหนดยืนยันสิทธิ์แล้ว" · แถวอื่นไม่มีป้าย |
+| IT-UA-07 | อาจารย์เห็นเฉพาะของตน (TC2) | `advisor02` เปิดหน้า แล้วเปลี่ยนเป็น `advisor01` | GET /api/students/status?page=0 (`X-User-Id` ของแต่ละคน) | 200 | advisor02 เห็น S1–S7 · advisor01 ไม่เห็น S1–S7 · ทั้งคู่ไม่มีตัวกรองอาจารย์ ไม่มีปุ่มแก้ไข / เปลี่ยนสถานะ |
 | IT-UA-08 | ดาวน์โหลด Excel (TC8) | แท็บ "กำลังฝึกงาน" กด "ดาวน์โหลด Excel" | GET /api/students/status/export?stage=IN_PROGRESS | 200 `text/csv` | ได้ไฟล์ `.csv` เปิดใน Excel ภาษาไทยอ่านได้ มีแถว S6 |
-| IT-UA-09 | หน้ารายละเอียด + timeline (TC4) | คลิกชื่อ S6 | GET /api/students/{S6}/status | 200 `StudentStatusDetailResponse` | เห็นข้อมูลนักศึกษา ใบสมัคร อันดับที่เลือก ผลจับคู่ (บริษัท Y) ข้อมูลฝึกงาน และ timeline เรียงเก่า → ใหม่ พร้อมชื่อผู้เปลี่ยน |
+| IT-UA-09 | หน้ารายละเอียด + timeline (TC4) | คลิกชื่อ S6 | GET /api/students/{S6}/status | 200 `StudentStatusDetailResponse` | เห็นข้อมูลนักศึกษา ใบสมัคร อันดับที่เลือก ผลจับคู่ (บริษัทที่จับคู่) ข้อมูลฝึกงาน และ timeline เรียงเก่า → ใหม่ พร้อมชื่อผู้เปลี่ยน |
 | IT-UA-10 | นักศึกษายังไม่ยื่น (TC4) | คลิกชื่อ S1 | GET /api/students/{S1}/status | 200 stage NOT_APPLIED | แสดง "ยังไม่ยื่นใบสมัคร" · ไม่มีส่วนผลจับคู่และการฝึกงาน · ไม่มี error |
 | IT-UA-11 | แก้ข้อมูลการฝึกงาน (TC6) | เปิด S5 แก้วันเริ่ม-สิ้นสุด ผู้ดูแล แล้วกด "บันทึก" | PUT /api/internships/{id} body ครบ 5 field | 200 `InternshipResponse` | "บันทึกข้อมูลการฝึกงานแล้ว" · ค่าใหม่บนหน้า |
 | IT-UA-12 | วันที่ผิด หลุดไปถึง server (TC6) | ยิง Postman PUT endDate < startDate (หน้าเว็บกันไว้แล้ว) | PUT /api/internships/{id} | 400 `INVALID_DATE_RANGE` | ข้อมูลบนหน้าไม่เปลี่ยน |
 | IT-UA-13 | เริ่มฝึกงาน (TC7) | S5 กด "เริ่มฝึกงาน" 2 ครั้ง (ครั้งแรกขอยืนยัน) | POST /api/internships/{id}/start 1 ครั้ง | 200 IN_PROGRESS | ป้ายเป็น "กำลังฝึกงาน" · timeline เพิ่ม 1 รายการ |
 | IT-UA-14 | เริ่มฝึกงานแต่ข้อมูลไม่ครบ (TC7) | ลบชื่อผู้ดูแลของ internship ที่ NOT_STARTED แล้วกด "เริ่มฝึกงาน" | POST .../start | 400 `MISSING_INFO` | แสดงข้อความจาก server · สถานะไม่เปลี่ยน |
 | IT-UA-15 | ยุติพร้อมเหตุผล (TC7) | S6 กด "ยุติการฝึกงาน" ไม่กรอกเหตุผล แล้วกรอก "บริษัทยกเลิกโครงการ" | ครั้งแรกไม่มี request · ครั้งที่สอง POST .../terminate `{reason}` | 200 TERMINATED | ครั้งแรกแจ้ง "กรุณากรอกเหตุผล" · ครั้งที่สองป้ายเป็น "ยุติการฝึกงาน" และช่องแก้ไขถูกล็อก |
-| IT-UA-16 | อาจารย์ขอนักศึกษาคนอื่น (TC2) | `advisor02` พิมพ์ URL รายละเอียดของ S6 | GET /api/students/{S6}/status | 403 `FORBIDDEN` | "คุณไม่มีสิทธิ์ดูข้อมูลนักศึกษาคนนี้" ไม่แสดงข้อมูล |
-| IT-UA-17 | สถานะของฉัน (TC5) | `6609650025` (S5) เปิด `my-status.html` | GET /api/students/me/status | 200 stage READY | แถบขั้นแสดง "พร้อมฝึกงาน" เป็นขั้นปัจจุบัน · เห็นบริษัท X วันเริ่ม และผู้ดูแล · ไม่มีปุ่มแก้ไข |
+| IT-UA-16 | อาจารย์ขอนักศึกษาคนอื่น (TC2) | `advisor01` พิมพ์ URL รายละเอียดของ S6 | GET /api/students/{S6}/status | 403 `FORBIDDEN` | "คุณไม่มีสิทธิ์ดูข้อมูลนักศึกษาคนนี้" ไม่แสดงข้อมูล |
+| IT-UA-17 | สถานะของฉัน (TC5) | `6609650025` (S5) เปิด `my-status.html` | GET /api/students/me/status | 200 stage READY | แถบขั้นแสดง "พร้อมฝึกงาน" เป็นขั้นปัจจุบัน · เห็นบริษัทที่จับคู่ วันเริ่ม และผู้ดูแล · ไม่มีปุ่มแก้ไข |
 | IT-UA-18 | นักศึกษาเปิดหน้าเจ้าหน้าที่ (TC2) | `6609650025` พิมพ์ URL `student-status.html` | ไม่มี request ไป /api/students/status (ถ้ายิงด้วย Postman ได้ 403) | – / 403 | หน้าไม่มีสิทธิ์ |
 | IT-UA-19 | server ไม่ทำงาน | ปิด backend แล้วเปิดหน้า | network error | – | "ไม่สามารถเชื่อมต่อระบบได้" ไม่ค้าง |
 
@@ -78,7 +81,7 @@ Design Integration Test ระหว่าง UI กับ API
 -
 - ทดสอบ Controller → Service → DAO → ฐานข้อมูล โดยไม่ใช้หน้าเว็บ ส่ง request ด้วย Postman หรือ MockMvc (`@SpringBootTest`) แล้วตรวจข้อมูลผ่าน Repository / SQL
 - ฐานข้อมูลทดสอบ: H2 หรือ MySQL ทดสอบ ล้างข้อมูลก่อนทุกข้อ แล้วสร้างข้อมูลตัวอย่างของ U7 (S1–S7) · `Clock` เป็น Bean กำหนดวันที่ D ได้ (ใช้ทดสอบ attention)
-- ตารางใหม่ของ U7 ตาม ER Diagram ใน Task2: `internship` (match_id UK, student_id, start_date, end_date, supervisor_name/email/phone, status, terminated_reason, updated_by, updated_at) · `status_history` (student_id, type, ref_id, from_status, to_status, changed_by, note, changed_at)
+- ตารางใหม่ของ U7 ตาม ER Diagram ใน Task2: `internships` (match_id UK, student_id, start_date, end_date, supervisor_name/email/phone, status, terminated_reason, updated_by, updated_at) · `status_history` (student_id, type, ref_id, from_status, to_status, changed_by, note, changed_at)
 - ตารางเดิมใช้ชื่อตามโค้ด: `users`, `students`, `applications`, `matches` (U6), `company_positions`, `companies`, `notifications` (ER เขียนเป็น application, position, company, notification)
 
 ![ER Diagram](<us7-10-er-diagram.png>)
@@ -88,25 +91,27 @@ Design Integration Test ระหว่าง API กับ DAO
 | TC ID | Scenario | Request | DAO ที่ถูกเรียก | Expected response | Expected ในฐานข้อมูล |
 |---|---|---|---|---|---|
 | IT-AD-01 | รายการทั้งหมด (TC1) | GET /api/students/status?page=0&size=20 (staff01) | StudentStatusQueryDao.search | 200 `totalElements: 7` · S1 มีแถวแม้ไม่มีใบสมัคร · companyName ของ S4–S7 ตรงกับ match | ข้อมูลไม่เปลี่ยน |
-| IT-AD-02 | กรอง + ค้นหา (TC1) | `?stage=MATCHING` · `?q=6609650026` · `?companyId={Y}` | StudentStatusQueryDao.search | 200 เฉพาะ S4 · เฉพาะ S6 · S6, S7 | ข้อมูลไม่เปลี่ยน |
+| IT-AD-02 | กรอง + ค้นหา (TC1) | `?stage=MATCHING` · `?q=6609650026` · `?companyId={บริษัทของ S6}` | StudentStatusQueryDao.search | 200 เฉพาะ S4 · เฉพาะ S6 · มี S6 | ข้อมูลไม่เปลี่ยน |
 | IT-AD-03 | แบ่งหน้า (TC1) | `?size=3&page=2` | StudentStatusQueryDao.search | 200 1 แถว `totalElements: 7` | – |
-| IT-AD-04 | อาจารย์ถูกบังคับเป็นของตน (TC2) | advisor01 ส่ง `?advisorId={advisor02}` | StudentStatusQueryDao.search (advisorId = advisor01) | 200 6 แถว (S1–S6) ไม่มี S7 | – |
+| IT-AD-04 | อาจารย์ถูกบังคับเป็นของตน (TC2) | advisor01 ส่ง `?advisorId={advisor02}` | StudentStatusQueryDao.search (advisorId = advisor01) | 200 ไม่มี S1–S7 (เห็นเฉพาะนักศึกษาของ advisor01) | – |
 | IT-AD-05 | นักศึกษาเรียกรายการ (TC2) | GET /api/students/status (S1) · ไม่ส่ง `X-User-Id` | ไม่ถูกเรียก | 403 · 401 | – |
-| IT-AD-06 | stage + attention ครบทุกขั้น (TC3) | GET /api/students/status (Clock = D) | StudentStatusQueryDao.search, InternshipDao, MatchDao | 200 stage และ attention ของ S1–S7 ตรงกับตาราง "ข้อมูลตัวอย่างของ U7" | – |
-| IT-AD-07 | ขอบเขต 14 / 7 วันพอดี (TC3) | ตั้ง APPROVED ของ S3 = D−14 · match ของ S4 = D−7 | เหมือน IT-AD-06 | S3, S4 `attention: null` | – |
-| IT-AD-08 | ตัวเลขแต่ละขั้น (TC8) | GET /api/students/status/summary (staff01 · advisor01) | StudentStatusQueryDao.countByStage | 200 มีครบ 9 key · staff: COMPLETED 1 · advisor01: COMPLETED 0 | ตรงกับจำนวนใน IT-AD-06 |
+| IT-AD-06 | stage + attention ครบทุกขั้น (TC3) | เตรียมข้อมูลข้อ ก, ข แล้ว GET /api/students/status (Clock = D) | StudentStatusQueryDao.search, InternshipDao, MatchDao | 200 stage ของ S1–S7 ตรงกับตาราง "ข้อมูลตัวอย่างของ U7" · S3 NO_MATCH · S4 NOT_CONFIRMED | – |
+| IT-AD-07 | ขอบเขตพอดี (TC3) | ตั้ง APPROVED ของ S3 = D−14 · `confirmDeadline` ของรอบ S4 = D+1 · = เวลาเดียวกับ Clock พอดี | เหมือน IT-AD-06 + MatchingRoundRepository | S3, S4 `attention: null` (ต้องเกิน 14 วัน / ต้องเลย confirmDeadline ก่อนจึงเตือน · ข้อตกลง S9 ของ U6) | – |
+| IT-AD-08 | ตัวเลขแต่ละขั้น (TC8) | GET /api/students/status/summary (staff01 · advisor02) | StudentStatusQueryDao.countByStage | 200 มีครบ 9 key · advisor02: ทุกขั้นที่ S1–S7 อยู่ = 1 (NOT_APPLIED … COMPLETED) | ตรงกับจำนวนใน IT-AD-06 |
 | IT-AD-09 | export CSV (TC8) | GET /api/students/status/export?stage=IN_PROGRESS · ไม่ส่ง stage | StudentStatusQueryDao.findAllForExport | 200 `text/csv` ขึ้นต้น UTF-8 BOM | หัวตาราง + 1 แถว (S6) · หัวตาราง + 7 แถว |
 | IT-AD-10 | รายละเอียด + timeline (TC4) | GET /api/students/{S6}/status · GET /api/students/{S6}/timeline | ApplicationDao.findLatestByStudentId, MatchDao.findActiveWithPositionByApplicationId, InternshipDao.findByStudentId, StatusHistoryDao.findByStudentIdOrderByChangedAt, UserDao.findAllById | 200 ครบทุกส่วน · timeline เรียง changedAt เก่า → ใหม่ มีชื่อผู้เปลี่ยน | – |
 | IT-AD-11 | ใบสมัครล่าสุด (TC4) | นักศึกษามีใบสมัคร 2 ใบ (เก่า REJECTED ใหม่ SUBMITTED) แล้ว GET detail | ApplicationDao.findLatestByStudentId | 200 application = ใบ SUBMITTED · stage APPLYING | – |
 | IT-AD-12 | ของฉัน (TC5) | GET /api/students/me/status (S5) | เหมือน IT-AD-10 ด้วย id ของผู้ login | 200 ข้อมูลของ S5 เท่านั้น | – |
-| IT-AD-13 | match ยืนยันแล้วสร้าง internship (TC7 · ต่อจาก U6) | S4 เรียก POST /api/matches/{id}/respond `{accept: true}` | MatchRepository.save, InternshipService.createFromMatch → InternshipDao.save, StatusHistoryDao.save | 200 | `matches.status` = CONFIRMED · `internship` +1 แถว NOT_STARTED ผูก match_id · `status_history` +1 (type INTERNSHIP, ref_id = id ของ internship, from_status null → to_status NOT_STARTED) · stage ของ S4 = READY |
-| IT-AD-14 | แก้ข้อมูลการฝึกงาน (TC6) | PUT /api/internships/{S5} body ครบ | InternshipDao.findById, save · NotificationRepository.save | 200 | ค่าใหม่ครบ 5 field · status ยัง NOT_STARTED · updated_by = 1 · `status_history` ไม่เพิ่ม · notifications +1 S5 +1 advisor01 (ตาม Task3 SV-I07 · Sequence ③ ไม่ได้วาดขั้นนี้) |
+| IT-AD-13 | match ยืนยันแล้วสร้าง internship (TC7 · ต่อจาก U6) | S4 เรียก POST /api/matches/{id}/respond `{accept: true}` | MatchingService.respond → ส่ง `MatchConfirmedEvent` → InternshipService.onMatchConfirmed → createFromMatch → InternshipDao.save, StatusHistoryDao.save (ข้อตกลง S8 ของ U6) | 200 | `matches.status` = CONFIRMED · `internships` +1 แถว NOT_STARTED ผูก match_id · `status_history` +1 (type INTERNSHIP, ref_id = id ของ internship, from_status null → to_status NOT_STARTED) · stage ของ S4 = READY |
+| IT-AD-14 | แก้ข้อมูลการฝึกงาน (TC6) | PUT /api/internships/{S5} body ครบ | InternshipDao.findById, save · NotificationRepository.save | 200 | ค่าใหม่ครบ 5 field · status ยัง NOT_STARTED · updated_by = 1 · `status_history` ไม่เพิ่ม · `notifications` type INTERNSHIP_UPDATED +1 S5 +1 advisor02 (ตาม Task3 SV-I07 · Sequence ③ ไม่ได้วาดขั้นนี้) |
 | IT-AD-15 | ข้อมูลผิด / ปิดแล้ว (TC6) | PUT endDate < startDate · PUT อีเมลผิดรูปแบบ · PUT ของ S7 (COMPLETED) | InternshipDao.findById (ข้อสุดท้าย) | 400 INVALID_DATE_RANGE · 400 VALIDATION_ERROR · 409 INTERNSHIP_CLOSED | แถวไม่เปลี่ยน |
-| IT-AD-16 | เปลี่ยนสถานะครบเส้นทาง (TC7) | S5: POST start → POST complete | InternshipDao.save, StatusHistoryDao.save, NotificationRepository.save | 200 IN_PROGRESS · 200 COMPLETED | `internship.updated_by` = 1 · `status_history` +2 แถว type INTERNSHIP (from_status → to_status: NOT_STARTED → IN_PROGRESS, IN_PROGRESS → COMPLETED) changed_by = 1 · `notifications` type INTERNSHIP_STATUS +2 ต่อคน (นักศึกษา + อาจารย์ที่ปรึกษา) |
+| IT-AD-16 | เปลี่ยนสถานะครบเส้นทาง (TC7) | S5: POST start → POST complete | InternshipDao.save, StatusHistoryDao.save, NotificationRepository.save | 200 IN_PROGRESS · 200 COMPLETED | `internships.updated_by` = 1 · `status_history` +2 แถว type INTERNSHIP (from_status → to_status: NOT_STARTED → IN_PROGRESS, IN_PROGRESS → COMPLETED) changed_by = 1 · `notifications` type INTERNSHIP_STATUS_CHANGED +2 ต่อคน (นักศึกษา + อาจารย์ที่ปรึกษา) |
 | IT-AD-17 | ยุติ (TC7) | S6: POST terminate `{reason: "บริษัทยกเลิกโครงการ"}` · reason ว่าง | เหมือน IT-AD-16 | 200 TERMINATED · 400 VALIDATION_ERROR | terminated_reason ตรง · history +1 note = เหตุผล · ข้อที่ 400 ไม่มีแถวเพิ่ม |
 | IT-AD-18 | เปลี่ยนผิดลำดับ / ข้อมูลไม่ครบ (TC7) | complete ของ NOT_STARTED · start ของ IN_PROGRESS · start เมื่อไม่มีผู้ดูแล | InternshipDao.findById | 409 INVALID_TRANSITION · 409 · 400 MISSING_INFO | status, history, notifications ไม่เปลี่ยน |
-| IT-AD-19 | ผู้ไม่มีสิทธิ์แก้ (TC2) | advisor01 / S5 เรียก PUT และ POST start | ไม่ถูกเรียก save | 403 · 403 | ไม่มีแถวเปลี่ยน |
+| IT-AD-19 | ผู้ไม่มีสิทธิ์แก้ (TC2) | advisor02 / S5 เรียก PUT และ POST start | ไม่ถูกเรียก save | 403 · 403 | ไม่มีแถวเปลี่ยน |
 | IT-AD-20 | ฐานข้อมูลขัดข้องระหว่างบันทึก | ทำให้ StatusHistoryDao.save โยน error ตอน POST start | `@Transactional` | 500 | internship ยัง NOT_STARTED ไม่มี notification ค้าง (rollback) |
+| IT-AD-21 | สร้าง internship ไม่สำเร็จ → ยืนยันสิทธิ์ rollback (TC7 · ข้อตกลง S8) | ทำให้ `createFromMatch` โยน error แล้ว S4 เรียก POST /api/matches/{id}/respond `{accept: true}` | MatchingService.respond + InternshipService.onMatchConfirmed (transaction เดียวกัน) | 500 | `matches.status` ยัง PROPOSED · `internships` ไม่เพิ่ม · `status_history` และ notifications ไม่เพิ่ม |
+| IT-AD-22 | ยืนยันซ้ำไม่สร้าง internship ซ้ำ (TC7) | เรียก `createFromMatch` ด้วย match เดิมอีกครั้ง (เช่น event ส่งซ้ำ) | InternshipDao.findByMatchId | – | `internships` ของ match นี้มี 1 แถว (match_id UK) |
 
 ความครอบคลุมกับ test case ของ U7
 -
@@ -118,7 +123,7 @@ Design Integration Test ระหว่าง API กับ DAO
 | TC4 | IT-AD-10, IT-AD-11 |
 | TC5 | IT-AD-12 |
 | TC6 | IT-AD-14, IT-AD-15 |
-| TC7 | IT-AD-13, IT-AD-16, IT-AD-17, IT-AD-18, IT-AD-20 |
+| TC7 | IT-AD-13, IT-AD-16, IT-AD-17, IT-AD-18, IT-AD-20, IT-AD-21, IT-AD-22 |
 | TC8 | IT-AD-08, IT-AD-09 |
 
 
@@ -144,7 +149,7 @@ Sequence Diagram 3 รูปจาก Task2
 
 เตรียมก่อนทดสอบ
 -
-1. `docker compose down -v` แล้ว `docker compose up -d --build` (ได้ข้อมูลตั้งต้นจาก `DemoDataSeeder` + `MatchingDemoSeeder` + seeder ของ U7)
+1. `docker compose down -v` แล้ว `docker compose up -d --build` (ได้ข้อมูลตั้งต้นจาก `DemoDataSeeder` + `MatchingDemoSeeder` + `U7DemoSeeder`)
 2. บัญชี รหัสผ่าน `1234`: `staff01` · `advisor01` · `advisor02` · `6609650021`–`6609650027` (S1–S7)
 3. ดูข้อมูลใน MySQL: `docker exec -it cs261-db mysql -uroot -proot1234 cs261db`
 
@@ -153,21 +158,21 @@ Test cases
 | TC ID | เคส | เส้นทางใน Sequence Diagram | Input / ขั้นตอน | Expected result (หน้าจอ / API / ฐานข้อมูล) |
 |---|---|---|---|---|
 | ST-U7-01 | TC1 | ① รายการ | `staff01` → สถานะนักศึกษา → พิมพ์ "660965002" ในช่องค้นหา | `GET /api/students/status?q=660965002&page=0` 200 · ตาราง 7 แถว (S1–S7) ป้ายขั้นตรงกับตารางข้อมูลตัวอย่าง |
-| ST-U7-02 | TC1 | ① กรองขั้น + บริษัท + แบ่งหน้า | กดแท็บ "กำลังฝึกงาน" · เลือกบริษัท Y · ล้างตัวกรองแล้วกด "ถัดไป" | request มี `stage`, `companyId`, `page` ตามที่เลือก · ผลตรงกับ `SELECT` ที่ JOIN `students`, `applications`, `matches`, `internship` |
-| ST-U7-03 | TC3 | ① stage + attention | ดูแถว S3, S4 · แล้ว `UPDATE internship SET start_date = CURDATE() - INTERVAL 1 DAY WHERE student_id = <S5>` โหลดหน้าใหม่ | S3 ป้าย NO_MATCH · S4 ป้าย NOT_CONFIRMED · S5 ป้าย START_OVERDUE (เลยวันเริ่มฝึกงาน) |
+| ST-U7-02 | TC1 | ① กรองขั้น + บริษัท + แบ่งหน้า | กดแท็บ "กำลังฝึกงาน" · เลือกบริษัทของ S6 · ล้างตัวกรองแล้วกด "ถัดไป" | request มี `stage`, `companyId`, `page` ตามที่เลือก · ผลตรงกับ `SELECT` ที่ JOIN `students`, `applications`, `matches`, `internships` |
+| ST-U7-03 | TC3 | ① stage + attention | เตรียมข้อมูลข้อ ก, ข · แล้ว `UPDATE internships SET start_date = CURDATE() - INTERVAL 1 DAY WHERE student_id = <S5>` โหลดหน้าใหม่ | S3 ป้าย NO_MATCH · S4 ป้าย NOT_CONFIRMED · S5 ป้าย START_OVERDUE (เลยวันเริ่มฝึกงาน) |
 | ST-U7-04 | TC8 | ① summary + export | ดูตัวเลขบนแท็บ → "ดาวน์โหลด Excel" | `GET /summary` 200 ตัวเลขตรงกับจำนวนในตาราง · ไฟล์ CSV เปิดใน Excel ภาษาไทยอ่านได้ จำนวนแถวตรงกับแท็บที่เลือก |
-| ST-U7-05 | TC2 | ① advisor | ออกจากระบบ → `advisor02` → สถานะนักศึกษา | เห็นเฉพาะ S7 · ไม่มีปุ่มแก้ไข / เปลี่ยนสถานะ · ตัวเลขบนแท็บนับเฉพาะ S7 |
-| ST-U7-06 | TC2 | ② alt 403 | `advisor02` พิมพ์ URL รายละเอียดของ S6 · Postman `GET /api/students/{S6}/status` ด้วย id ของ advisor02 | หน้าเว็บแจ้งไม่มีสิทธิ์ · API 403 body ไม่มีชื่อหรือรหัสนักศึกษา |
+| ST-U7-05 | TC2 | ① advisor | ออกจากระบบ → `advisor02` → สถานะนักศึกษา · แล้วเข้าด้วย `advisor01` | advisor02 เห็น S1–S7 ไม่มีปุ่มแก้ไข / เปลี่ยนสถานะ ตัวเลขบนแท็บนับเฉพาะนักศึกษาของตน · advisor01 ไม่เห็น S1–S7 |
+| ST-U7-06 | TC2 | ② alt 403 | `advisor01` พิมพ์ URL รายละเอียดของ S6 · Postman `GET /api/students/{S6}/status` ด้วย id ของ advisor01 | หน้าเว็บแจ้งไม่มีสิทธิ์ · API 403 body ไม่มีชื่อหรือรหัสนักศึกษา |
 | ST-U7-07 | TC2 | ไม่มีสิทธิ์ / ไม่ login | `6609650025` พิมพ์ URL `student-status.html` · Postman `GET /api/students/status` ไม่ส่ง `X-User-Id` | หน้าไม่มีสิทธิ์ · API 401 |
-| ST-U7-08 | TC4 | ② รายละเอียด + timeline | `staff01` คลิกชื่อ S6 | `GET /api/students/{S6}/status` 200 · เห็นใบสมัคร อันดับที่เลือก บริษัท Y ข้อมูลฝึกงาน · timeline เรียงเก่า → ใหม่ ตรงกับ `SELECT * FROM status_history WHERE student_id = <S6> ORDER BY changed_at` |
-| ST-U7-09 | TC5 | ② สถานะของฉัน | `6609650025` (S5) → สถานะของฉัน | `GET /api/students/me/status` 200 · แถบขั้น "พร้อมฝึกงาน" · เห็นบริษัท X วันเริ่ม ผู้ดูแล · ไม่มีปุ่มแก้ไข |
-| ST-U7-10 | TC7 | U6 ยืนยันสิทธิ์ → ③ สร้าง internship | `6609650024` (S4) → ผลการจับคู่ → ยืนยันสิทธิ์ → เปิดสถานะของฉัน | `POST /api/matches/{id}/respond` 200 · `matches.status` = CONFIRMED · `internship` +1 แถว NOT_STARTED · stage ของ S4 เปลี่ยนเป็น READY · ป้าย MISSING_INFO (ยังไม่มีวันที่และผู้ดูแล) |
-| ST-U7-11 | TC6 | ③ แก้ข้อมูล | `staff01` → รายละเอียด S4 → กรอกวันเริ่ม-สิ้นสุด ผู้ดูแล ชื่อ อีเมล เบอร์ → บันทึก | `PUT /api/internships/{id}` 200 · ค่าใหม่ใน `internship` · ป้าย MISSING_INFO หายไป · S4 และ advisor01 ได้แจ้งเตือน |
+| ST-U7-08 | TC4 | ② รายละเอียด + timeline | `staff01` คลิกชื่อ S6 | `GET /api/students/{S6}/status` 200 · เห็นใบสมัคร อันดับที่เลือก บริษัทที่จับคู่ ข้อมูลฝึกงาน · timeline เรียงเก่า → ใหม่ ตรงกับ `SELECT * FROM status_history WHERE student_id = <S6> ORDER BY changed_at` |
+| ST-U7-09 | TC5 | ② สถานะของฉัน | `6609650025` (S5) → สถานะของฉัน | `GET /api/students/me/status` 200 · แถบขั้น "พร้อมฝึกงาน" · เห็นบริษัทที่จับคู่ วันเริ่ม ผู้ดูแล · ไม่มีปุ่มแก้ไข |
+| ST-U7-10 | TC7 | U6 ยืนยันสิทธิ์ → ③ สร้าง internship | `6609650024` (S4) → ผลการจับคู่ → ยืนยันสิทธิ์ → เปิดสถานะของฉัน | `POST /api/matches/{id}/respond` 200 · `matches.status` = CONFIRMED · `internships` +1 แถว NOT_STARTED (สร้างจาก `MatchConfirmedEvent` ในคำขอเดียวกัน ไม่ต้องกดอะไรเพิ่ม) · stage ของ S4 เปลี่ยนเป็น READY · ป้าย MISSING_INFO (ยังไม่มีวันที่และผู้ดูแล) |
+| ST-U7-11 | TC6 | ③ แก้ข้อมูล | `staff01` → รายละเอียด S4 → กรอกวันเริ่ม-สิ้นสุด ผู้ดูแล ชื่อ อีเมล เบอร์ → บันทึก | `PUT /api/internships/{id}` 200 · ค่าใหม่ใน `internships` · ป้าย MISSING_INFO หายไป · S4 และ advisor02 ได้แจ้งเตือน |
 | ST-U7-12 | TC6 | ③ alt 400 / 409 | กรอกวันสิ้นสุดก่อนวันเริ่ม · Postman `PUT` ของ S7 (COMPLETED) | หน้าเว็บแจ้ง "วันสิ้นสุดต้องหลังวันเริ่ม" ไม่มี request · API 409 INTERNSHIP_CLOSED · ข้อมูลไม่เปลี่ยน |
-| ST-U7-13 | TC7 | ③ start → complete | S4: "เริ่มฝึกงาน" (ยืนยัน) → "เสร็จสิ้นการฝึกงาน" (ยืนยัน) | `POST /start` 200 แล้ว `POST /complete` 200 · `internship.status` = COMPLETED · `status_history` +2 · S4 และ advisor01 ได้แจ้งเตือนครั้งละ 1 · หน้ารายละเอียดล็อกช่องแก้ไข |
+| ST-U7-13 | TC7 | ③ start → complete | S4: "เริ่มฝึกงาน" (ยืนยัน) → "เสร็จสิ้นการฝึกงาน" (ยืนยัน) | `POST /start` 200 แล้ว `POST /complete` 200 · `internships.status` = COMPLETED · `status_history` +2 · S4 และ advisor02 ได้แจ้งเตือนครั้งละ 1 · หน้ารายละเอียดล็อกช่องแก้ไข |
 | ST-U7-14 | TC7 | ③ terminate | S6: "ยุติการฝึกงาน" ไม่กรอกเหตุผล → กรอก "บริษัทยกเลิกโครงการ" | ครั้งแรกไม่มี request · ครั้งที่สอง 200 TERMINATED · `terminated_reason` ตรง · timeline มีเหตุผล · S6 เห็นแจ้งเตือนพร้อมเหตุผล |
 | ST-U7-15 | TC7 | ③ alt 409 / 400 | Postman `POST /complete` ของ S5 (NOT_STARTED) · `POST /start` ของ internship ที่ไม่มีผู้ดูแล | 409 INVALID_TRANSITION · 400 MISSING_INFO · `status_history` ไม่เพิ่ม |
-| ST-U7-16 | TC2 | ③ ผู้ไม่มีสิทธิ์แก้ | Postman `advisor01` และ `6609650025` เรียก `PUT` / `POST /start` | 403 ทั้งคู่ · `internship` ไม่เปลี่ยน |
+| ST-U7-16 | TC2 | ③ ผู้ไม่มีสิทธิ์แก้ | Postman `advisor02` และ `6609650025` เรียก `PUT` / `POST /start` | 403 ทั้งคู่ · `internships` ไม่เปลี่ยน |
 | ST-U7-17 | TC1, TC4 | U3 → U5 → U6 → U7 ทั้งเส้น | นักศึกษาใหม่ยื่นคำร้อง (U3) → staff01 + advisor01 อนุมัติ (U5) → จับคู่และนักศึกษายืนยัน (U6) → staff01 เริ่มและเสร็จสิ้นการฝึกงาน (U7) · เปิดรายละเอียดทุกขั้น | stage เปลี่ยนตามลำดับ APPLYING → WAITING_MATCH → MATCHING → READY → IN_PROGRESS → COMPLETED · timeline มีครบทั้ง APPLICATION, MATCH, INTERNSHIP |
 | ST-U7-18 | – | ระบบล่ม | `docker compose stop app` แล้วเปิดหน้าสถานะนักศึกษา (เสร็จแล้ว `docker compose start app`) | แจ้ง "ไม่สามารถเชื่อมต่อระบบได้" ไม่ค้าง |
 
@@ -206,9 +211,9 @@ Test cases
 |---|---|---|---|---|---|
 | UAT-U7-01 | TC1 | อาจารย์อยากรู้ว่านักศึกษาที่ดูแลอยู่ขั้นไหนบ้าง | เปิดหน้าสถานะนักศึกษา | เห็นนักศึกษาของตนทุกคนพร้อมขั้นล่าสุดและบริษัท | ตอบได้ว่าแต่ละคนอยู่ขั้นไหนภายใน 1 นาที |
 | UAT-U7-02 | TC1 | อาจารย์ต้องการดูเฉพาะคนที่กำลังฝึกงาน / ค้นนักศึกษาคนหนึ่ง | กรองขั้นและค้นด้วยชื่อหรือรหัส | เหลือเฉพาะคนที่ต้องการ | หาเจอเองภายใน 30 วินาที |
-| UAT-U7-03 | TC3 | มีนักศึกษาที่อนุมัติแล้วแต่ยังไม่ได้จับคู่นาน และคนที่ยังไม่ยืนยันบริษัท | เปิดหน้ารายการ | คนที่มีปัญหามีป้ายเตือนอธิบายเหตุผล | รู้ว่าควรติดตามใครก่อนโดยไม่ต้องเปิดดูทีละคน |
+| UAT-U7-03 | TC3 | มีนักศึกษาที่อนุมัติแล้วแต่ยังไม่ได้จับคู่นาน และคนที่เลยกำหนดยืนยันบริษัทแล้วแต่ยังไม่ยืนยัน | เปิดหน้ารายการ | คนที่มีปัญหามีป้ายเตือนอธิบายเหตุผล | รู้ว่าควรติดตามใครก่อนโดยไม่ต้องเปิดดูทีละคน |
 | UAT-U7-04 | TC4 | อาจารย์อยากรู้ประวัติของนักศึกษาคนหนึ่ง | เปิดรายละเอียดนักศึกษา | เห็นใบสมัคร บริษัทที่ได้ ข้อมูลฝึกงาน และ timeline ว่าเปลี่ยนเมื่อไหร่ ใครเปลี่ยน | เข้าใจลำดับเหตุการณ์ได้โดยไม่ต้องถามเจ้าหน้าที่ |
-| UAT-U7-05 | TC2 | อาจารย์ advisor02 ดูแลนักศึกษาแค่ 1 คน | เปิดหน้ารายการ และลองเปิดนักศึกษาของอาจารย์อื่น | เห็นเฉพาะนักศึกษาของตน · เปิดของคนอื่นไม่ได้ | มั่นใจว่าข้อมูลนักศึกษาไม่รั่วไปอาจารย์อื่น |
+| UAT-U7-05 | TC2 | อาจารย์ advisor01 ไม่ได้ดูแลนักศึกษาของ U7 | เปิดหน้ารายการ และลองเปิดรายละเอียดของ S6 (นักศึกษาของ advisor02) | เห็นเฉพาะนักศึกษาของตน · เปิดของคนอื่นไม่ได้ | มั่นใจว่าข้อมูลนักศึกษาไม่รั่วไปอาจารย์อื่น |
 | UAT-U7-06 | TC5 | นักศึกษาอยากรู้ว่าตอนนี้ตัวเองอยู่ขั้นไหน | เปิดเมนูสถานะของฉัน | เห็นแถบขั้นทั้งหมด ขั้นปัจจุบัน บริษัท วันเริ่ม และผู้ดูแล | ตอบได้ว่าอยู่ขั้นไหนและต้องทำอะไรต่อภายใน 30 วินาที |
 | UAT-U7-07 | TC7 | นักศึกษายืนยันบริษัทแล้ว (U6) | เจ้าหน้าที่เปิดรายละเอียดของนักศึกษาคนนั้น | มีข้อมูลการฝึกงานรอกรอก พร้อมป้ายข้อมูลไม่ครบ | เจ้าหน้าที่รู้ทันทีว่าต้องกรอกข้อมูลอะไรต่อ |
 | UAT-U7-08 | TC6 | บริษัทแจ้งวันเริ่ม-สิ้นสุดและผู้ดูแลมาแล้ว | เจ้าหน้าที่กรอกข้อมูลการฝึกงาน | บันทึกสำเร็จ นักศึกษาและอาจารย์ได้แจ้งเตือน | ทำเองได้ภายใน 2 นาที · ถ้ากรอกวันผิด ระบบบอกและข้อมูลที่กรอกไม่หาย |
@@ -225,8 +230,10 @@ Test cases
 
 หมายเหตุ
 -
-- รวมทั้งหมด 69 test case: Integration UI–API 19 · Integration API–DAO 20 · System Test 18 · UAT 12
-- ออกแบบตาม Task2/Task3 (11 endpoint) · โค้ดใน `Develop` ตอนนี้ (Task4) มีแค่หน้า `status.html` ของนักศึกษา จึงรันได้หลังจาก Task4 ทำครบตาม Task2/Task3 และ merge U6 (ต้องใช้ `Match`)
+- รวมทั้งหมด 71 test case: Integration UI–API 19 · Integration API–DAO 22 · System Test 18 · UAT 12
+- ปรับตามข้อตกลงกับ U6 (T2 ของ U6 และ T3 ของ U7 ฉบับ 13 พ.ย.): S8 · ยืนยันสิทธิ์แล้ว U6 ส่ง `MatchConfirmedEvent` ให้ U7 สร้าง internship ใน transaction เดียวกัน (IT-AD-13, 21, 22 · ST-U7-10) · S9 · ป้าย `NOT_CONFIRMED` ดูจาก `confirmDeadline` ของรอบ ไม่นับ 7 วัน (S4, IT-UA-06, IT-AD-07)
+- ชื่อตารางการฝึกงานใช้ `internships` ตามโค้ด Task4 และ ER ของ U6 (T2 ของ U7 เขียนเป็น `internship`)
+- ออกแบบตาม Task2/Task3 (11 endpoint) · โค้ด Task4 อยู่ใน branch `Feature-/-U7-Status-Check` (รวม Develop และ U6 แล้ว) · ข้อมูลตัวอย่างตาม `U7DemoSeeder`
 - สถานะ match ใช้ตามโค้ด U6: `PROPOSED`, `CONFIRMED`, `DECLINED`, `CANCELLED` (Task3 DAO-L02 เขียนว่า REJECTED ควรแก้เป็น DECLINED / CANCELLED)
 - role เจ้าหน้าที่ใช้ `STAFF` ตามโค้ด (ER Diagram และ Sequence ① ใน Task2 ใช้ `OFFICER`)
 - อาจารย์ที่ปรึกษาอยู่ที่ `students.advisor_id` ตามโค้ด (ER Diagram วางไว้ที่ `users.advisor_id`)
