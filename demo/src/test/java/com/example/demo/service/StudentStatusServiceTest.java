@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +29,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.example.demo.dao.ApplicationRepository;
 import com.example.demo.dao.InternshipRepository;
 import com.example.demo.dao.MatchRepository;
+import com.example.demo.dao.MatchingRoundRepository;
 import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.StudentStatusQueryDao;
 import com.example.demo.dao.UserRepository;
@@ -40,6 +42,7 @@ import com.example.demo.entity.Internship;
 import com.example.demo.entity.InternshipStage;
 import com.example.demo.entity.InternshipStatus;
 import com.example.demo.entity.Match;
+import com.example.demo.entity.MatchingRound;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
@@ -62,6 +65,7 @@ class StudentStatusServiceTest {
     private UserRepository userRepository;
     private ApplicationRepository applicationRepository;
     private MatchRepository matchRepository;
+    private MatchingRoundRepository matchingRoundRepository;
     private InternshipRepository internshipRepository;
     private PreferenceService preferenceService;
     private MatchViews matchViews;
@@ -93,6 +97,9 @@ class StudentStatusServiceTest {
         matchRepository =
                 mock(MatchRepository.class);
 
+        matchingRoundRepository =
+                mock(MatchingRoundRepository.class);
+
         internshipRepository =
                 mock(InternshipRepository.class);
 
@@ -117,6 +124,7 @@ class StudentStatusServiceTest {
                 userRepository,
                 applicationRepository,
                 matchRepository,
+                matchingRoundRepository,
                 internshipRepository,
                 preferenceService,
                 matchViews,
@@ -333,26 +341,63 @@ class StudentStatusServiceTest {
 
     @Test
     @DisplayName(
-            "SV-S04 เตือน NOT_CONFIRMED เมื่อเกิน 7 วัน")
+            "SV-S04 เตือน NOT_CONFIRMED ตาม confirmDeadline ของรอบ")
     void attentionNotConfirmed() {
+        Application approved =
+                application(
+                        ApplicationStatus.APPROVED,
+                        NOW);
+
+        Match proposed =
+                proposedMatch(
+                        NOW.minusDays(30));
+
+        MatchingRound expiredRound =
+                new MatchingRound(
+                        1,
+                        1L,
+                        NOW.minusDays(10),
+                        NOW.minusDays(1));
+
+        MatchingRound futureRound =
+                new MatchingRound(
+                        2,
+                        1L,
+                        NOW.minusDays(10),
+                        NOW.plusDays(1));
+
+        MatchingRound exactRound =
+                new MatchingRound(
+                        3,
+                        1L,
+                        NOW.minusDays(10),
+                        NOW);
+
+        when(matchingRoundRepository.findById(1L))
+                .thenReturn(
+                        Optional.of(expiredRound),
+                        Optional.of(futureRound),
+                        Optional.of(exactRound));
+
         assertThat(
                 service.computeAttention(
-                        application(
-                                ApplicationStatus.APPROVED,
-                                NOW),
-                        proposedMatch(
-                                NOW.minusDays(8)),
+                        approved,
+                        proposed,
                         null))
                 .isEqualTo(
                         Attention.NOT_CONFIRMED);
 
         assertThat(
                 service.computeAttention(
-                        application(
-                                ApplicationStatus.APPROVED,
-                                NOW),
-                        proposedMatch(
-                                NOW.minusDays(7)),
+                        approved,
+                        proposed,
+                        null))
+                .isNull();
+
+        assertThat(
+                service.computeAttention(
+                        approved,
+                        proposed,
                         null))
                 .isNull();
     }
