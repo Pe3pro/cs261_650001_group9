@@ -33,6 +33,12 @@ public class EligibilityService {
             "ยังไม่เคยเรียน", -1.0
         );
 
+    /** แต่ละวิชาต้องได้ C ขึ้นไป */
+    private static final double MIN_COURSE_GRADE = 2.0;
+
+    /** เกรดเฉลี่ยของกลุ่มรายวิชาต้องไม่ต่ำกว่า 2.50 */
+    private static final double MIN_GROUP_AVERAGE = 2.5;
+
     private static final Set<String> ALLOWED_STATUSES =
         Set.of(
             "ยังไม่เคยลง",
@@ -135,16 +141,34 @@ public class EligibilityService {
             );
         }
 
+        /*
+         * เงื่อนไขรายวิชา:
+         * - แต่ละวิชาต้องได้เกรด C (2.00) ขึ้นไป
+         * - เกรดเฉลี่ยของกลุ่มวิชา (วิชาบังคับ + คพ.213 หรือ คพ.216)
+         *   ต้องไม่ต่ำกว่า 2.50
+         */
         request.grades().forEach(
             (course, grade) -> {
-                if (GRADE_POINTS.get(grade) < 2.5) {
+                if (GRADE_POINTS.get(grade) < MIN_COURSE_GRADE) {
                     reasons.add(
                         course +
-                        " ต้องได้เกรด C+ ขึ้นไป"
+                        " ต้องได้เกรด C ขึ้นไป"
                     );
                 }
             }
         );
+
+        double groupAverage =
+            courseGroupAverage(request, curriculum);
+
+        if (groupAverage < MIN_GROUP_AVERAGE) {
+            reasons.add(
+                String.format(
+                    "เกรดเฉลี่ยของกลุ่มรายวิชาต้องไม่ต่ำกว่า 2.50 (ของคุณ %.2f)",
+                    groupAverage
+                )
+            );
+        }
 
         request.courseStatuses().forEach(
             (course, status) -> {
@@ -209,6 +233,43 @@ public class EligibilityService {
         eligibilityRecordDao.save(record);
 
         return response;
+    }
+
+    /*
+     * เฉลี่ยเกรดของวิชาบังคับตามหลักสูตร + วิชาเลือก 1 วิชา (คพ.213 หรือ คพ.216)
+     * ถ้าส่งมาทั้งสองวิชา จะใช้วิชาที่เกรดสูงกว่า
+     * วิชาที่ "ยังไม่เคยเรียน" นับเป็น 0 คะแนน
+     */
+    private double courseGroupAverage(
+        EligibilityRequest request,
+        String curriculum
+    ) {
+        List<String> fixedCourses =
+            "61".equals(curriculum)
+                ? GRADE_COURSES_61
+                : GRADE_COURSES_66;
+
+        double total = 0;
+
+        for (String course : fixedCourses) {
+            total += Math.max(
+                0.0,
+                GRADE_POINTS.get(request.grades().get(course))
+            );
+        }
+
+        double bestAlternative =
+            ALTERNATIVE_GRADE_COURSES.stream()
+                .filter(request.grades()::containsKey)
+                .mapToDouble(course ->
+                    GRADE_POINTS.get(request.grades().get(course))
+                )
+                .max()
+                .orElse(0.0);
+
+        total += Math.max(0.0, bestAlternative);
+
+        return total / (fixedCourses.size() + 1);
     }
 
     private EligibilityResponse invalidResponse(

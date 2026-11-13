@@ -282,7 +282,8 @@ const GRADE_OPTS = [
     ...Object.keys(GRADE)
 ];
 
-const MIN_GRADE = 2.5;
+const MIN_GRADE = 2;          // แต่ละวิชาต้องได้ C ขึ้นไป
+const MIN_GROUP_AVG = 2.5;     // เกรดเฉลี่ยกลุ่มรายวิชาต้องไม่ต่ำกว่า 2.50
 
 const STAT_OPTS = [
     'ยังไม่เคยลง',
@@ -379,23 +380,37 @@ function evaluate() {
          results.push({
             ok: 0,
             t: code,
-            d: 'ต้องเคยเรียนและได้เกรดไม่ต่ำกว่า 2.50',
+            d: 'ต้องเคยเรียนและได้เกรด C ขึ้นไป',
             v: 'ยังไม่เคยเรียน'
          });
       } else if (GRADE[grade] < MIN_GRADE) {
          results.push({
             ok: 0,
             t: code,
-            d: 'ต้องได้เกรดไม่ต่ำกว่า 2.50 (C+ ขึ้นไป)',
+            d: 'ต้องได้เกรด C ขึ้นไป',
             v: 'เกรด ' + grade
          });
       } else {
          results.push({
             ok: 1,
             t: code,
-            d: 'เกรด ' + grade + ' (ผ่านเกณฑ์ไม่ต่ำกว่า 2.50)'
+            d: 'เกรด ' + grade + ' (ผ่านเกณฑ์ C ขึ้นไป)'
          });
       }
+   });
+
+   const groupPoints = curriculum.core.map((item, index) => {
+      const grade = valOf('g', index, '');
+      return grade in GRADE ? GRADE[grade] : 0;
+   });
+   const groupAvg =
+      groupPoints.reduce((sum, p) => sum + p, 0) / groupPoints.length;
+
+   results.push({
+      ok: groupAvg >= MIN_GROUP_AVG ? 1 : 0,
+      t: 'เกรดเฉลี่ยกลุ่มรายวิชาไม่ต่ำกว่า 2.50',
+      d: 'ของคุณ ' + groupAvg.toFixed(2),
+      v: groupAvg >= MIN_GROUP_AVG ? '' : groupAvg.toFixed(2)
    });
 
    const missingCourses = [];

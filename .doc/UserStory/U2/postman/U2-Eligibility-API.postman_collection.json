@@ -171,7 +171,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Status code is 200', () => pm.response.to.have.status(200));",
-              "pm.test('ไม่ผ่านพร้อมเหตุผล', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(true); pm.expect(j.eligible).to.eql(false); pm.expect(j.reasons).to.include('คพ.100 ต้องได้เกรด C+ ขึ้นไป'); pm.expect(j.reasons).to.include('คพ.180 ต้องกำลังศึกษา หรือเคยศึกษาแล้ว'); pm.expect(j.reasons).to.include('ต้องยืนยันเงื่อนไขให้ครบทั้ง 3 ข้อ'); });"
+              "pm.test('ไม่ผ่านพร้อมเหตุผล', () => { const j = pm.response.json(); pm.expect(j.valid).to.eql(true); pm.expect(j.eligible).to.eql(false); pm.expect(j.reasons).to.include('คพ.100 ต้องได้เกรด C ขึ้นไป'); pm.expect(j.reasons).to.include('คพ.180 ต้องกำลังศึกษา หรือเคยศึกษาแล้ว'); pm.expect(j.reasons).to.include('ต้องยืนยันเงื่อนไขให้ครบทั้ง 3 ข้อ'); });"
             ]
           }
         }
@@ -192,7 +192,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"C\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"ยังไม่เคยลง\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    false,\n    true\n  ]\n}",
+          "raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"curriculum\": \"66\",\n  \"gpax\": \"{{gpax}}\",\n  \"grades\": {\n    \"คพ.100\": \"D\",\n    \"คพ.101\": \"B+\",\n    \"คพ.102\": \"B\",\n    \"คพ.111\": \"A\",\n    \"คพ.251\": \"B+\",\n    \"คพ.261\": \"B\",\n    \"คพ.216\": \"A\"\n  },\n  \"courseStatuses\": {\n    \"คพ.180\": \"ยังไม่เคยลง\",\n    \"คพ.262\": \"กำลังศึกษา\"\n  },\n  \"acknowledgements\": [\n    true,\n    false,\n    true\n  ]\n}",
           "options": {
             "raw": {
               "language": "json"
