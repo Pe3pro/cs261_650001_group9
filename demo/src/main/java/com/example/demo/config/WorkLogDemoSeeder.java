@@ -24,9 +24,9 @@ import com.example.demo.entity.User;
  *
  * ใช้นักศึกษาชุดของ U8 เอง ไม่แตะนักศึกษาของ story อื่น
  * (U1–U5 ใช้ 6609650001–08 · U6 ใช้ 6609650011–14 · U7 ใช้ 6609650021–27)
- *   6609650031 วรเมธ บันทึกดี    · กำลังฝึกงาน (IN_PROGRESS) เริ่มวันจันทร์เมื่อ 4 สัปดาห์ก่อน ฝึก 16 สัปดาห์
- *   6609650032 ปิยะนุช ใส่ใจงาน  · กำลังฝึกงาน (IN_PROGRESS) ช่วงเดียวกัน
- *   6609650033 กิตติพัฒน์ รอฝึก  · ยังไม่มีการฝึกงาน (ใช้ทดสอบกรณีบันทึกไม่ได้ / ไม่ใช่เจ้าของการฝึกงาน)
+ *   6609650031 IN_PROGRESS_31 · กำลังฝึกงาน (IN_PROGRESS) เริ่มวันจันทร์เมื่อ 4 สัปดาห์ก่อน ฝึก 16 สัปดาห์
+ *   6609650032 IN_PROGRESS_32 · กำลังฝึกงาน (IN_PROGRESS) ช่วงเดียวกัน
+ *   6609650033 WAITING_33     · ยังไม่มีการฝึกงาน (ใช้ทดสอบกรณีบันทึกไม่ได้ / ไม่ใช่เจ้าของการฝึกงาน)
  * ทั้ง 3 คนมีอาจารย์ที่ปรึกษาเป็น advisor01 · login ด้วยรหัสผ่านทดลอง (app.auth.demo-users)
  */
 @Component
@@ -51,9 +51,9 @@ public class WorkLogDemoSeeder {
             return;
         }
         LocalDate start = LocalDate.now(clock).minusWeeks(4).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        User a = ensureStudent("6609650031", "วรเมธ บันทึกดี", "worramet@dome.tu.ac.th", advisor);
-        User b = ensureStudent("6609650032", "ปิยะนุช ใส่ใจงาน", "piyanuch@dome.tu.ac.th", advisor);
-        ensureStudent("6609650033", "กิตติพัฒน์ รอฝึก", "kittipat@dome.tu.ac.th", advisor);
+        User a = ensureStudent("6609650031", "IN_PROGRESS_31", "inprogress31@dome.tu.ac.th", advisor);
+        User b = ensureStudent("6609650032", "IN_PROGRESS_32", "inprogress32@dome.tu.ac.th", advisor);
+        ensureStudent("6609650033", "WAITING_33", "waiting33@dome.tu.ac.th", advisor);
         ensureInternship(a, start);
         ensureInternship(b, start);
     }
