@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,17 +43,15 @@ import com.example.demo.repository.CompanyRepository;
 
 /**
  * U6: การจับคู่นักศึกษากับตำแหน่งตามอันดับและโควตาเป็นรอบ
- * U7: สร้างข้อมูลการฝึกงานอัตโนมัติเมื่อยืนยันผลจับคู่
+ * รอบ: OPEN (จับคู่ได้) → ประกาศผล ANNOUNCED (นักศึกษาตอบ) → CLOSED (ปิดตอนเปิดรอบใหม่หลังเลย confirmDeadline)
+ * โควตา: จับคู่ลด 1 · สละสิทธิ์ / ยกเลิก / ไม่ตอบภายในกำหนด คืน 1 · อ่านตำแหน่งแบบล็อกแถวกันโควตาเกิน
  */
 @Service
 @Transactional
 public class MatchingService {
 
-    static final String TIMEOUT_REASON =
-            "ไม่ตอบภายในกำหนด";
-
-    private static final DateTimeFormatter TH_TIME =
-            DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    static final String TIMEOUT_REASON = "ไม่ตอบภายในกำหนด";
+    private static final DateTimeFormatter TH_TIME = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     private final ApplicationRepository applicationRepository;
     private final StudentRepository studentRepository;
@@ -69,32 +66,11 @@ public class MatchingService {
     private final AccessGuard guard;
     private final Clock clock;
 
-    /**
-     * U7: ใช้สร้างข้อมูลการฝึกงานหลังนักศึกษายืนยันผลจับคู่
-     * ใช้ setter injection เพื่อไม่กระทบ constructor และ test เดิมของ U6
-     */
-    private InternshipService internshipService;
-
-    @Autowired(required = false)
-    public void setInternshipService(
-            InternshipService internshipService) {
-        this.internshipService = internshipService;
-    }
-
-    public MatchingService(
-            ApplicationRepository applicationRepository,
-            StudentRepository studentRepository,
-            CompanyPreferenceRepository preferenceRepository,
-            CompanyPositionRepository positionRepository,
-            CompanyRepository companyRepository,
-            MatchRepository matchRepository,
-            MatchingRoundRepository roundRepository,
-            PreferenceService preferenceService,
-            NotificationService notificationService,
-            MatchViews views,
-            AccessGuard guard,
-            Clock clock) {
-
+    public MatchingService(ApplicationRepository applicationRepository, StudentRepository studentRepository,
+            CompanyPreferenceRepository preferenceRepository, CompanyPositionRepository positionRepository,
+            CompanyRepository companyRepository, MatchRepository matchRepository,
+            MatchingRoundRepository roundRepository, PreferenceService preferenceService,
+            NotificationService notificationService, MatchViews views, AccessGuard guard, Clock clock) {
         this.applicationRepository = applicationRepository;
         this.studentRepository = studentRepository;
         this.preferenceRepository = preferenceRepository;
@@ -111,788 +87,335 @@ public class MatchingService {
 
     /* ===================== เจ้าหน้าที่ ===================== */
 
-    /**
-     * U6-SVC-M01: นักศึกษาที่เลือกตำแหน่งนี้
-     * เรียงตามอันดับ
-     */
+    /** U6-SVC-M01: นักศึกษา (ใบสมัคร APPROVED) ที่เลือกตำแหน่งนี้ เรียงตามอันดับ */
     @Transactional(readOnly = true)
-    public List<CandidateResponse> candidates(
-            Long userId,
-            Long positionId) {
-
+    public List<CandidateResponse> candidates(Long userId, Long positionId) {
         guard.require(userId, Role.STAFF);
-
-        if (positionId == null
-                || positionRepository.findById(positionId).isEmpty()) {
+        if (positionId == null || positionRepository.findById(positionId).isEmpty()) {
             throw ApiException.notFound("ไม่พบตำแหน่งนี้");
         }
-
         List<CandidateResponse> result = new ArrayList<>();
-
-        for (CompanyPreference preference :
-                preferenceRepository
-                        .findByPositionIdOrderByRankNoAsc(positionId)) {
-
-            applicationRepository
-                    .findById(preference.getApplicationId())
-                    .filter(application ->
-                            application.getStatus()
-                                    == ApplicationStatus.APPROVED)
-                    .ifPresent(application -> {
-                        String[] student =
-                                views.studentOf(application);
-
-                        boolean matched =
-                                matchRepository
-                                        .findFirstByApplicationIdAndStatusIn(
-                                                application.getId(),
-                                                PreferenceService.ACTIVE)
-                                        .isPresent();
-
-                        result.add(new CandidateResponse(
-                                application.getId(),
-                                student[0],
-                                student[1],
-                                preference.getRankNo(),
-                                matched));
+        for (CompanyPreference pref : preferenceRepository.findByPositionIdOrderByRankNoAsc(positionId)) {
+            applicationRepository.findById(pref.getApplicationId())
+                    .filter(a -> a.getStatus() == ApplicationStatus.APPROVED)
+                    .ifPresent(app -> {
+                        String[] student = views.studentOf(app);
+                        boolean matched = matchRepository
+                                .findFirstByApplicationIdAndStatusIn(app.getId(), PreferenceService.ACTIVE).isPresent();
+                        result.add(new CandidateResponse(app.getId(), student[0], student[1], pref.getRankNo(), matched));
                     });
         }
-
         return result;
     }
 
     /**
      * U6-SVC-M02: จับคู่อัตโนมัติในรอบที่เปิดอยู่
+     * ไล่ใบสมัคร APPROVED ที่ยังไม่มีผล ตามเวลายื่น · แต่ละใบไล่อันดับ 1 → 5 จนเจอตำแหน่งที่เปิดรับและยังมีที่ว่าง
      */
     public AutoMatchResponse autoMatch(Long userId) {
         User staff = guard.require(userId, Role.STAFF);
         MatchingRound round = requireOpenRound();
         LocalDateTime now = LocalDateTime.now(clock);
-
         List<MatchResponse> matched = new ArrayList<>();
         List<UnmatchedItem> unmatched = new ArrayList<>();
-
-        for (Application application :
-                applicationRepository
-                        .findApprovedWithoutActiveMatch()) {
-
-            List<CompanyPreference> preferences =
-                    preferenceRepository
-                            .findByApplicationIdOrderByRankNoAsc(
-                                    application.getId());
-
-            if (preferences.isEmpty()) {
-                unmatched.add(new UnmatchedItem(
-                        application.getId(),
-                        views.studentOf(application)[1],
-                        "ยังไม่ได้เลือกอันดับ"));
+        for (Application app : applicationRepository.findApprovedWithoutActiveMatch()) {
+            List<CompanyPreference> prefs = preferenceRepository.findByApplicationIdOrderByRankNoAsc(app.getId());
+            if (prefs.isEmpty()) {
+                unmatched.add(new UnmatchedItem(app.getId(), views.studentOf(app)[1], "ยังไม่ได้เลือกอันดับ"));
                 continue;
             }
-
             Match match = null;
-
-            for (CompanyPreference preference : preferences) {
-                Optional<CompanyPosition> position =
-                        positionRepository
-                                .findByIdForUpdate(
-                                        preference.getPositionId())
-                                .filter(this::canTake);
-
+            for (CompanyPreference pref : prefs) {
+                Optional<CompanyPosition> position = positionRepository.findByIdForUpdate(pref.getPositionId())
+                        .filter(this::canTake);
                 if (position.isPresent()) {
-                    match = take(
-                            application,
-                            position.get(),
-                            round,
-                            preference.getRankNo(),
-                            staff,
-                            now);
+                    match = take(app, position.get(), round, pref.getRankNo(), staff, now);
                     break;
                 }
             }
-
             if (match == null) {
-                unmatched.add(new UnmatchedItem(
-                        application.getId(),
-                        views.studentOf(application)[1],
+                unmatched.add(new UnmatchedItem(app.getId(), views.studentOf(app)[1],
                         "ตำแหน่งที่เลือกเต็มหรือปิดรับทั้งหมด"));
             } else {
-                matched.add(
-                        views.toResponse(match, application));
+                matched.add(views.toResponse(match, app));
             }
         }
-
-        return new AutoMatchResponse(
-                round.getRoundNo(),
-                matched,
-                unmatched);
+        return new AutoMatchResponse(round.getRoundNo(), matched, unmatched);
     }
 
-    /**
-     * U6-SVC-M03: เจ้าหน้าที่จับคู่เอง
-     */
-    public MatchResponse manualMatch(
-            Long userId,
-            MatchRequest request) {
-
+    /** U6-SVC-M03: เจ้าหน้าที่จับคู่เอง 1 ใบในรอบที่เปิดอยู่ */
+    public MatchResponse manualMatch(Long userId, MatchRequest request) {
         User staff = guard.require(userId, Role.STAFF);
-
-        if (request == null
-                || request.applicationId() == null
-                || request.positionId() == null) {
-            throw ApiException.badRequest(
-                    "กรุณาเลือกใบสมัครและตำแหน่ง");
+        if (request == null || request.applicationId() == null || request.positionId() == null) {
+            throw ApiException.badRequest("กรุณาเลือกใบสมัครและตำแหน่ง");
         }
-
         MatchingRound round = requireOpenRound();
-
-        Application application =
-                applicationRepository
-                        .findById(request.applicationId())
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบใบสมัคร"));
-
-        if (application.getStatus()
-                != ApplicationStatus.APPROVED) {
-            throw new ApiException(
-                    409,
-                    "APPLICATION_NOT_APPROVED",
-                    "ใบสมัครนี้ยังไม่ได้รับการอนุมัติ");
+        Application app = applicationRepository.findById(request.applicationId())
+                .orElseThrow(() -> ApiException.notFound("ไม่พบใบสมัคร"));
+        if (app.getStatus() != ApplicationStatus.APPROVED) {
+            throw new ApiException(409, "APPLICATION_NOT_APPROVED", "ใบสมัครนี้ยังไม่ได้รับการอนุมัติ");
         }
-
-        boolean alreadyMatched =
-                matchRepository
-                        .findFirstByApplicationIdAndStatusIn(
-                                application.getId(),
-                                PreferenceService.ACTIVE)
-                        .isPresent();
-
-        if (alreadyMatched) {
-            throw new ApiException(
-                    409,
-                    "ALREADY_MATCHED",
-                    "ใบสมัครนี้มีผลจับคู่อยู่แล้ว");
+        if (matchRepository.findFirstByApplicationIdAndStatusIn(app.getId(), PreferenceService.ACTIVE).isPresent()) {
+            throw new ApiException(409, "ALREADY_MATCHED", "ใบสมัครนี้มีผลจับคู่อยู่แล้ว");
         }
-
-        CompanyPosition position =
-                positionRepository
-                        .findByIdForUpdate(request.positionId())
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบตำแหน่งนี้"));
-
+        CompanyPosition position = positionRepository.findByIdForUpdate(request.positionId())
+                .orElseThrow(() -> ApiException.notFound("ไม่พบตำแหน่งนี้"));
         if (!canTake(position)) {
-            throw new ApiException(
-                    409,
-                    "QUOTA_FULL",
-                    "ตำแหน่งนี้เต็มหรือปิดรับแล้ว");
+            throw new ApiException(409, "QUOTA_FULL", "ตำแหน่งนี้เต็มหรือปิดรับแล้ว");
         }
-
-        Integer rank =
-                preferenceRepository
-                        .findByApplicationIdOrderByRankNoAsc(
-                                application.getId())
-                        .stream()
-                        .filter(preference ->
-                                preference.getPositionId()
-                                        .equals(position.getId()))
-                        .map(CompanyPreference::getRankNo)
-                        .findFirst()
-                        .orElse(null);
-
-        Match match = take(
-                application,
-                position,
-                round,
-                rank,
-                staff,
-                LocalDateTime.now(clock));
-
-        return views.toResponse(match, application);
+        Integer rank = preferenceRepository.findByApplicationIdOrderByRankNoAsc(app.getId()).stream()
+                .filter(p -> p.getPositionId().equals(position.getId()))
+                .map(CompanyPreference::getRankNo).findFirst().orElse(null);
+        Match match = take(app, position, round, rank, staff, LocalDateTime.now(clock));
+        return views.toResponse(match, app);
     }
 
-    /**
-     * U6-SVC-M04: ผลจับคู่ทั้งหมด
-     */
+    /** U6-SVC-M04: ผลจับคู่ทั้งหมด กรองตามสถานะ และ/หรือ รอบ */
     @Transactional(readOnly = true)
-    public List<MatchResponse> listMatches(
-            Long userId,
-            MatchStatus status,
-            Long roundId) {
-
+    public List<MatchResponse> listMatches(Long userId, MatchStatus status, Long roundId) {
         guard.require(userId, Role.STAFF);
-
         List<Match> rows;
-
         if (roundId != null) {
-            rows = matchRepository
-                    .findByRoundIdOrderByIdAsc(roundId)
-                    .stream()
-                    .filter(match ->
-                            status == null
-                                    || match.getStatus() == status)
-                    .toList();
-
+            rows = matchRepository.findByRoundIdOrderByIdAsc(roundId).stream()
+                    .filter(m -> status == null || m.getStatus() == status).toList();
         } else if (status != null) {
-            rows = matchRepository
-                    .findByStatusOrderByIdAsc(status);
-
+            rows = matchRepository.findByStatusOrderByIdAsc(status);
         } else {
             rows = matchRepository.findAllByOrderByIdAsc();
         }
-
         return rows.stream()
-                .map(match -> views.toResponse(
-                        match,
-                        applicationRepository
-                                .findById(match.getApplicationId())
-                                .orElse(null)))
+                .map(m -> views.toResponse(m, applicationRepository.findById(m.getApplicationId()).orElse(null)))
                 .toList();
     }
 
-    /**
-     * U6-SVC-M05: เจ้าหน้าที่ยกเลิกผลจับคู่
-     */
-    public MatchResponse cancel(
-            Long userId,
-            Long matchId) {
-
+    /** U6-SVC-M05: เจ้าหน้าที่ยกเลิกผลที่ยังใช้อยู่ → CANCELLED คืนโควตา (แจ้งนักศึกษาถ้าประกาศผลไปแล้ว) */
+    public MatchResponse cancel(Long userId, Long matchId) {
         guard.require(userId, Role.STAFF);
-
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() ->
-                        ApiException.notFound(
-                                "ไม่พบผลการจับคู่"));
-
+                .orElseThrow(() -> ApiException.notFound("ไม่พบผลการจับคู่"));
         if (!match.getStatus().isActive()) {
-            throw ApiException.conflict(
-                    "ยกเลิกได้เฉพาะผลที่ยังรอตอบหรือยืนยันแล้ว");
+            throw ApiException.conflict("ยกเลิกได้เฉพาะผลที่ยังรอตอบหรือยืนยันแล้ว");
         }
-
         match.cancel();
         releaseSlot(match.getPositionId());
         matchRepository.save(match);
-
-        Application application =
-                applicationRepository
-                        .findById(match.getApplicationId())
-                        .orElse(null);
-
-        boolean announced =
-                roundRepository
-                        .findById(match.getRoundId())
-                        .map(MatchingRound::isAnnounced)
-                        .orElse(false);
-
-        if (announced && application != null) {
-            notificationService.notifyMatchCancelled(
-                    application,
-                    views.placeOf(match.getPositionId()));
+        Application app = applicationRepository.findById(match.getApplicationId()).orElse(null);
+        boolean announced = roundRepository.findById(match.getRoundId()).map(MatchingRound::isAnnounced).orElse(false);
+        if (announced && app != null) {
+            notificationService.notifyMatchCancelled(app, views.placeOf(match.getPositionId()));
         }
-
-        return views.toResponse(match, application);
+        return views.toResponse(match, app);
     }
 
     /* ===================== รอบการจับคู่ ===================== */
 
-    /**
-     * U6-SVC-R01: รอบล่าสุด
-     */
+    /** U6-SVC-R01: รอบล่าสุด (ทุกบทบาท) */
     @Transactional(readOnly = true)
     public MatchingRoundResponse currentRound(Long userId) {
         guard.require(userId);
-
-        MatchingRound round =
-                roundRepository
-                        .findFirstByOrderByRoundNoDesc()
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ยังไม่มีรอบการจับคู่"));
-
+        MatchingRound round = roundRepository.findFirstByOrderByRoundNoDesc()
+                .orElseThrow(() -> ApiException.notFound("ยังไม่มีรอบการจับคู่"));
         return toRoundResponse(round);
     }
 
     /**
-     * U6-SVC-R02: เปิดรอบใหม่
+     * U6-SVC-R02: เปิดรอบใหม่ (ทีละรอบ)
+     * รอบก่อนต้องประกาศผลและเลย confirmDeadline แล้ว → ปิดรอบเก่า ผลที่ยังไม่ตอบเป็น DECLINED และคืนโควตา
      */
-    public MatchingRoundResponse openRound(
-            Long userId,
-            MatchingRoundRequest request) {
-
+    public MatchingRoundResponse openRound(Long userId, MatchingRoundRequest request) {
         User staff = guard.require(userId, Role.STAFF);
         LocalDateTime now = LocalDateTime.now(clock);
-
-        if (request == null
-                || request.confirmDeadline() == null) {
-            throw ApiException.badRequest(
-                    "กรุณากำหนดวันหมดเขตยืนยันสิทธิ์");
+        if (request == null || request.confirmDeadline() == null) {
+            throw ApiException.badRequest("กรุณากำหนดวันหมดเขตยืนยันสิทธิ์");
         }
-
         if (!request.confirmDeadline().isAfter(now)) {
-            throw ApiException.badRequest(
-                    "วันหมดเขตยืนยันสิทธิ์ต้องเป็นเวลาในอนาคต");
+            throw ApiException.badRequest("วันหมดเขตยืนยันสิทธิ์ต้องเป็นเวลาในอนาคต");
         }
-
-        Optional<MatchingRound> latest =
-                roundRepository
-                        .findFirstByOrderByRoundNoDesc();
-
+        Optional<MatchingRound> latest = roundRepository.findFirstByOrderByRoundNoDesc();
         if (latest.isPresent()) {
-            MatchingRound previous = latest.get();
-
-            if (previous.getStatus() == RoundStatus.OPEN
-                    || (previous.getStatus()
-                            == RoundStatus.ANNOUNCED
-                            && !previous.isDeadlinePassed(now))) {
-
-                throw new ApiException(
-                        409,
-                        "ROUND_NOT_CLOSED",
-                        "รอบที่ "
-                                + previous.getRoundNo()
-                                + " ยังไม่จบ "
-                                + "(ต้องประกาศผลและเลยวันหมดเขต"
-                                + "ยืนยันสิทธิ์ก่อน)");
+            MatchingRound prev = latest.get();
+            if (prev.getStatus() == RoundStatus.OPEN
+                    || (prev.getStatus() == RoundStatus.ANNOUNCED && !prev.isDeadlinePassed(now))) {
+                throw new ApiException(409, "ROUND_NOT_CLOSED",
+                        "รอบที่ " + prev.getRoundNo() + " ยังไม่จบ (ต้องประกาศผลและเลยวันหมดเขตยืนยันสิทธิ์ก่อน)");
             }
-
-            if (previous.getStatus()
-                    == RoundStatus.ANNOUNCED) {
-                closeExpiredRound(previous, now);
+            if (prev.getStatus() == RoundStatus.ANNOUNCED) {
+                closeExpiredRound(prev, now);
             }
         }
-
-        int nextNumber = latest
-                .map(round -> round.getRoundNo() + 1)
-                .orElse(1);
-
-        MatchingRound round =
-                roundRepository.save(new MatchingRound(
-                        nextNumber,
-                        staff.getId(),
-                        now,
-                        request.confirmDeadline()));
-
+        int nextNo = latest.map(r -> r.getRoundNo() + 1).orElse(1);
+        MatchingRound round = roundRepository.save(new MatchingRound(nextNo, staff.getId(), now, request.confirmDeadline()));
         return toRoundResponse(round);
     }
 
-    /**
-     * U6-SVC-R03: ประกาศผลการจับคู่
-     */
-    public MatchingRoundResponse announce(
-            Long userId,
-            Long roundId) {
-
+    /** U6-SVC-R03: ประกาศผลรอบ OPEN → ANNOUNCED แล้วแจ้งเตือนนักศึกษาทุกคนในรอบ */
+    public MatchingRoundResponse announce(Long userId, Long roundId) {
         guard.require(userId, Role.STAFF);
-
-        MatchingRound round =
-                roundRepository.findById(roundId)
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบรอบการจับคู่"));
-
+        MatchingRound round = roundRepository.findById(roundId)
+                .orElseThrow(() -> ApiException.notFound("ไม่พบรอบการจับคู่"));
         if (round.getStatus() != RoundStatus.OPEN) {
-            throw ApiException.conflict(
-                    "รอบนี้ประกาศผลไปแล้ว");
+            throw ApiException.conflict("รอบนี้ประกาศผลไปแล้ว");
         }
-
         round.announce(LocalDateTime.now(clock));
         roundRepository.save(round);
 
-        Map<Application, String> matched =
-                new LinkedHashMap<>();
-
-        for (Match match :
-                matchRepository
-                        .findByRoundIdOrderByIdAsc(round.getId())) {
-
-            if (match.getStatus().isActive()) {
-                applicationRepository
-                        .findById(match.getApplicationId())
-                        .ifPresent(application ->
-                                matched.put(
-                                        application,
-                                        views.placeOf(
-                                                match.getPositionId())));
+        Map<Application, String> matched = new LinkedHashMap<>();
+        for (Match m : matchRepository.findByRoundIdOrderByIdAsc(round.getId())) {
+            if (m.getStatus().isActive()) {
+                applicationRepository.findById(m.getApplicationId())
+                        .ifPresent(app -> matched.put(app, views.placeOf(m.getPositionId())));
             }
         }
-
-        List<Application> notMatched =
-                applicationRepository
-                        .findApprovedWithoutActiveMatch()
-                        .stream()
-                        .filter(application ->
-                                !preferenceRepository
-                                        .findByApplicationIdOrderByRankNoAsc(
-                                                application.getId())
-                                        .isEmpty())
-                        .toList();
-
-        notificationService.notifyMatchAnnounced(
-                round,
-                matched,
-                notMatched);
-
+        // ใบสมัครที่เลือกอันดับไว้แต่ยังไม่ได้รับการจับคู่ในรอบนี้
+        List<Application> notMatched = applicationRepository.findApprovedWithoutActiveMatch().stream()
+                .filter(app -> !preferenceRepository.findByApplicationIdOrderByRankNoAsc(app.getId()).isEmpty())
+                .toList();
+        notificationService.notifyMatchAnnounced(round, matched, notMatched);
         return toRoundResponse(round);
     }
 
     /* ===================== นักศึกษา ===================== */
 
-    /**
-     * U6-SVC-S01: ผลจับคู่ล่าสุดของนักศึกษา
-     */
+    /** U6-SVC-S01: ผลจับคู่ล่าสุดของตนเอง (404 ถ้ายังไม่มี หรือรอบยังไม่ประกาศผล) */
     @Transactional(readOnly = true)
     public MatchResponse myMatch(Long userId) {
         User user = guard.require(userId, Role.STUDENT);
-
-        Application application =
-                requireApprovedApplication(user);
-
-        Match match = announcedMatch(application)
-                .orElseThrow(() ->
-                        ApiException.notFound(
-                                "ยังไม่มีผลการจับคู่ที่ประกาศแล้ว"));
-
-        return views.toResponse(match, application);
+        Application app = requireApprovedApplication(user);
+        Match match = announcedMatch(app).orElseThrow(() -> ApiException.notFound("ยังไม่มีผลการจับคู่ที่ประกาศแล้ว"));
+        return views.toResponse(match, app);
     }
 
-    /**
-     * U6-SVC-S02: ข้อมูลหน้าผลการจับคู่
-     */
+    /** U6-SVC-S02: ข้อมูลหน้าผลการจับคู่ทั้งหน้า (404 ถ้ายังไม่ประกาศผล) */
     @Transactional(readOnly = true)
     public MatchSummaryResponse mySummary(Long userId) {
         User user = guard.require(userId, Role.STUDENT);
-
-        Application application =
-                requireApprovedApplication(user);
-
-        Optional<Match> match =
-                announcedMatch(application);
-
-        MatchingRound round = match
-                .flatMap(value ->
-                        roundRepository.findById(
-                                value.getRoundId()))
-                .or(() ->
-                        roundRepository
-                                .findFirstByStatusInOrderByRoundNoDesc(
-                                        List.of(
-                                                RoundStatus.ANNOUNCED,
-                                                RoundStatus.CLOSED)))
-                .orElseThrow(() ->
-                        ApiException.notFound(
-                                "ยังไม่ประกาศผลการจับคู่"));
-
-        MatchResponse matchResponse = match
-                .map(value ->
-                        views.toResponse(value, application))
-                .orElse(null);
-
-        Optional<CompanyPosition> position = match
-                .flatMap(value ->
-                        positionRepository.findById(
-                                value.getPositionId()));
-
-        return new MatchSummaryResponse(
-                toRoundResponse(round),
-                preferenceService.preferencesOf(application),
-                matchResponse,
-                position.map(CompanyPosition::getQuota)
-                        .orElse(null),
-                position.map(
-                                CompanyPosition::getAvailableSlots)
-                        .orElse(null),
-                summaryText(matchResponse, round));
+        Application app = requireApprovedApplication(user);
+        Optional<Match> match = announcedMatch(app);
+        MatchingRound round = match.flatMap(m -> roundRepository.findById(m.getRoundId()))
+                .or(() -> roundRepository.findFirstByStatusInOrderByRoundNoDesc(
+                        List.of(RoundStatus.ANNOUNCED, RoundStatus.CLOSED)))
+                .orElseThrow(() -> ApiException.notFound("ยังไม่ประกาศผลการจับคู่"));
+        MatchResponse view = match.map(m -> views.toResponse(m, app)).orElse(null);
+        Optional<CompanyPosition> position = match.flatMap(m -> positionRepository.findById(m.getPositionId()));
+        return new MatchSummaryResponse(toRoundResponse(round), preferenceService.preferencesOf(app), view,
+                position.map(CompanyPosition::getQuota).orElse(null),
+                position.map(CompanyPosition::getAvailableSlots).orElse(null),
+                summaryText(view, round));
     }
 
-    /**
-     * U6-SVC-S03: ยืนยันหรือสละสิทธิ์
-     * U7: สร้างข้อมูลการฝึกงานหลังยืนยันสิทธิ์
-     */
-    public MatchResponse respond(
-            Long userId,
-            Long matchId,
-            MatchDecisionRequest request) {
-
+    /** U6-SVC-S03: ยืนยัน / สละสิทธิ์ (สละสิทธิ์ต้องมีเหตุผล คืนโควตา) ก่อน confirmDeadline */
+    public MatchResponse respond(Long userId, Long matchId, MatchDecisionRequest request) {
         User user = guard.require(userId, Role.STUDENT);
-
         Match match = matchRepository.findById(matchId)
-                .orElseThrow(() ->
-                        ApiException.notFound(
-                                "ไม่พบผลการจับคู่"));
-
-        Application application =
-                applicationRepository
-                        .findById(match.getApplicationId())
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบใบสมัคร"));
-
-        Student student =
-                studentRepository
-                        .findByUserId(user.getId())
-                        .orElseThrow(ApiException::forbidden);
-
-        if (!student.getId()
-                .equals(application.getStudentId())) {
+                .orElseThrow(() -> ApiException.notFound("ไม่พบผลการจับคู่"));
+        Application app = applicationRepository.findById(match.getApplicationId())
+                .orElseThrow(() -> ApiException.notFound("ไม่พบใบสมัคร"));
+        Student student = studentRepository.findByUserId(user.getId()).orElseThrow(ApiException::forbidden);
+        if (!student.getId().equals(app.getStudentId())) {
             throw ApiException.forbidden();
         }
-
         if (request == null || request.accept() == null) {
-            throw ApiException.badRequest(
-                    "กรุณาเลือกยืนยันสิทธิ์หรือสละสิทธิ์");
+            throw ApiException.badRequest("กรุณาเลือกยืนยันสิทธิ์หรือสละสิทธิ์");
         }
-
-        MatchingRound round =
-                roundRepository
-                        .findById(match.getRoundId())
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบรอบการจับคู่"));
-
+        MatchingRound round = roundRepository.findById(match.getRoundId())
+                .orElseThrow(() -> ApiException.notFound("ไม่พบรอบการจับคู่"));
         LocalDateTime now = LocalDateTime.now(clock);
-
-        if (round.getStatus() != RoundStatus.ANNOUNCED
-                || match.getStatus()
-                        != MatchStatus.PROPOSED) {
-
-            throw ApiException.conflict(
-                    "ผลการจับคู่นี้ตอบไม่ได้แล้ว");
+        if (round.getStatus() != RoundStatus.ANNOUNCED || match.getStatus() != MatchStatus.PROPOSED) {
+            throw ApiException.conflict("ผลการจับคู่นี้ตอบไม่ได้แล้ว");
         }
-
         if (round.isDeadlinePassed(now)) {
-            throw new ApiException(
-                    409,
-                    "DEADLINE_PASSED",
-                    "เลยกำหนดยืนยันสิทธิ์แล้ว");
+            throw new ApiException(409, "DEADLINE_PASSED", "เลยกำหนดยืนยันสิทธิ์แล้ว");
         }
-
         if (Boolean.TRUE.equals(request.accept())) {
             match.confirm(now);
-
         } else {
-            String reason = request.reason() == null
-                    ? ""
-                    : request.reason().trim();
-
+            String reason = request.reason() == null ? "" : request.reason().trim();
             if (reason.isEmpty()) {
-                throw new ApiException(
-                        400,
-                        "REASON_REQUIRED",
-                        "กรุณากรอกเหตุผลที่สละสิทธิ์");
+                throw new ApiException(400, "REASON_REQUIRED", "กรุณากรอกเหตุผลที่สละสิทธิ์");
             }
-
             match.decline(reason, now);
             releaseSlot(match.getPositionId());
         }
-
         matchRepository.save(match);
-
-        /*
-         * U7: สร้างข้อมูลการฝึกงานเฉพาะตอนยืนยันสิทธิ์
-         * createFromMatch() จะไม่สร้างซ้ำหาก match นี้มี
-         * Internship อยู่แล้ว
-         */
-        if (match.getStatus() == MatchStatus.CONFIRMED
-                && internshipService != null) {
-
-            internshipService.createFromMatch(
-                    match.getId(),
-                    user.getId());
-        }
-
-        notificationService.notifyMatchResponded(
-                match,
-                views.studentOf(application)[1],
-                views.placeOf(match.getPositionId()));
-
-        return views.toResponse(match, application);
+        notificationService.notifyMatchResponded(match, views.studentOf(app)[1], views.placeOf(match.getPositionId()));
+        return views.toResponse(match, app);
     }
 
     /* ===================== ตัวช่วย ===================== */
 
     private MatchingRound requireOpenRound() {
-        return roundRepository
-                .findFirstByStatus(RoundStatus.OPEN)
-                .orElseThrow(() ->
-                        new ApiException(
-                                409,
-                                "NO_OPEN_ROUND",
-                                "ยังไม่ได้เปิดรอบการจับคู่"));
+        return roundRepository.findFirstByStatus(RoundStatus.OPEN)
+                .orElseThrow(() -> new ApiException(409, "NO_OPEN_ROUND", "ยังไม่ได้เปิดรอบการจับคู่"));
     }
 
-    /**
-     * ตำแหน่งต้องเปิดรับ มีที่ว่าง และบริษัทเปิดรับ
-     */
-    private boolean canTake(CompanyPosition position) {
-        boolean companyOpen =
-                companyRepository
-                        .findById(position.getCompanyId())
-                        .map(company ->
-                                company.getStatus()
-                                        == CompanyStatus.OPEN)
-                        .orElse(false);
-
-        return position.isOpen()
-                && position.hasAvailableSlot()
-                && companyOpen;
+    /** ตำแหน่งเปิดรับ มีที่ว่าง และบริษัทเปิดรับ */
+    private boolean canTake(CompanyPosition p) {
+        boolean companyOpen = companyRepository.findById(p.getCompanyId())
+                .map(c -> c.getStatus() == CompanyStatus.OPEN).orElse(false);
+        return p.isOpen() && p.hasAvailableSlot() && companyOpen;
     }
 
-    private Match take(
-            Application application,
-            CompanyPosition position,
-            MatchingRound round,
-            Integer rank,
-            User staff,
+    private Match take(Application app, CompanyPosition position, MatchingRound round, Integer rank, User staff,
             LocalDateTime now) {
-
         position.takeSlot();
         positionRepository.save(position);
-
-        return matchRepository.save(new Match(
-                application.getId(),
-                position.getId(),
-                round.getId(),
-                rank,
-                staff.getId(),
-                now));
+        return matchRepository.save(new Match(app.getId(), position.getId(), round.getId(), rank, staff.getId(), now));
     }
 
     private void releaseSlot(Long positionId) {
-        positionRepository
-                .findByIdForUpdate(positionId)
-                .ifPresent(position -> {
-                    position.releaseSlot();
-                    positionRepository.save(position);
-                });
+        positionRepository.findByIdForUpdate(positionId).ifPresent(p -> {
+            p.releaseSlot();
+            positionRepository.save(p);
+        });
     }
 
-    /**
-     * ปิดรอบที่เลยกำหนดยืนยันสิทธิ์
-     */
-    private void closeExpiredRound(
-            MatchingRound round,
-            LocalDateTime now) {
-
-        List<Match> expiredMatches =
-                matchRepository
-                        .findByRoundIdAndStatus(
-                                round.getId(),
-                                MatchStatus.PROPOSED);
-
-        for (Match match : expiredMatches) {
-            match.decline(TIMEOUT_REASON, now);
-            releaseSlot(match.getPositionId());
-            matchRepository.save(match);
+    /** ปิดรอบที่เลยกำหนดยืนยันสิทธิ์: ผลที่ยังไม่ตอบถือว่าสละสิทธิ์ และคืนโควตา */
+    private void closeExpiredRound(MatchingRound round, LocalDateTime now) {
+        for (Match m : matchRepository.findByRoundIdAndStatus(round.getId(), MatchStatus.PROPOSED)) {
+            m.decline(TIMEOUT_REASON, now);
+            releaseSlot(m.getPositionId());
+            matchRepository.save(m);
         }
-
         round.close();
         roundRepository.save(round);
     }
 
-    /**
-     * ใบสมัครล่าสุดที่ได้รับการอนุมัติ
-     */
-    private Application requireApprovedApplication(
-            User user) {
-
-        Student student =
-                studentRepository
-                        .findByUserId(user.getId())
-                        .orElseThrow(() ->
-                                ApiException.notFound(
-                                        "ไม่พบข้อมูลนักศึกษา"));
-
-        return applicationRepository
-                .findByStudentIdOrderByIdDesc(student.getId())
-                .stream()
-                .filter(application ->
-                        application.getStatus()
-                                == ApplicationStatus.APPROVED)
+    /** ใบสมัครล่าสุดของนักศึกษาที่ได้รับการอนุมัติแล้ว */
+    private Application requireApprovedApplication(User user) {
+        Student student = studentRepository.findByUserId(user.getId())
+                .orElseThrow(() -> ApiException.notFound("ไม่พบข้อมูลนักศึกษา"));
+        return applicationRepository.findByStudentIdOrderByIdDesc(student.getId()).stream()
+                .filter(a -> a.getStatus() == ApplicationStatus.APPROVED)
                 .findFirst()
-                .orElseThrow(() ->
-                        ApiException.notFound(
-                                "ยังไม่มีใบสมัครที่ได้รับการอนุมัติ"));
+                .orElseThrow(() -> ApiException.notFound("ยังไม่มีใบสมัครที่ได้รับการอนุมัติ"));
     }
 
-    /**
-     * ผลล่าสุดที่ประกาศแล้วและไม่ถูกยกเลิก
-     */
-    private Optional<Match> announcedMatch(
-            Application application) {
-
-        return matchRepository
-                .findFirstByApplicationIdOrderByIdDesc(
-                        application.getId())
-                .filter(match ->
-                        match.getStatus()
-                                != MatchStatus.CANCELLED)
-                .filter(match ->
-                        roundRepository
-                                .findById(match.getRoundId())
-                                .map(MatchingRound::isAnnounced)
-                                .orElse(false));
+    /** ผลล่าสุดของใบสมัคร ที่รอบประกาศผลแล้ว (ผลที่ถูกยกเลิกไม่นับ) */
+    private Optional<Match> announcedMatch(Application app) {
+        return matchRepository.findFirstByApplicationIdOrderByIdDesc(app.getId())
+                .filter(m -> m.getStatus() != MatchStatus.CANCELLED)
+                .filter(m -> roundRepository.findById(m.getRoundId()).map(MatchingRound::isAnnounced).orElse(false));
     }
 
-    private MatchingRoundResponse toRoundResponse(
-            MatchingRound round) {
-
-        long count = round.getId() == null
-                ? 0
-                : matchRepository
-                        .findByRoundIdOrderByIdAsc(round.getId())
-                        .stream()
-                        .filter(match ->
-                                match.getStatus().isActive())
-                        .count();
-
+    private MatchingRoundResponse toRoundResponse(MatchingRound round) {
+        long count = round.getId() == null ? 0
+                : matchRepository.findByRoundIdOrderByIdAsc(round.getId()).stream()
+                        .filter(m -> m.getStatus().isActive()).count();
         return MatchingRoundResponse.from(round, count);
     }
 
-    private static String summaryText(
-            MatchResponse match,
-            MatchingRound round) {
-
+    private static String summaryText(MatchResponse match, MatchingRound round) {
         if (match == null) {
-            return "รอบที่ "
-                    + round.getRoundNo()
-                    + " คุณยังไม่ได้รับการจับคู่ "
-                    + "สามารถแก้อันดับเพื่อรอรอบถัดไปได้";
+            return "รอบที่ " + round.getRoundNo() + " คุณยังไม่ได้รับการจับคู่ สามารถแก้อันดับเพื่อรอรอบถัดไปได้";
         }
-
-        String where =
-                "ตำแหน่ง "
-                        + match.positionName()
-                        + " บริษัท "
-                        + match.companyName()
-                        + (match.rank() == null
-                                ? ""
-                                : " (อันดับ "
-                                        + match.rank()
-                                        + ")");
-
+        String where = "ตำแหน่ง " + match.positionName() + " บริษัท " + match.companyName()
+                + (match.rank() == null ? "" : " (อันดับ " + match.rank() + ")");
         return switch (match.status()) {
-            case PROPOSED ->
-                    "คุณได้รับการจับคู่กับ "
-                            + where
-                            + " กรุณายืนยันภายใน "
-                            + round.getConfirmDeadline()
-                                    .format(TH_TIME)
-                            + " น.";
-
-            case CONFIRMED ->
-                    "คุณยืนยันสิทธิ์ "
-                            + where
-                            + " แล้ว";
-
-            case DECLINED ->
-                    "คุณสละสิทธิ์ "
-                            + where
-                            + " แล้ว ("
-                            + match.declineReason()
-                            + ")";
-
-            case CANCELLED ->
-                    "ผลการจับคู่ถูกยกเลิก";
+            case PROPOSED -> "คุณได้รับการจับคู่กับ " + where + " กรุณายืนยันภายใน "
+                    + round.getConfirmDeadline().format(TH_TIME) + " น.";
+            case CONFIRMED -> "คุณยืนยันสิทธิ์ " + where + " แล้ว";
+            case DECLINED -> "คุณสละสิทธิ์ " + where + " แล้ว (" + match.declineReason() + ")";
+            case CANCELLED -> "ผลการจับคู่ถูกยกเลิก";
         };
     }
 }
