@@ -121,6 +121,13 @@ public class EligibilityService {
             return invalidResponse(errors);
         }
 
+        // บัญชี มธ. จริงที่สร้างตอน login (U1) ยังไม่มี GPA เพราะ TU REST API ไม่ส่ง GPA มา
+        // → ใช้ GPA ที่นักศึกษากรอกครั้งแรกและบันทึกลงฐานข้อมูล ครั้งต่อไปต้องกรอกให้ตรงกับค่านี้
+        if (student.getGpa() == null) {
+            student.setGpa(Double.valueOf(request.gpax()));
+            studentRepository.save(student);
+        }
+
         String curriculum =
             curriculumFromStudent(student);
 
@@ -364,9 +371,7 @@ public class EligibilityService {
         }
 
         if (student.getGpa() == null) {
-            errors.add(
-                "ไม่พบ GPA ของนักศึกษาในฐานข้อมูล"
-            );
+            // ยังไม่มี GPA ในฐานข้อมูล (บัญชี มธ. จริง) → รับค่าที่กรอก แล้วบันทึกใน check()
             return;
         }
 
