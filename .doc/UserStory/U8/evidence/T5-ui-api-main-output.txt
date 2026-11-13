@@ -1,0 +1,37 @@
+ข้อมูล: A=15 B=16 C=17 advisor=2 · internship A id 1 เริ่ม 2026-10-12 · วันนี้ของ backend 2026-11-13 · วันนี้ของเบราว์เซอร์ 2026-11-14 · ใช้วันที่ 2026-11-12, 2026-11-11, 2026-11-10, ส่งล่าช้า 2026-11-06
+❌ IT-UA-01
+     request ไม่ครบ GET /api/students/me FAILED (net::ERR_ABORTED), GET /api/work-logs/my-internship 200, GET /api/internships/1/work-logs 200
+✅ IT-UA-02
+     ช่องชั่วโมง "3 ชั่วโมง" ก่อนกด · POST /api/internships/1/work-logs → 201 id 1 DRAFT hours 3 · "บันทึกฉบับร่างแล้วอาจารย์ยังไม่เห็นบันทึ" · ประวัติ "12 พ.ย. 2569ฉบับร่าง3 ชม." · ชั่วโมงสะสม 0 ชม.
+✅ IT-UA-03
+     เวลาสิ้นสุดก่อนเวลาเริ่ม: "เวลาสิ้นสุดต้องหลังเวลาเริ่ม" ไม่มี request ค่าที่กรอกอยู่ (2026-11-11 / 12:00 / 09:00 / งาน A) · วันที่พรุ่งนี้: "ไม่สามารถบันทึกวันที่ในอนาคตได้" ไม่มี request ค่าที่กรอกอยู่ (2026-11-15 / 09:00 / 12:00 / งาน B) · 06:00–19:00: "ชั่วโมงทำงานต้องอยู่ระหว่าง 0.5 ถึง 12 ชั่วโมง" ไม่มี request ค่าที่กรอกอยู่ (2026-11-11 / 06:00 / 19:00 / งาน C) · ไม่กรอกงานที่ทำ: "กรุณากรอกงานที่ทำ" ไม่มี request ค่าที่กรอกอยู่ (2026-11-11 / 09:00 / 12:00 / (ว่าง))
+✅ IT-UA-04
+     client อื่น (แทน Postman) สร้าง 2026-11-11 → 201 · หน้าเว็บกดส่ง: POST /api/internships/1/work-logs → 409 แสดง "มีบันทึกของวันที่นี้แล้ว" ค่าที่กรอกไม่หาย (2026-11-11 / 09:00 / 12:00 / งานจากหน้าเว็บ) · หลังโหลดประวัติ เลือกวันที่ 2026-11-11 หน้าเว็บเปิดบันทึกเดิม "บันทึกวันที่ 11 พ.ย. 2569 · ฉบับร่าง" (GET /api/work-logs/2 → 200 · GET /api/work-logs/2 → 200) ไม่มี POST
+✅ IT-UA-05
+     GET /api/work-logs/1 → 200 ฟอร์มเติม 2026-11-12 / 09:00 / 12:00 / ประชุมทีมและวางแผนงาน มีปุ่ม "ลบบันทึกร่าง" · แก้เวลาสิ้นสุด 13:00 ช่องชั่วโมง "4 ชั่วโมง" → PUT /api/work-logs/1 → 200 hours 4.00 · ประวัติ "12 พ.ย. 2569ฉบับร่าง4 ชม."
+✅ IT-UA-06
+     PUT /api/work-logs/1 → 200 · POST /api/work-logs/1/attachments → 201 contentType application/pdf · รายการไฟล์แนบ "note.pdfลบไฟล์"
+✅ IT-UA-07
+     note.txt: "แนบได้เฉพาะไฟล์รูป (JPG, PNG) หรือ PDF" ไม่มี request attachments · big.pdf: "ไฟล์ต้องมีขนาดไม่เกิน 10 MB" ไม่มี request attachments · ยิง .txt ตรง (แทน Postman) → 400 INVALID_ATTACHMENT
+✅ IT-UA-08
+     PUT /api/work-logs/1 → 200 · POST /api/work-logs/1/submit → 200 SUBMITTED lateSubmitted false · "ส่งบันทึกสำเร็จระบบบันทึกข้อมู" · ประวัติ "12 พ.ย. 2569ส่งแล้ว4 ชม." · ชั่วโมงสะสม 0 ชม. → 4 ชม. · เปิดอีกครั้ง ช่องทั้งหมด / ไฟล์ / ปุ่มส่ง / ปุ่มร่างถูกปิด ไม่มีปุ่มลบ
+✅ IT-UA-09
+     ระหว่างรอปุ่ม "กำลังบันทึก..." disabled · POST /api/internships/1/work-logs → 201 · POST /api/work-logs/3/submit → 200 (อย่างละ 1 ครั้ง) · ประวัติ "10 พ.ย. 2569ส่งแล้ว8 ชม."
+✅ IT-UA-10
+     dialog "ลบบันทึกร่างวันที่ 11 พ.ย. 2569 ?" · ยกเลิก: ไม่มี request · ยืนยัน: DELETE /api/work-logs/2 → 204 · GET /api/internships/1/work-logs → 200 · GET /api/internships/1/work-logs/summary → 200 แถว 2026-11-11 หายจากประวัติ · บันทึกที่ส่งแล้ว (2026-11-12) ไม่มีปุ่มลบ
+✅ IT-UA-11
+     2026-11-06 → POST /api/internships/1/work-logs → 201 · POST /api/work-logs/4/submit → 200 lateSubmitted true · กล่อง "ส่งล่าช้าส่งบันทึกเลยกำหนด ระบบแจ้งเตือนว่าส่งล่าช้าและแสดงส" · ประวัติ "6 พ.ย. 2569ส่งล่าช้า7 ชม."
+✅ IT-UA-12
+     GET /api/notifications → 200 · บนสุด "มีบันทึกการทำงานรอตรวจIN_PROGRESS_31 ส่งบันทึกการทำงานวันที่ 2026-11-06 รอตรวจ13 พ.ย. 2569 19:00"
+❌ IT-UA-13
+     200 row 12 พ.ย. 2569ขอให้แก้ไข4 ชม. GET /api/work-logs/1 → 200 review "อาจารย์ขอให้แก้ไขเพิ่มรายละเอียดงาน (A advisor)" editable true del false
+❌ IT-UA-14
+     Unterminated string in JSON at position 300 (line 1 column 301)
+✅ IT-UA-15
+     review-bulk (แทน Postman) → 200 approved [1,3,4] skipped 9999 "ไม่พบบันทึก" · แจ้งเตือนบนสุด "บันทึกการทำงานได้รับการอนุมัติบันทึกวันที่ 2026-11-06 ได้รับการอนุมัติ" · ประวัติ 12 พ.ย. 2569อนุมัติแล้ว4 ชม. / 10 พ.ย. 2569อนุมัติแล้ว8 ชม. / 6 พ.ย. 2569อนุมัติแล้ว7 ชม. · เปิดแล้วแก้ไม่ได้ · countByStatus.APPROVED 3
+❌ IT-UA-16
+     GET /api/students/me → 200,GET /api/work-logs/my-internship → 404 err "" true true
+
+work_log หลังจบ: [{"id":1,"log_date":"2026-11-12","hours":"4.00","status":"APPROVED","submitted_at":"2026-11-13 19:00:35.774680","reviewed_by":2},{"id":3,"log_date":"2026-11-10","hours":"8.00","status":"APPROVED","submitted_at":"2026-11-13 18:59:56.672493","reviewed_by":2},{"id":4,"log_date":"2026-11-06","hours":"7.00","status":"APPROVED","submitted_at":"2026-11-13 19:00:31.863110","reviewed_by":2}]
+
+สรุป: ผ่าน 12 / 16

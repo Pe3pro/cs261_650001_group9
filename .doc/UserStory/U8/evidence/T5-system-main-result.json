@@ -1,0 +1,91 @@
+{
+ "ranAt": "2026-11-13T19:04:14.975Z",
+ "results": [
+  {
+   "id": "ST-U8-01",
+   "ok": false,
+   "actual": "Cannot access 'count' before initialization"
+  },
+  {
+   "id": "ST-U8-02",
+   "ok": false,
+   "actual": "Cannot access 'count' before initialization"
+  },
+  {
+   "id": "ST-U8-03",
+   "ok": false,
+   "actual": "Cannot access 'count' before initialization"
+  },
+  {
+   "id": "ST-U8-04",
+   "ok": false,
+   "actual": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('#wHist button').filter({ hasText: /^\\s*12 พ\\.ย\\. 2569(?!\\d)/ }).first()\n"
+  },
+  {
+   "id": "ST-U8-05",
+   "ok": false,
+   "actual": " กรุณากรอกเวลาเริ่มและเวลาสิ้นสุด 400"
+  },
+  {
+   "id": "ST-U8-06",
+   "ok": false,
+   "actual": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('#wHist button').filter({ hasText: /^\\s*12 พ\\.ย\\. 2569(?!\\d)/ }).first()\n"
+  },
+  {
+   "id": "ST-U8-07",
+   "ok": false,
+   "actual": "Cannot access 'row' before initialization"
+  },
+  {
+   "id": "ST-U8-08",
+   "ok": true,
+   "actual": "2026-11-06 → POST /api/internships/1/work-logs → 201 · POST /api/work-logs/1/submit → 200 lateSubmitted true · กล่อง \"ส่งล่าช้าส่งบันทึกเลยกำหนด ระบบแจ้งเตือนว่าส่งล่าช\" · ประวัติ \"6 พ.ย. 2569ส่งล่าช้า6 ชม.\""
+  },
+  {
+   "id": "ST-U8-09",
+   "ok": false,
+   "actual": "มีบันทึกการทำงานรอตรวจIN_PROGRESS_31 ส่งบันทึกการทำงานวันที่ 2026-11-06 รอตรวจ13 พ.ย. 2569 19:03 200 1 2026-11-06 ส่งล่าช้า"
+  },
+  {
+   "id": "ST-U8-10",
+   "ok": false,
+   "actual": "Cannot access 'notifCount' before initialization"
+  },
+  {
+   "id": "ST-U8-11",
+   "ok": false,
+   "actual": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('#wHist button').filter({ hasText: /^\\s*12 พ\\.ย\\. 2569(?!\\d)/ }).first()\n"
+  },
+  {
+   "id": "ST-U8-12",
+   "ok": false,
+   "actual": "Cannot access 'row' before initialization"
+  },
+  {
+   "id": "ST-U8-13",
+   "ok": false,
+   "actual": "Cannot access 'notifCount' before initialization"
+  },
+  {
+   "id": "ST-U8-14",
+   "ok": true,
+   "actual": "อาจารย์ → 200 text/csv;charset=UTF-8 ขึ้นต้น UTF-8 BOM (Excel อ่านภาษาไทยได้) · หัวตาราง \"วันที่,เวลาเริ่ม,เวลาสิ้นสุด,ชั่วโมง,งานที่ทำ,สิ่งที่ได้เรียนรู้,ปัญหา,สถานะ,ส่งล่าช้า,ความเห็นอาจารย์\" · 1 แถว = บันทึกที่ไม่ใช่ DRAFT 1 (ไฟล์ evidence/T5-ST-U8-14-export.csv) · นักศึกษา → 403 FORBIDDEN"
+  },
+  {
+   "id": "ST-U8-15",
+   "ok": true,
+   "actual": "GET /api/internships/1/work-logs/summary → 200 · หน้าเว็บ ชั่วโมงสะสม 6 ชม. = SQL SUM(hours) ที่ไม่ใช่ DRAFT 6.00 · วันที่บันทึก / วันทำงาน 2 / 25 = DB 2 วัน / วัน จ.–ศ. ตั้งแต่ 2026-10-12 25 วัน · ขาด 23 วัน = 23 · \"ยังไม่บันทึก: 5 พ.ย. 2569, 9 พ.ย. 2569, 10 พ.ย. 2569, 12 พ.ย. 2569, 13\""
+  },
+  {
+   "id": "ST-U8-16",
+   "ok": true,
+   "actual": "{C} GET summary → 403 FORBIDDEN · อาจารย์ GET work-logs → 200 สถานะ SUBMITTED (ไม่มี DRAFT แม้ DB มี DRAFT 2026-11-11)"
+  },
+  {
+   "id": "ST-U8-17",
+   "ok": false,
+   "actual": "GET /api/students/me → 200,GET /api/work-logs/my-internship → 404 "
+  }
+ ],
+ "phase": "main"
+}

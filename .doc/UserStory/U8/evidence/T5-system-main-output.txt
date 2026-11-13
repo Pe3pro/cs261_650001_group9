@@ -1,0 +1,50 @@
+ข้อมูล: A=15 B=16 C=17 advisor=2 · internship A 1 B 2 · วันนี้ของ backend 2026-11-13 · ของเบราว์เซอร์ 2026-11-14 · วันทำงานล่าสุด 2026-11-12 · ร่าง 2026-11-11 · ส่งล่าช้า 2026-11-06
+❌ ST-U8-01
+     Cannot access 'count' before initialization
+❌ ST-U8-02
+     Cannot access 'count' before initialization
+❌ ST-U8-03
+     Cannot access 'count' before initialization
+❌ ST-U8-04
+     locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('#wHist button').filter({ hasText: /^\s*12 พ\.ย\. 2569(?!\d)/ }).first()
+
+❌ ST-U8-05
+      กรุณากรอกเวลาเริ่มและเวลาสิ้นสุด 400
+❌ ST-U8-06
+     locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('#wHist button').filter({ hasText: /^\s*12 พ\.ย\. 2569(?!\d)/ }).first()
+
+❌ ST-U8-07
+     Cannot access 'row' before initialization
+✅ ST-U8-08
+     2026-11-06 → POST /api/internships/1/work-logs → 201 · POST /api/work-logs/1/submit → 200 lateSubmitted true · กล่อง "ส่งล่าช้าส่งบันทึกเลยกำหนด ระบบแจ้งเตือนว่าส่งล่าช" · ประวัติ "6 พ.ย. 2569ส่งล่าช้า6 ชม."
+❌ ST-U8-09
+     มีบันทึกการทำงานรอตรวจIN_PROGRESS_31 ส่งบันทึกการทำงานวันที่ 2026-11-06 รอตรวจ13 พ.ย. 2569 19:03 200 1 2026-11-06 ส่งล่าช้า
+❌ ST-U8-10
+     Cannot access 'notifCount' before initialization
+❌ ST-U8-11
+     locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('#wHist button').filter({ hasText: /^\s*12 พ\.ย\. 2569(?!\d)/ }).first()
+
+❌ ST-U8-12
+     Cannot access 'row' before initialization
+❌ ST-U8-13
+     Cannot access 'notifCount' before initialization
+✅ ST-U8-14
+     อาจารย์ → 200 text/csv;charset=UTF-8 ขึ้นต้น UTF-8 BOM (Excel อ่านภาษาไทยได้) · หัวตาราง "วันที่,เวลาเริ่ม,เวลาสิ้นสุด,ชั่วโมง,งานที่ทำ,สิ่งที่ได้เรียนรู้,ปัญหา,สถานะ,ส่งล่าช้า,ความเห็นอาจารย์" · 1 แถว = บันทึกที่ไม่ใช่ DRAFT 1 (ไฟล์ evidence/T5-ST-U8-14-export.csv) · นักศึกษา → 403 FORBIDDEN
+✅ ST-U8-15
+     GET /api/internships/1/work-logs/summary → 200 · หน้าเว็บ ชั่วโมงสะสม 6 ชม. = SQL SUM(hours) ที่ไม่ใช่ DRAFT 6.00 · วันที่บันทึก / วันทำงาน 2 / 25 = DB 2 วัน / วัน จ.–ศ. ตั้งแต่ 2026-10-12 25 วัน · ขาด 23 วัน = 23 · "ยังไม่บันทึก: 5 พ.ย. 2569, 9 พ.ย. 2569, 10 พ.ย. 2569, 12 พ.ย. 2569, 13"
+✅ ST-U8-16
+     {C} GET summary → 403 FORBIDDEN · อาจารย์ GET work-logs → 200 สถานะ SUBMITTED (ไม่มี DRAFT แม้ DB มี DRAFT 2026-11-11)
+❌ ST-U8-17
+     GET /api/students/me → 200,GET /api/work-logs/my-internship → 404 
+
+work_log หลังจบ: [{"id":1,"log_date":"2026-11-06","hours":"6.00","status":"SUBMITTED","submitted_at":"2026-11-13 19:03:09.247696","reviewed_by":null,"review_comment":null},{"id":2,"log_date":"2026-11-11","hours":"3.00","status":"DRAFT","submitted_at":null,"reviewed_by":null,"review_comment":null}]
+notifications (WORK_LOG_*): [{"id":1,"user_id":2,"type":"WORK_LOG_SUBMITTED","title":"มีบันทึกการทำงานรอตรวจ"}]
+work_log_attachment: []
+
+สรุป: ผ่าน 4 / 17

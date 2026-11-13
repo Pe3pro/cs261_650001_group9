@@ -1,0 +1,4 @@
+❌ ST-U8-18 (เปิด app คืน)
+     GET /api/work-logs/my-internship → 200,GET /api/internships/1/work-logs → 200,GET /api/internships/1/work-logs/summary → 200 
+
+สรุป: ผ่าน 0 / 1

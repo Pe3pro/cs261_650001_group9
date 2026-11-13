@@ -1,0 +1,11 @@
+{
+ "ranAt": "2026-11-13T19:00:51.199Z",
+ "results": [
+  {
+   "id": "IT-UA-17",
+   "ok": false,
+   "actual": "GET /api/work-logs/my-internship → FAILED (net::ERR_CONNECTION_REFUSED) err \"\""
+  }
+ ],
+ "phase": "down"
+}
