@@ -82,7 +82,7 @@ class WorkLogControllerTest {
     }
 
     private static WorkLogResponse response(Long id, String hours, WorkLogStatus status, boolean late) {
-        return new WorkLogResponse(id, 7L, "สมชาย ใจดี", LocalDate.of(2026, 11, 9), new BigDecimal(hours),
+        return new WorkLogResponse(id, 7L, "IN_PROGRESS_31", LocalDate.of(2026, 11, 9), new BigDecimal(hours),
                 "ประชุมทีม", status, 0, late, status == WorkLogStatus.DRAFT ? null : LocalDateTime.of(2026, 11, 9, 18, 0),
                 null);
     }
@@ -213,10 +213,10 @@ class WorkLogControllerTest {
     @DisplayName("UT-API-10 ดึงตาม id ที่ไม่มี ได้ 404 · มีอยู่ได้รายละเอียดพร้อมความเห็นอาจารย์")
     void detail() throws Exception {
         when(service.getDetail(3L, 9999L)).thenThrow(ApiException.notFound("ไม่พบบันทึกการทำงาน"));
-        when(service.getDetail(3L, 1L)).thenReturn(new WorkLogDetailResponse(1L, 7L, "สมชาย ใจดี",
+        when(service.getDetail(3L, 1L)).thenReturn(new WorkLogDetailResponse(1L, 7L, "IN_PROGRESS_31",
                 LocalDate.of(2026, 11, 9), new BigDecimal("3.00"), "ประชุมทีม", WorkLogStatus.NEED_REVISION, 0,
                 false, LocalDateTime.of(2026, 11, 9, 18, 0), LocalDateTime.of(2026, 11, 10, 9, 0),
-                LocalTime.of(9, 0), LocalTime.of(12, 0), "การวางแผนงาน", null, List.of(), "อ.ดร.วิชัย สอนดี",
+                LocalTime.of(9, 0), LocalTime.of(12, 0), "การวางแผนงาน", null, List.of(), "A advisor",
                 "เพิ่มรายละเอียดงาน"));
 
         mvc.perform(get("/api/work-logs/9999").header("X-User-Id", "3"))
@@ -344,7 +344,7 @@ class WorkLogControllerTest {
         mvc.perform(get("/api/work-logs/pending-review").header("X-User-Id", "2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].studentName").value("สมชาย ใจดี"));
+                .andExpect(jsonPath("$[0].studentName").value("IN_PROGRESS_31"));
     }
 
     @Test

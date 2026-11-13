@@ -99,8 +99,8 @@ async function openWorklogPage(options = {}) {
     const { window } = dom;
     openedWindows.push(window);
 
-    window.sessionStorage.setItem('coop-state', JSON.stringify({ user: '6609650001', unlocked: 3 }));
-    window.sessionStorage.setItem('u5-user', JSON.stringify({ id: 3, role: 'STUDENT', username: '6609650001' }));
+    window.sessionStorage.setItem('coop-state', JSON.stringify({ user: '6609650031', unlocked: 3 }));
+    window.sessionStorage.setItem('u5-user', JSON.stringify({ id: 3, role: 'STUDENT', username: '6609650031' }));
     const api = mockApi(options);
     window.fetch = api.fetch;
     window.confirm = () => options.confirm !== false;

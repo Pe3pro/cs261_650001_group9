@@ -56,10 +56,10 @@ class WorkLogDaoTest {
 
     @BeforeEach
     void setUp() {
-        advisorX = users.save(new User("advX", "อ.เอ็กซ์", "x@tu.ac.th", Role.ADVISOR));
-        advisorY = users.save(new User("advY", "อ.วาย", "y@tu.ac.th", Role.ADVISOR));
-        studentA = student("6609650001", advisorX);
-        User studentB = student("6609650002", advisorY);
+        advisorX = users.save(new User("advisor01", "A advisor", "advisor01@tu.ac.th", Role.ADVISOR));
+        advisorY = users.save(new User("advisor02", "B advisor", "advisor02@tu.ac.th", Role.ADVISOR));
+        studentA = student("6609650031", advisorX);
+        User studentB = student("6609650032", advisorY);
 
         submittedA = save(INTERNSHIP_A, studentA, LocalDate.of(2026, 11, 9), "09:00", "12:00", "3.00",
                 WorkLogStatus.SUBMITTED, LocalDateTime.of(2026, 11, 9, 18, 0));
@@ -72,7 +72,7 @@ class WorkLogDaoTest {
     }
 
     private User student(String username, User advisor) {
-        User s = new User(username, "นักศึกษา " + username, username + "@dome.tu.ac.th", Role.STUDENT);
+        User s = new User(username, "IN_PROGRESS_" + username.substring(8), username + "@dome.tu.ac.th", Role.STUDENT);
         s.setAdvisorId(advisor.getId());
         return users.save(s);
     }
