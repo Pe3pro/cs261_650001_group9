@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.example.demo.entity.Application;
 import com.example.demo.entity.ApplicationStatus;
 
-/** DAO ของตาราง APPLICATIONS (ใช้ร่วมกับ U3) */
+/** DAO ของตาราง APPLICATIONS ใช้ร่วมกับ U3, U5, U6 และ U7 */
 public interface ApplicationRepository
         extends JpaRepository<Application, Long> {
 

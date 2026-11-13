@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import com.example.demo.entity.MatchStatus;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
+import com.example.demo.event.MatchConfirmedEvent;
 
 @Service
 @Transactional
@@ -64,6 +66,14 @@ public class InternshipService {
      * ถ้ามีข้อมูลของ match นี้แล้วจะคืนรายการเดิม
      */
     public InternshipResponse createFromMatch(
+            Long matchId) {
+
+        return createFromMatch(
+                matchId,
+                null);
+    }
+
+    public InternshipResponse createFromMatch(
             Long matchId,
             Long changedBy) {
 
@@ -88,6 +98,11 @@ public class InternshipService {
                     "INVALID_TRANSITION",
                     "สร้างข้อมูลการฝึกงานได้เฉพาะผลจับคู่ที่ยืนยันแล้ว");
         }
+
+        Long effectiveChangedBy =
+                changedBy != null
+                        ? changedBy
+                        : match.getMatchedBy();
 
         Application application =
                 applicationRepository.findById(match.getApplicationId())
@@ -117,6 +132,16 @@ public class InternshipService {
     }
 
     /** อ่านข้อมูลการฝึกงานตามสิทธิ์ผู้ใช้งาน */
+    /**
+     * Receives MatchConfirmedEvent from U6.
+     * An exception is propagated to roll back the confirmation.
+     */
+    @EventListener
+    public void onMatchConfirmed(
+            MatchConfirmedEvent event) {
+
+        createFromMatch(event.matchId());
+    }
     @Transactional(readOnly = true)
     public InternshipResponse get(
             Long userId,

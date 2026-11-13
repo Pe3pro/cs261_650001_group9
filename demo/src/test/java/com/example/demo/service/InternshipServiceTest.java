@@ -97,7 +97,7 @@ class InternshipServiceTest {
 
         staff = new User(
                 "staff01",
-                "เจ้าหน้าที่ทดสอบ",
+                "à¹€à¸ˆà¹‰à¸²à¸«à¸™à¹‰à¸²à¸—à¸µà¹ˆà¸—à¸”à¸ªà¸­à¸š",
                 "staff@example.com",
                 Role.STAFF);
 
@@ -118,7 +118,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I01 สร้าง Internship จาก Match ที่ยืนยันแล้ว")
+            "SV-I01 à¸ªà¸£à¹‰à¸²à¸‡ Internship à¸ˆà¸²à¸ Match à¸—à¸µà¹ˆà¸¢à¸·à¸™à¸¢à¸±à¸™à¹à¸¥à¹‰à¸§")
     void createFromConfirmedMatch() {
         Match match = confirmedMatch();
         Application application = application();
@@ -163,7 +163,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I02 Match ที่มี Internship แล้วไม่สร้างซ้ำ")
+            "SV-I02 Match à¸—à¸µà¹ˆà¸¡à¸µ Internship à¹à¸¥à¹‰à¸§à¹„à¸¡à¹ˆà¸ªà¸£à¹‰à¸²à¸‡à¸‹à¹‰à¸³")
     void existingInternshipIsReturned() {
         Internship existing =
                 new Internship(
@@ -200,7 +200,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I03 เส้นทางเปลี่ยนสถานะที่ถูกต้อง")
+            "SV-I03 à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¸–à¸²à¸™à¸°à¸—à¸µà¹ˆà¸–à¸¹à¸à¸•à¹‰à¸­à¸‡")
     void validTransitions() {
         service.validateTransition(
                 InternshipStatus.NOT_STARTED,
@@ -221,7 +221,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I04 เส้นทางเปลี่ยนสถานะที่ผิดได้ INVALID_TRANSITION")
+            "SV-I04 à¹€à¸ªà¹‰à¸™à¸—à¸²à¸‡à¹€à¸›à¸¥à¸µà¹ˆà¸¢à¸™à¸ªà¸–à¸²à¸™à¸°à¸—à¸µà¹ˆà¸œà¸´à¸”à¹„à¸”à¹‰ INVALID_TRANSITION")
     void invalidTransitions() {
         assertInvalidTransition(
                 InternshipStatus.NOT_STARTED,
@@ -242,7 +242,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I05 เริ่มฝึกงาน บันทึกประวัติและแจ้งเตือน")
+            "SV-I05 à¹€à¸£à¸´à¹ˆà¸¡à¸à¸¶à¸à¸‡à¸²à¸™ à¸šà¸±à¸™à¸—à¸¶à¸à¸›à¸£à¸°à¸§à¸±à¸•à¸´à¹à¸¥à¸°à¹à¸ˆà¹‰à¸‡à¹€à¸•à¸·à¸­à¸™")
     void startInternship() {
         Internship internship =
                 completeInternshipInformation();
@@ -280,7 +280,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I06 ข้อมูลไม่ครบ เริ่มฝึกงานไม่ได้")
+            "SV-I06 à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¹„à¸¡à¹ˆà¸„à¸£à¸š à¹€à¸£à¸´à¹ˆà¸¡à¸à¸¶à¸à¸‡à¸²à¸™à¹„à¸¡à¹ˆà¹„à¸”à¹‰")
     void missingInformationCannotStart() {
         Internship internship =
                 new Internship(
@@ -315,7 +315,7 @@ class InternshipServiceTest {
 
     @Test
     @DisplayName(
-            "SV-I07 แก้ไขวันที่และข้อมูลผู้ดูแลสำเร็จ")
+            "SV-I07 à¹à¸à¹‰à¹„à¸‚à¸§à¸±à¸™à¸—à¸µà¹ˆà¹à¸¥à¸°à¸‚à¹‰à¸­à¸¡à¸¹à¸¥à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥à¸ªà¸³à¹€à¸£à¹‡à¸ˆ")
     void updateInternship() {
         Internship internship =
                 new Internship(
@@ -343,7 +343,7 @@ class InternshipServiceTest {
                                 2027,
                                 3,
                                 31),
-                        "คุณผู้ดูแล",
+                        "à¸„à¸¸à¸“à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥",
                         "supervisor@example.com",
                         "0812345678");
 
@@ -368,7 +368,7 @@ class InternshipServiceTest {
                                 31));
 
         assertThat(response.supervisorName())
-                .isEqualTo("คุณผู้ดูแล");
+                .isEqualTo("à¸„à¸¸à¸“à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥");
 
         assertThat(response.status())
                 .isEqualTo(
@@ -456,12 +456,73 @@ class InternshipServiceTest {
                         2027,
                         3,
                         31),
-                "คุณผู้ดูแล",
+                "à¸„à¸¸à¸“à¸œà¸¹à¹‰à¸”à¸¹à¹à¸¥",
                 "supervisor@example.com",
                 "0812345678",
                 1L,
                 NOW.minusHours(1));
 
         return internship;
+    }
+
+    @Test
+    @DisplayName(
+            "SV-I08 receives MatchConfirmedEvent and creates Internship")
+    void matchConfirmedEventCreatesInternship() {
+        InternshipService spyService =
+                org.mockito.Mockito.spy(service);
+
+        com.example.demo.event.MatchConfirmedEvent event =
+                new com.example.demo.event.MatchConfirmedEvent(
+                        31L,
+                        50L,
+                        7L,
+                        1L
+                );
+
+        org.mockito.Mockito.doReturn(null)
+                .when(spyService)
+                .createFromMatch(31L);
+
+        spyService.onMatchConfirmed(
+                event
+        );
+
+        org.mockito.Mockito.verify(spyService)
+                .createFromMatch(31L);
+    }
+
+    @Test
+    @DisplayName(
+            "SV-I09 propagates exception for transaction rollback")
+    void matchConfirmedEventPropagatesException() {
+        InternshipService spyService =
+                org.mockito.Mockito.spy(service);
+
+        com.example.demo.event.MatchConfirmedEvent event =
+                new com.example.demo.event.MatchConfirmedEvent(
+                        31L,
+                        50L,
+                        7L,
+                        1L
+                );
+
+        RuntimeException failure =
+                new RuntimeException(
+                        "Cannot create internship"
+                );
+
+        org.mockito.Mockito.doThrow(failure)
+                .when(spyService)
+                .createFromMatch(31L);
+
+        assertThatThrownBy(() ->
+                spyService.onMatchConfirmed(
+                        event
+                ))
+                .isSameAs(failure);
+
+        org.mockito.Mockito.verify(spyService)
+                .createFromMatch(31L);
     }
 }

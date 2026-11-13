@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.dao.ApplicationRepository;
 import com.example.demo.dao.InternshipRepository;
 import com.example.demo.dao.MatchRepository;
+import com.example.demo.dao.MatchingRoundRepository;
 import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.StudentStatusQueryDao;
 import com.example.demo.dao.UserRepository;
@@ -53,6 +54,7 @@ public class StudentStatusService {
     private final UserRepository userRepository;
     private final ApplicationRepository applicationRepository;
     private final MatchRepository matchRepository;
+    private final MatchingRoundRepository matchingRoundRepository;
     private final InternshipRepository internshipRepository;
     private final PreferenceService preferenceService;
     private final MatchViews matchViews;
@@ -67,6 +69,7 @@ public class StudentStatusService {
             UserRepository userRepository,
             ApplicationRepository applicationRepository,
             MatchRepository matchRepository,
+            MatchingRoundRepository matchingRoundRepository,
             InternshipRepository internshipRepository,
             PreferenceService preferenceService,
             MatchViews matchViews,
@@ -80,6 +83,7 @@ public class StudentStatusService {
         this.userRepository = userRepository;
         this.applicationRepository = applicationRepository;
         this.matchRepository = matchRepository;
+        this.matchingRoundRepository = matchingRoundRepository;
         this.internshipRepository = internshipRepository;
         this.preferenceService = preferenceService;
         this.matchViews = matchViews;
@@ -424,11 +428,18 @@ public class StudentStatusService {
         if (match != null
                 && match.getStatus()
                         == MatchStatus.PROPOSED
-                && match.getMatchedAt() != null
-                && match.getMatchedAt()
-                        .isBefore(now.minusDays(7))) {
+                && match.getRoundId() != null) {
 
-            return Attention.NOT_CONFIRMED;
+            boolean deadlinePassed =
+                    matchingRoundRepository
+                            .findById(match.getRoundId())
+                            .map(round ->
+                                    round.isDeadlinePassed(now))
+                            .orElse(false);
+
+            if (deadlinePassed) {
+                return Attention.NOT_CONFIRMED;
+            }
         }
 
         if (application != null
