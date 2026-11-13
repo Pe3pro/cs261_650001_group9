@@ -1,0 +1,1234 @@
+{
+  "info": {
+    "name": "U8 WorkLog — บันทึกการทำงาน",
+    "description": "ทดสอบ API ของ U8 ตาม API Spec (us8-01-api-spec.png) และ Sequence Diagram ทั้ง 3 รูป\n\nก่อนรัน: เปิดระบบด้วย `docker compose up -d --build` (การฝึกงานตัวอย่างของนักศึกษา A มาจาก WorkLogDemoSeeder)\nรันทั้งชุดตามลำดับด้วย Run collection · ไฟล์แนบใช้ไฟล์ใน .doc/postman/u3-files (ตั้ง Working directory ของ Postman เป็นโฟลเดอร์ .doc/postman)\nรันซ้ำได้: 01-2 เลือกวันทำงานที่ยังไม่มีบันทึกให้อัตโนมัติ",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 เตรียมข้อมูล: หา userId จาก username",
+      "item": [
+        {
+          "name": "00 นักศึกษา A ฝึกงานอยู่ (GET /api/users/6609650031)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/6609650031",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6609650031"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('studentA', pm.response.json().id);",
+                  "console.log('studentA = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00 นักศึกษา C (ไม่ใช่เจ้าของการฝึกงาน) (GET /api/users/6609650033)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/6609650033",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6609650033"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('studentC', pm.response.json().id);",
+                  "console.log('studentC = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00 อาจารย์ที่ปรึกษา (GET /api/users/advisor01)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/advisor01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "advisor01"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('advisorId', pm.response.json().id);",
+                  "console.log('advisorId = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00 เจ้าหน้าที่ (GET /api/users/staff01)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/staff01",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "staff01"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.collectionVariables.set('staffId', pm.response.json().id);",
+                  "console.log('staffId = ' + pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 นักศึกษาบันทึก แนบไฟล์ และส่งบันทึก",
+      "item": [
+        {
+          "name": "01-1 หาการฝึกงานของตนเอง (GET /api/work-logs/my-internship)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/my-internship",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "my-internship"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('IN_PROGRESS', () => pm.expect(pm.response.json().status).to.eql('IN_PROGRESS'));",
+                  "pm.collectionVariables.set('internshipId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-2 สรุปบันทึก + เลือกวันที่ยังไม่บันทึก (GET summary)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs",
+                "summary"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const s = pm.response.json();",
+                  "pm.test('มี totalHours / workingDays / missingDates', () => { pm.expect(s).to.have.property('totalHours'); pm.expect(s.missingDates).to.be.an('array'); });",
+                  "// ใช้วันทำงานที่ยังไม่มีบันทึกเป็นวันที่ทดสอบ (รันซ้ำได้)",
+                  "pm.collectionVariables.set('logDate', s.missingDates.length ? s.missingDates[s.missingDates.length - 1] : new Date().toISOString().slice(0, 10));",
+                  "const d = new Date(); d.setDate(d.getDate() + 1); pm.collectionVariables.set('tomorrow', d.toISOString().slice(0, 10));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-3 เวลาสิ้นสุดก่อนเวลาเริ่ม → 400 INVALID_WORK_LOG",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{logDate}}\",\n  \"startTime\": \"14:00\",\n  \"endTime\": \"09:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = INVALID_WORK_LOG', () => pm.expect(pm.response.json().code).to.eql('INVALID_WORK_LOG'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-4 วันที่ในอนาคต → 400 INVALID_WORK_LOG",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{tomorrow}}\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"12:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = INVALID_WORK_LOG', () => pm.expect(pm.response.json().code).to.eql('INVALID_WORK_LOG'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-5 นักศึกษาคนอื่นบันทึกในการฝึกงานนี้ → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentC}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{logDate}}\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"12:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));",
+                  "pm.test('code = FORBIDDEN', () => pm.expect(pm.response.json().code).to.eql('FORBIDDEN'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-6 สร้างบันทึกสำเร็จ → 201 DRAFT hours 3",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{logDate}}\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"12:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "const w = pm.response.json();",
+                  "pm.test('DRAFT, hours = 3', () => { pm.expect(w.status).to.eql('DRAFT'); pm.expect(Number(w.hours)).to.eql(3); });",
+                  "pm.collectionVariables.set('workLogId', w.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-7 บันทึกวันเดียวกันซ้ำ → 409 DUPLICATE_LOG_DATE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{logDate}}\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"12:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code = DUPLICATE_LOG_DATE', () => pm.expect(pm.response.json().code).to.eql('DUPLICATE_LOG_DATE'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-8 แก้ไขเวลาสิ้นสุดเป็น 13:00 → 200 hours 4",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logDate\": \"{{logDate}}\",\n  \"startTime\": \"09:00\",\n  \"endTime\": \"13:00\",\n  \"activity\": \"ประชุมทีมและวางแผนงาน\",\n  \"learning\": \"การแบ่งงานด้วย Scrum\",\n  \"problem\": null\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('hours = 4', () => pm.expect(Number(pm.response.json().hours)).to.eql(4));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-9 แนบไฟล์ PDF → 201",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "attachments"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "u3-files/transcript.pdf"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('application/pdf', () => pm.expect(pm.response.json().contentType).to.eql('application/pdf'));",
+                  "pm.collectionVariables.set('attachmentId', pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-10 แนบไฟล์ชนิดที่ไม่รองรับ → 400 INVALID_ATTACHMENT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/attachments",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "attachments"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "u8-files/note.txt"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = INVALID_ATTACHMENT', () => pm.expect(pm.response.json().code).to.eql('INVALID_ATTACHMENT'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-11 อาจารย์เปิดบันทึกที่ยังเป็นร่าง → 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-12 ส่งให้อาจารย์ตรวจ → 200 SUBMITTED",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "submit"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('SUBMITTED', () => pm.expect(pm.response.json().status).to.eql('SUBMITTED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-13 ลบบันทึกที่ส่งแล้ว → 409 INVALID_STATUS",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code = INVALID_STATUS', () => pm.expect(pm.response.json().code).to.eql('INVALID_STATUS'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01-14 รายการบันทึกกรองสถานะ SUBMITTED → 200",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs?status=SUBMITTED",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "SUBMITTED"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('มีบันทึกที่เพิ่งส่ง', () => pm.expect(pm.response.json().map(w => w.id)).to.include(Number(pm.collectionVariables.get('workLogId'))));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 อาจารย์ตรวจบันทึก",
+      "item": [
+        {
+          "name": "02-1 บันทึกรอตรวจ (GET /api/work-logs/pending-review)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/pending-review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "pending-review"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('มีบันทึกที่นักศึกษาส่ง', () => pm.expect(pm.response.json().map(w => w.id)).to.include(Number(pm.collectionVariables.get('workLogId'))));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-2 นักศึกษาเรียก pending-review → 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/pending-review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "pending-review"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-3 ส่งกลับแก้ไขไม่มีความเห็น → 400 COMMENT_REQUIRED",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "review"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"REVISE\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('code = COMMENT_REQUIRED', () => pm.expect(pm.response.json().code).to.eql('COMMENT_REQUIRED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-4 ส่งกลับแก้ไขพร้อมความเห็น → 200 NEED_REVISION",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "review"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"REVISE\",\n  \"comment\": \"เพิ่มรายละเอียดงานที่ทำ\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('NEED_REVISION', () => pm.expect(pm.response.json().status).to.eql('NEED_REVISION'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-5 ตรวจซ้ำบันทึกที่ไม่ได้รอตรวจ → 409 INVALID_STATUS",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "review"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"APPROVE\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('code = INVALID_STATUS', () => pm.expect(pm.response.json().code).to.eql('INVALID_STATUS'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-6 นักศึกษาดูความเห็นอาจารย์ (GET /api/work-logs/{id})",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('มีความเห็นอาจารย์และไฟล์แนบ', () => { const d = pm.response.json(); pm.expect(d.reviewComment).to.eql('เพิ่มรายละเอียดงานที่ทำ'); pm.expect(d.attachments.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-7 นักศึกษาแก้แล้วส่งใหม่ → 200 SUBMITTED",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/{{workLogId}}/submit",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "{{workLogId}}",
+                "submit"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('SUBMITTED', () => pm.expect(pm.response.json().status).to.eql('SUBMITTED'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02-8 อนุมัติหลายบันทึก (มี id ที่ไม่มีอยู่) → approved + skipped",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/work-logs/review-bulk",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "work-logs",
+                "review-bulk"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workLogIds\": [\n    {{workLogId}},\n    999999\n  ],\n  \"comment\": \"เรียบร้อย\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "const r = pm.response.json();",
+                  "pm.test('อนุมัติบันทึกที่ส่ง', () => pm.expect(r.approved).to.include(Number(pm.collectionVariables.get('workLogId'))));",
+                  "pm.test('id ที่ไม่มีอยู่ถูกข้าม', () => pm.expect(r.skipped.map(s => s.workLogId)).to.include(999999));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 สรุปและส่งออก",
+      "item": [
+        {
+          "name": "03-1 อาจารย์ส่งออก CSV → 200 text/csv",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{advisorId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs",
+                "export"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('text/csv', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('text/csv'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03-2 นักศึกษาส่งออก CSV → 403",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{studentA}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs/export",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs",
+                "export"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 403', () => pm.response.to.have.status(403));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03-3 เจ้าหน้าที่ดูสรุป → 200",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{staffId}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs",
+                "summary"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('มีบันทึกที่อนุมัติแล้ว', () => pm.expect(pm.response.json().countByStatus.APPROVED).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03-4 ไม่ส่ง X-User-Id → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/internships/{{internshipId}}/work-logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "internships",
+                "{{internshipId}}",
+                "work-logs"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "studentA",
+      "value": ""
+    },
+    {
+      "key": "studentC",
+      "value": ""
+    },
+    {
+      "key": "advisorId",
+      "value": ""
+    },
+    {
+      "key": "staffId",
+      "value": ""
+    },
+    {
+      "key": "internshipId",
+      "value": ""
+    },
+    {
+      "key": "logDate",
+      "value": ""
+    },
+    {
+      "key": "tomorrow",
+      "value": ""
+    },
+    {
+      "key": "workLogId",
+      "value": ""
+    },
+    {
+      "key": "attachmentId",
+      "value": ""
+    }
+  ]
+}

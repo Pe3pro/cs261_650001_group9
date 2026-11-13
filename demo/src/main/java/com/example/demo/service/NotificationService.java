@@ -28,6 +28,8 @@ import com.example.demo.entity.NotificationType;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
+import com.example.demo.entity.WorkLog;
+import com.example.demo.entity.WorkLogStatus;
 
 /** U5-U7: สร้างและอ่านการแจ้งเตือนในระบบ */
 @Service
@@ -136,6 +138,28 @@ public class NotificationService {
                     NotificationType.APPLICATION_REJECTED
             );
         }
+    }
+
+    /** U8: นักศึกษาส่งบันทึกการทำงาน → แจ้งอาจารย์ที่ปรึกษาของนักศึกษา */
+    public void notifyWorkLogSubmitted(WorkLog log) {
+        String name = userRepository.findById(log.getStudentId()).map(User::getFullName).orElse("นักศึกษา");
+        studentRepository.findByUserId(log.getStudentId())
+                .filter(student -> student.getAdvisorId() != null)
+                .ifPresent(student -> notificationRepository.save(new Notification(student.getAdvisorId(),
+                        "มีบันทึกการทำงานรอตรวจ",
+                        name + " ส่งบันทึกการทำงานวันที่ " + log.getLogDate() + " รอตรวจ",
+                        NotificationType.WORK_LOG_SUBMITTED, null)));
+    }
+
+    /** U8: อาจารย์ตรวจบันทึกแล้ว → แจ้งนักศึกษา (อนุมัติ / ส่งกลับแก้ไขพร้อมความเห็น) */
+    public void notifyWorkLogReviewed(WorkLog log) {
+        boolean approved = log.getStatus() == WorkLogStatus.APPROVED;
+        String comment = log.getReviewComment() == null ? "" : " ความเห็น: " + log.getReviewComment();
+        notificationRepository.save(new Notification(log.getStudentId(),
+                approved ? "บันทึกการทำงานได้รับการอนุมัติ" : "บันทึกการทำงานถูกส่งกลับให้แก้ไข",
+                "บันทึกวันที่ " + log.getLogDate() + (approved ? " ได้รับการอนุมัติแล้ว" : " กรุณาแก้ไขแล้วส่งใหม่")
+                        + comment,
+                NotificationType.WORK_LOG_REVIEWED, null));
     }
 
     /**

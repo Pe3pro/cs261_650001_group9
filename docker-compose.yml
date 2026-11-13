@@ -34,6 +34,8 @@ services:
       APP_SEED_U7_DATA: "false"
       SPRING_MAIL_HOST: mailpit
       SPRING_MAIL_PORT: 1025
+      # U8: ข้อมูลตัวอย่างบันทึกการทำงาน ปิดไว้ เปิดด้วย $env:APP_SEED_U8_DATA="true" ก่อน docker compose up
+      APP_SEED_U8_DATA: ${APP_SEED_U8_DATA:-false}
     volumes:
       - uploads:/app/uploads
     depends_on:

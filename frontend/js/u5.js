@@ -144,6 +144,7 @@
       if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร', 'review']];
       if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ', 'check'], ['submit.html', 'ยื่นคำร้อง', 'submit'], ['ranking.html', 'จับคู่บริษัท', 'ranking'], ['matching.html', 'เลือกตำแหน่ง / ผลจับคู่', 'matching']];
       if (user) links.push(['notifications.html', 'การแจ้งเตือน', 'notifications']);
+      if (user?.role === 'STUDENT') links.push(['worklog.html', 'บันทึกการทำงาน', 'worklog']);
       /* นักศึกษา: ขั้นที่ยังทำไม่ถึงกดไม่ได้และแสดงจางๆ (ใช้ coop-state.unlocked เดียวกับหน้าตรวจสอบคุณสมบัติ) */
       const STEP = { check: 1, submit: 2, ranking: 3 };
       const renderNav = () => {

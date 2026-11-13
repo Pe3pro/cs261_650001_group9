@@ -1,0 +1,291 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< com.example:demo >--------------------------
+[INFO] Building demo 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ war ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ demo ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 0 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.15.0:compile (default-compile) @ demo ---
+[INFO] Recompiling the module because of added or removed source files.
+[INFO] Compiling 126 source files with javac [debug parameters release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ demo ---
+[INFO] skip non existing resourceDirectory /app/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ demo ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 37 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.5.6:test (default-test) @ demo ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.example.demo.controller.WorkLogControllerTest
+15:39:10.436 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.demo.controller.WorkLogControllerTest]: WorkLogControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:39:11.234 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.controller.WorkLogControllerTest
+15:39:11.249 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.example.demo.controller.WorkLogControllerTest]: WorkLogControllerTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:39:11.303 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.controller.WorkLogControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T15:39:12.938Z  INFO 84 --- [demo] [           main] c.e.d.controller.WorkLogControllerTest   : Starting WorkLogControllerTest using Java 21.0.12.1 with PID 84 (started by root in /app)
+2026-11-12T15:39:12.941Z  INFO 84 --- [demo] [           main] c.e.d.controller.WorkLogControllerTest   : No active profile set, falling back to 1 default profile: "default"
+docker : Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future 
+releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: 
+https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
+At line:1 char:1
++ docker run --rm -v "${PWD}\demo:/app" -v cs261-m2:/root/.m2 -w /app m ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Mockito is curr...ockito.html#0.3:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: A Java agent has been loaded dynamically 
+(/root/.m2/repository/net/bytebuddy/byte-buddy-agent/1.18.11/byte-buddy-agent-1.18.11.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has 
+been appended
+2026-11-12T15:39:19.796Z  INFO 84 --- [demo] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-11-12T15:39:19.796Z  INFO 84 --- [demo] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-11-12T15:39:19.803Z  INFO 84 --- [demo] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 6 ms
+2026-11-12T15:39:19.867Z  INFO 84 --- [demo] [           main] c.e.d.controller.WorkLogControllerTest   : Started WorkLogControllerTest in 8.213 seconds (process running for 12.223)
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.88 s -- in com.example.demo.controller.WorkLogControllerTest
+[INFO] Running com.example.demo.dao.WorkLogDaoTest
+2026-11-12T15:39:22.638Z  INFO 84 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.WorkLogDaoTest]: WorkLogDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T15:39:23.049Z  INFO 84 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.WorkLogDaoTest
+2026-11-12T15:39:23.059Z  INFO 84 --- [demo] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.example.demo.dao.WorkLogDaoTest]: WorkLogDaoTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-11-12T15:39:23.139Z  INFO 84 --- [demo] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.example.demo.DemoApplication for test class com.example.demo.dao.WorkLogDaoTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.1)
+
+2026-11-12T15:39:23.250Z  INFO 84 --- [demo] [           main] com.example.demo.dao.WorkLogDaoTest      : Starting WorkLogDaoTest using Java 21.0.12.1 with PID 84 (started by root in /app)
+2026-11-12T15:39:23.250Z  INFO 84 --- [demo] [           main] com.example.demo.dao.WorkLogDaoTest      : No active profile set, falling back to 1 default profile: "default"
+2026-11-12T15:39:24.682Z  INFO 84 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-11-12T15:39:25.476Z  INFO 84 --- [demo] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 769 ms. Found 16 JPA repository interfaces.
+2026-11-12T15:39:25.646Z  INFO 84 --- [demo] [           main] beddedDataSourceBeanFactoryPostProcessor : Replacing 'dataSource' DataSource bean with embedded version
+2026-11-12T15:39:25.944Z  INFO 84 --- [demo] [           main] o.s.j.d.e.EmbeddedDatabaseFactory        : Starting embedded database: url='jdbc:h2:mem:99aea907-33fd-4f22-8090-50816dfce3a8;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=false', username='sa'
+2026-11-12T15:39:27.388Z  INFO 84 --- [demo] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-11-12T15:39:27.744Z  INFO 84 --- [demo] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-11-12T15:39:29.515Z  INFO 84 --- [demo] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-11-12T15:39:29.942Z  INFO 84 --- [demo] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:99aea907-33fd-4f22-8090-50816dfce3a8]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: 99AEA907-33FD-4F22-8090-50816DFCE3A8/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-11-12T15:39:35.065Z  INFO 84 --- [demo] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: create table applications (id bigint generated by default as identity, created_at timestamp(6), form_template_id bigint not null, status enum ('APPROVED','DRAFT','NEED_CORRECTION','REJECTED','SUBMITTED','UNDER_REVIEW') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), version bigint not null, primary key (id))
+Hibernate: create table approvals (id bigint generated by default as identity, application_id bigint not null, approval_level enum ('ADVISOR','STAFF') not null, approver_id bigint not null, comment varchar(1000), created_at timestamp(6), decided_at timestamp(6), decision enum ('APPROVE','REJECT','RETURN') not null, primary key (id))
+Hibernate: create table companies (id bigint generated by default as identity, address varchar(255), company_name varchar(255) not null, contact_person varchar(255), email varchar(255), phone varchar(255), status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_positions (id bigint generated by default as identity, available_slots integer not null, company_id bigint not null, description varchar(255), position_name varchar(255) not null, quota integer not null, status enum ('CLOSED','OPEN') not null, primary key (id))
+Hibernate: create table company_rankings (id bigint generated by default as identity, company_id bigint not null, created_at timestamp(6) not null, rank_no integer not null, student_id bigint not null, primary key (id))
+Hibernate: create table documents (id bigint generated by default as identity, application_id bigint not null, content_type varchar(255), file_name varchar(255) not null, file_size bigint, status enum ('REJECTED','UPLOADED','VERIFIED') not null, storage_key varchar(255), uploaded_at timestamp(6), primary key (id))
+Hibernate: create table eligibility_records (id bigint generated by default as identity, checked_at timestamp(6) not null, eligible boolean not null, message varchar(255) not null, student_id varchar(10) not null, primary key (id))
+Hibernate: create table form_fields (id bigint generated by default as identity, display_order integer not null, field_name varchar(255) not null, field_type enum ('DATE','EMAIL','FILE','NUMBER','PHONE','SELECT','TEXT','TEXTAREA') not null, form_template_id bigint not null, label varchar(255) not null, options varchar(2000), required boolean not null, primary key (id))
+Hibernate: create table form_responses (id bigint generated by default as identity, application_id bigint not null, form_field_id bigint not null, updated_at timestamp(6), field_value varchar(2000), primary key (id))
+Hibernate: create table form_templates (id bigint generated by default as identity, created_at timestamp(6), created_by bigint not null, deadline timestamp(6), description varchar(1000), name varchar(255) not null, published_at timestamp(6), status enum ('ARCHIVED','DRAFT','PUBLISHED') not null, version integer not null, primary key (id))
+Hibernate: create table internship (id bigint generated by default as identity, end_date date, start_date date not null, status enum ('CANCELLED','COMPLETED','IN_PROGRESS','NOT_STARTED') not null, student_id bigint not null, primary key (id))
+Hibernate: create table notifications (id bigint generated by default as identity, application_id bigint, created_at timestamp(6), is_read boolean not null, message varchar(1000), title varchar(255) not null, type varchar(50) check ((type in ('APPLICATION_FORWARDED','APPLICATION_APPROVED','APPLICATION_RETURNED','APPLICATION_REJECTED','WORK_LOG_SUBMITTED','WORK_LOG_REVIEWED'))), user_id bigint not null, primary key (id))
+Hibernate: create table students (id bigint generated by default as identity, faculty varchar(255), gpa float(53), major varchar(255), student_id varchar(255) not null, total_credits integer, user_id bigint not null, primary key (id))
+Hibernate: create table users (id bigint generated by default as identity, active boolean not null, advisor_id bigint, created_at timestamp(6), email varchar(255), full_name varchar(255) not null, password_hash varchar(255), role enum ('ADMIN','ADVISOR','STAFF','STUDENT') not null, username varchar(255) not null, primary key (id))
+Hibernate: create table work_log (id bigint generated by default as identity, activity varchar(2000) not null, created_at timestamp(6), end_time time(0) not null, hours numeric(4,2) not null, internship_id bigint not null, learning varchar(2000), log_date date not null, problem varchar(2000), review_comment varchar(1000), reviewed_at timestamp(6), reviewed_by bigint, start_time time(0) not null, status enum ('APPROVED','DRAFT','NEED_REVISION','SUBMITTED') not null, student_id bigint not null, submitted_at timestamp(6), updated_at timestamp(6), primary key (id))
+Hibernate: create table work_log_attachment (id bigint generated by default as identity, content_type varchar(100) not null, file_name varchar(255) not null, file_path varchar(255) not null, size bigint not null, uploaded_at timestamp(6), work_log_id bigint not null, primary key (id))
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_rank
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_rank unique (student_id, rank_no)
+Hibernate: alter table if exists company_rankings drop constraint if exists uk_ranking_student_company
+Hibernate: alter table if exists company_rankings add constraint uk_ranking_student_company unique (student_id, company_id)
+Hibernate: alter table if exists students drop constraint if exists UK5mbus2m1tm2acucrp6t627jmx
+Hibernate: alter table if exists students add constraint UK5mbus2m1tm2acucrp6t627jmx unique (student_id)
+Hibernate: alter table if exists students drop constraint if exists UKg4fwvutq09fjdlb4bb0byp7t
+Hibernate: alter table if exists students add constraint UKg4fwvutq09fjdlb4bb0byp7t unique (user_id)
+Hibernate: alter table if exists users drop constraint if exists UKr43af9ap4edm43mmtq01oddj6
+Hibernate: alter table if exists users add constraint UKr43af9ap4edm43mmtq01oddj6 unique (username)
+Hibernate: alter table if exists work_log drop constraint if exists uk_work_log_internship_date
+Hibernate: alter table if exists work_log add constraint uk_work_log_internship_date unique (internship_id, log_date)
+Hibernate: alter table if exists applications add constraint fk_applications_student foreign key (student_id) references students
+2026-11-12T15:39:35.325Z  INFO 84 --- [demo] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-11-12T15:39:35.572Z  INFO 84 --- [demo] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-11-12T15:39:38.351Z  INFO 84 --- [demo] [           main] com.example.demo.dao.WorkLogDaoTest      : Started WorkLogDaoTest in 15.199 seconds (process running for 30.707)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select coalesce(sum(wl1_0.hours),0) from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.status<>?
+Hibernate: select coalesce(sum(wl1_0.hours),0) from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.status<>?
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.status=? and wl1_0.student_id in (select u1_0.id from users u1_0 where u1_0.advisor_id=?) order by wl1_0.submitted_at,wl1_0.id
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.status=? and wl1_0.student_id in (select u1_0.id from users u1_0 where u1_0.advisor_id=?) order by wl1_0.submitted_at,wl1_0.id
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.status=? and wl1_0.student_id in (select u1_0.id from users u1_0 where u1_0.advisor_id=?) order by wl1_0.submitted_at,wl1_0.id
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select count(*) from work_log wl1_0
+Hibernate: delete from work_log where id=?
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.id=?
+Hibernate: select count(*) from work_log wl1_0
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.internship_id=? order by wl1_0.log_date,wl1_0.id
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.internship_id=? order by wl1_0.log_date,wl1_0.id
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.internship_id=? order by wl1_0.log_date,wl1_0.id
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.internship_id=? order by wl1_0.log_date,wl1_0.id
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select count(*) from work_log wl1_0
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select count(*) from work_log wl1_0
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.id from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.status=? fetch first ? rows only
+Hibernate: update work_log set activity=?,created_at=?,end_time=?,hours=?,internship_id=?,learning=?,log_date=?,problem=?,review_comment=?,reviewed_at=?,reviewed_by=?,start_time=?,status=?,student_id=?,submitted_at=?,updated_at=? where id=?
+Hibernate: select wl1_0.id from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.status=? fetch first ? rows only
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.id in (?,?,?)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log_attachment (content_type,file_name,file_path,size,uploaded_at,work_log_id,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into work_log_attachment (content_type,file_name,file_path,size,uploaded_at,work_log_id,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into work_log_attachment (content_type,file_name,file_path,size,uploaded_at,work_log_id,id) values (?,?,?,?,?,?,default)
+Hibernate: select wla1_0.id,wla1_0.content_type,wla1_0.file_name,wla1_0.file_path,wla1_0.size,wla1_0.uploaded_at,wla1_0.work_log_id from work_log_attachment wla1_0 where wla1_0.work_log_id=? order by wla1_0.id
+Hibernate: select count(wla1_0.id) from work_log_attachment wla1_0 where wla1_0.work_log_id=?
+Hibernate: select wla1_0.id,wla1_0.content_type,wla1_0.file_name,wla1_0.file_path,wla1_0.size,wla1_0.uploaded_at,wla1_0.work_log_id from work_log_attachment wla1_0 where wla1_0.id=? and wla1_0.work_log_id=?
+Hibernate: select wla1_0.id,wla1_0.content_type,wla1_0.file_name,wla1_0.file_path,wla1_0.size,wla1_0.uploaded_at,wla1_0.work_log_id from work_log_attachment wla1_0 where wla1_0.id=? and wla1_0.work_log_id=?
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.id from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.log_date=? fetch first ? rows only
+Hibernate: select wl1_0.id from work_log wl1_0 where wl1_0.internship_id=? and wl1_0.log_date=? fetch first ? rows only
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.log_date from work_log wl1_0 where wl1_0.internship_id=? order by wl1_0.log_date
+Hibernate: select wl1_0.status,count(wl1_0.id) from work_log wl1_0 where wl1_0.internship_id=? group by wl1_0.status
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+2026-11-12T15:39:39.885Z  WARN 84 --- [demo] [           main] org.hibernate.orm.jdbc.error             : HHH000247: ErrorCode: 23505, SQLState: 23505
+2026-11-12T15:39:39.886Z  WARN 84 --- [demo] [           main] org.hibernate.orm.jdbc.error             : Unique index or primary key violation: "PUBLIC.UK_WORK_LOG_INTERNSHIP_DATE INDEX PUBLIC.UK_WORK_LOG_INTERNSHIP_DATE_INDEX_3 ON PUBLIC.WORK_LOG(INTERNSHIP_ID NULLS FIRST, LOG_DATE NULLS FIRST) VALUES ( /* key:42 */ CAST(1 AS BIGINT), DATE '2026-11-09')"; SQL statement:
+insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default) [23505-240]
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: select wl1_0.id,wl1_0.activity,wl1_0.created_at,wl1_0.end_time,wl1_0.hours,wl1_0.internship_id,wl1_0.learning,wl1_0.log_date,wl1_0.problem,wl1_0.review_comment,wl1_0.reviewed_at,wl1_0.reviewed_by,wl1_0.start_time,wl1_0.status,wl1_0.student_id,wl1_0.submitted_at,wl1_0.updated_at from work_log wl1_0 where wl1_0.id=?
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into users (active,advisor_id,created_at,email,full_name,password_hash,role,username,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into work_log (activity,created_at,end_time,hours,internship_id,learning,log_date,problem,review_comment,reviewed_at,reviewed_by,start_time,status,student_id,submitted_at,updated_at,id) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,default)
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 17.44 s -- in com.example.demo.dao.WorkLogDaoTest
+[INFO] Running com.example.demo.service.WorkLogReviewServiceTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.505 s -- in com.example.demo.service.WorkLogReviewServiceTest
+[INFO] Running com.example.demo.service.WorkLogServiceTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.312 s -- in com.example.demo.service.WorkLogServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 56, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  54.666 s
+[INFO] Finished at: 2026-11-12T15:39:41Z
+[INFO] ------------------------------------------------------------------------

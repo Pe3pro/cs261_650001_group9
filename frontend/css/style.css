@@ -526,6 +526,249 @@ a.btn {
 .mute {
     color: var(--mute)
 }
+/* =========================================================
+   US8 บันทึกการทำงาน (worklog.html)
+   ========================================================= */
+:root {
+    --warnbg: #fdf3d7;
+    --warnink: #7a5a10
+}
+
+@media (prefers-color-scheme:dark) {
+    :root:not([data-theme="light"]) {
+        --warnbg: #3a3018;
+        --warnink: #f0cd78
+    }
+}
+
+:root[data-theme="dark"] {
+    --warnbg: #3a3018;
+    --warnink: #f0cd78
+}
+
+main.wide {
+    max-width: 1200px
+}
+
+.tag {
+    display: inline-block;
+    background: var(--warnbg);
+    color: var(--warnink);
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 8px
+}
+
+.alert.warn {
+    background: var(--warnbg);
+    color: var(--warnink);
+    border: 1px solid var(--gold)
+}
+
+.alert.ok.box {
+    border: 1px solid var(--ok)
+}
+
+.alert.bad.box {
+    border: 1px solid var(--bad)
+}
+
+.alert.box {
+    padding: 14px 18px;
+    margin-bottom: 16px
+}
+
+.alert.box b,
+.alert.box span {
+    display: block
+}
+
+.alert.box b {
+    margin-bottom: 4px
+}
+
+.wl {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    align-items: start
+}
+
+.wl-card {
+    padding: 24px
+}
+
+.g3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px
+}
+
+.wl textarea {
+    resize: vertical
+}
+
+.wl-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px
+}
+
+.wl-hist {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    padding: 14px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    text-align: left
+}
+
+button.wl-hist {
+    cursor: pointer
+}
+
+button.wl-hist:hover,
+button.wl-hist.cur {
+    background: var(--field)
+}
+
+.wl-hist.head {
+    font-size: 12px;
+    color: var(--mute);
+    padding-top: 0
+}
+
+.wl-hist small {
+    color: var(--mute)
+}
+
+.pill {
+    justify-self: start;
+    border-radius: 999px;
+    padding: 2px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid currentColor
+}
+
+.pill.ok {
+    background: var(--okbg);
+    color: var(--ok)
+}
+
+.pill.bad {
+    background: var(--badbg);
+    color: var(--bad)
+}
+
+.pill.draft {
+    background: var(--warnbg);
+    color: var(--warnink)
+}
+
+.g4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px
+}
+
+.wl-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px
+}
+
+.wl-head h2 {
+    margin: 0
+}
+
+.btn.sm {
+    padding: 6px 12px;
+    font-size: 12px
+}
+
+.btn.danger {
+    color: var(--bad);
+    border-color: var(--bad)
+}
+
+.wl-files {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0
+}
+
+.wl-files li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13px
+}
+
+.wl-files a,
+.wl-files button.link {
+    color: var(--navy);
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: left
+}
+
+.wl-files button.del {
+    color: var(--bad)
+}
+
+.wl-sum {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px
+}
+
+.wl-sum small {
+    display: block;
+    color: var(--mute);
+    font-size: 11px
+}
+
+.wl-sum b {
+    font-size: 18px
+}
+
+.wl-note {
+    margin: 10px 0 0;
+    font-size: 12px
+}
+
+@media (max-width:900px) {
+    .wl {
+        grid-template-columns: 1fr
+    }
+}
+
+@media (max-width:700px) {
+
+    .g3,
+    .g4 {
+        grid-template-columns: 1fr 1fr
+    }
+}
 
 /* ===== U5: หน้าเจ้าหน้าที่ / อาจารย์ / การแจ้งเตือน (ย้ายมาจาก u5.css) =====
    ทุกกฎอยู่ใต้ body.u5 จึงไม่กระทบหน้าอื่น รองรับทั้งโหมดสว่างและโหมดมืด */
