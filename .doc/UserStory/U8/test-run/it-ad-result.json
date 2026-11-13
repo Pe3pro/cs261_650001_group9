@@ -1,0 +1,210 @@
+{
+ "meta": {
+  "A": 15,
+  "B": 16,
+  "C": 17,
+  "advisor": 2,
+  "staff": 1,
+  "iA": 1,
+  "iB": 2,
+  "start": "2026-10-12",
+  "today(UTC)": "2026-11-13",
+  "d1": "2026-11-12",
+  "d2": "2026-11-11",
+  "d3": "2026-11-10",
+  "d4": "2026-11-09"
+ },
+ "results": [
+  {
+   "tc": "IT-AD-01",
+   "pass": true,
+   "actual": "201 DRAFT hours 3.0 · work_log 0→1 แถว id 1: status DRAFT hours 3.00 student_id 15 (A=15) created/updated มีค่า True submitted_at None"
+  },
+  {
+   "tc": "IT-AD-02",
+   "pass": true,
+   "actual": "409 DUPLICATE_LOG_DATE · work_log 1→1"
+  },
+  {
+   "tc": "IT-AD-03",
+   "pass": true,
+   "actual": "อนาคต 400 INVALID_WORK_LOG · ก่อนเริ่มฝึก 400 INVALID_WORK_LOG · 09:00–09:15 400 INVALID_WORK_LOG · ไม่มี activity 400 INVALID_WORK_LOG · work_log 1→1"
+  },
+  {
+   "tc": "IT-AD-04",
+   "pass": true,
+   "actual": "C→iA 403 FORBIDDEN · B (COMPLETED) 409 INTERNSHIP_NOT_IN_PROGRESS · work_log 1→1 · คืน status IN_PROGRESS"
+  },
+  {
+   "tc": "IT-AD-05",
+   "pass": true,
+   "actual": "200 hours 4.0 · end_time 13:00:00 hours 4.00 · updated_at 2026-11-13 17:57:13.615990→2026-11-13 17:57:15.597120"
+  },
+  {
+   "tc": "IT-AD-06",
+   "pass": true,
+   "actual": "PDF 201 application/pdf · .txt 400 INVALID_ATTACHMENT · attachment 0→1 แถว content_type application/pdf file_path work-logs/1/f4274993-709e-45a1-bf04-422d0f7c0cf6.pdf"
+  },
+  {
+   "tc": "IT-AD-07",
+   "pass": true,
+   "actual": "มีไฟล์ 5 แล้วแนบไฟล์ที่ 6: 400 INVALID_ATTACHMENT · attachment คงที่ 5 แถว"
+  },
+  {
+   "tc": "IT-AD-08",
+   "pass": true,
+   "actual": "200 SUBMITTED lateSubmitted False · status SUBMITTED submitted_at 2026-11-13 17:57:16.106155 (ยิงตอน 2026-11-13 17:57:16 UTC) · notifications อาจารย์ WORK_LOG_SUBMITTED 0→1"
+  },
+  {
+   "tc": "IT-AD-09",
+   "pass": true,
+   "actual": "PUT (409, 'INVALID_STATUS') · DELETE (409, 'INVALID_STATUS') · submit (409, 'INVALID_STATUS') · แถวเหมือนเดิม True · notifications 1→1"
+  },
+  {
+   "tc": "IT-AD-10",
+   "pass": true,
+   "actual": "204 · work_log 2→1 · attachment ของบันทึก 2: 0 แถว · ไฟล์ work-logs/2/31b55203-8a2e-4a03-8155-1d98395833f9.pdf: ก่อนลบมีใน volume True หลังลบ หายแล้ว"
+  },
+  {
+   "tc": "IT-AD-11",
+   "pass": true,
+   "actual": "อาจารย์ 200 2 รายการ id [1, 3] ทุกตัว SUBMITTED · SQL COUNT = 2 · นักศึกษา 403 FORBIDDEN"
+  },
+  {
+   "tc": "IT-AD-12",
+   "pass": true,
+   "actual": "ไม่มีความเห็น 400 COMMENT_REQUIRED (status ยัง SUBMITTED) · มีความเห็น 200 NEED_REVISION · reviewed_by 2 reviewed_at 2026-11-13 17:57:17.164712 review_comment \"เพิ่มรายละเอียด\" · notifications นักศึกษา WORK_LOG_REVIEWED 0→1"
+  },
+  {
+   "tc": "IT-AD-13",
+   "pass": true,
+   "actual": "review NEED_REVISION 409 INVALID_STATUS · ไม่ใช่ที่ปรึกษา 403 FORBIDDEN · แถวไม่เปลี่ยน · notifications 1→1 · คืน advisor_id = 2"
+  },
+  {
+   "tc": "IT-AD-14",
+   "pass": true,
+   "actual": "200 approved [3] skipped [(4, 'บันทึกไม่ได้อยู่ในสถานะรอตรวจ'), (9999, 'ไม่พบบันทึก')] · [] 400 VALIDATION_ERROR · L3 APPROVED · L4 DRAFT · notifications 1→2"
+  },
+  {
+   "tc": "IT-AD-15",
+   "pass": true,
+   "actual": "200 totalHours 7.0 (SQL 7.00) · countByStatus {'DRAFT': 1, 'NEED_REVISION': 1, 'APPROVED': 1} (SQL {'DRAFT': 1, 'APPROVED': 1, 'NEED_REVISION': 1}) · missingDates 22 วัน ตรงกับวัน จ.–ศ. ที่ไม่มีแถว True · daysLogged 3 workingDays 25"
+  },
+  {
+   "tc": "IT-AD-16",
+   "pass": true,
+   "actual": "อาจารย์ 200 text/csv;charset=UTF-8 BOM True 3 บรรทัด (หัวตาราง 1 + บันทึกที่ไม่ใช่ DRAFT 2) · นักศึกษา 403 FORBIDDEN"
+  },
+  {
+   "tc": "IT-AD-17",
+   "pass": true,
+   "actual": "A 200 ['APPROVED', 'DRAFT', 'NEED_REVISION'] · advisor 200 ['APPROVED', 'NEED_REVISION'] · staff 200 ['APPROVED', 'NEED_REVISION'] · C 403 FORBIDDEN · no header 401 UNAUTHORIZED · ข้อมูลไม่เปลี่ยน"
+  },
+  {
+   "tc": "IT-AD-18",
+   "pass": true,
+   "actual": "ก่อน restart enum('APPLICATION_SUBMITTED') → หลัง restart varchar(50) · submit (IT-AD-08) 200 · notifications WORK_LOG_SUBMITTED 0→1"
+  }
+ ],
+ "db": {
+  "work_log": [
+   [
+    "1",
+    "1",
+    "15",
+    "2026-11-12",
+    "9:00:00",
+    "13:00:00",
+    "4.00",
+    "NEED_REVISION",
+    "2026-11-13 17:57:16.106155",
+    "2",
+    "เพิ่มรายละเอียด"
+   ],
+   [
+    "3",
+    "1",
+    "15",
+    "2026-11-10",
+    "9:00:00",
+    "12:00:00",
+    "3.00",
+    "APPROVED",
+    "2026-11-13 17:57:16.881061",
+    "2",
+    "เรียบร้อย"
+   ],
+   [
+    "4",
+    "1",
+    "15",
+    "2026-11-09",
+    "13:00:00",
+    "17:00:00",
+    "4.00",
+    "DRAFT",
+    "None",
+    "None",
+    "None"
+   ]
+  ],
+  "work_log_attachment": [
+   [
+    "1",
+    "note.pdf",
+    "application/pdf",
+    "45"
+   ],
+   [
+    "1",
+    "p2.pdf",
+    "application/pdf",
+    "45"
+   ],
+   [
+    "1",
+    "p3.pdf",
+    "application/pdf",
+    "45"
+   ],
+   [
+    "1",
+    "p4.pdf",
+    "application/pdf",
+    "45"
+   ],
+   [
+    "1",
+    "p5.pdf",
+    "application/pdf",
+    "45"
+   ]
+  ],
+  "notifications": [
+   [
+    "2",
+    "WORK_LOG_SUBMITTED",
+    "มีบันทึกการทำงานรอตรวจ",
+    "b'\\x00'"
+   ],
+   [
+    "2",
+    "WORK_LOG_SUBMITTED",
+    "มีบันทึกการทำงานรอตรวจ",
+    "b'\\x00'"
+   ],
+   [
+    "15",
+    "WORK_LOG_REVIEWED",
+    "บันทึกการทำงานถูกส่งกลับให้แก้ไข",
+    "b'\\x00'"
+   ],
+   [
+    "15",
+    "WORK_LOG_REVIEWED",
+    "บันทึกการทำงานได้รับการอนุมัติ",
+    "b'\\x00'"
+   ]
+  ]
+ }
+}
