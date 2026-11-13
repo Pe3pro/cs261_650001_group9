@@ -51,7 +51,7 @@ import com.example.demo.repository.CompanyPositionRepository;
  */
 @Component
 @ConditionalOnProperty(
-        name = "app.seed-demo-data",
+        name = "app.seed-u7-data",
         havingValue = "true"
 )
 public class U7DemoSeeder {

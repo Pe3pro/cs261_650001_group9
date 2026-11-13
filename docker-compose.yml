@@ -1,4 +1,4 @@
-﻿services:
+services:
   db:
     image: mysql:8.4
     container_name: cs261-db
@@ -30,6 +30,8 @@
       APP_UPLOAD_DIR: /app/uploads
       # U5: ส่ง Email แจ้งผลการพิจารณาไปที่ Mailpit (ดูอีเมลที่ http://localhost:8025)
       APP_MAIL_ENABLED: "true"
+      # U7 demo stages are disabled by default to avoid affecting U5/U6.
+      APP_SEED_U7_DATA: "false"
       SPRING_MAIL_HOST: mailpit
       SPRING_MAIL_PORT: 1025
     volumes:
