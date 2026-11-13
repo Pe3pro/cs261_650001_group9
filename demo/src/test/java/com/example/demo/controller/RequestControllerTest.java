@@ -62,7 +62,7 @@ class RequestControllerTest {
                 LocalDateTime.of(2026, 10, 19, 10, 0), status == ApplicationStatus.DRAFT ? null
                         : LocalDateTime.of(2026, 10, 19, 10, 5),
                 LocalDateTime.of(2026, 10, 19, 10, 5), LocalDateTime.of(2026, 11, 30, 23, 59, 59),
-                Map.of("field_1", "สมชาย ใจดี"), List.of(), null);
+                Map.of("field_1", "A arizona"), List.of(), null);
     }
 
     @Test
@@ -97,14 +97,14 @@ class RequestControllerTest {
 
         mvc.perform(put("/api/requests/100/form").header("X-User-Id", A)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"answers\":{\"field_1\":\"สมชาย ใจดี\",\"field_2\":\"0812345678\","
-                        + "\"field_3\":\"somchai@dome.tu.ac.th\",\"field_4\":\"99 ม.ธ. รังสิต\"}}"))
+                .content("{\"answers\":{\"field_1\":\"A arizona\",\"field_2\":\"0812345678\","
+                        + "\"field_3\":\"arizona@dome.tu.ac.th\",\"field_4\":\"99 ม.ธ. รังสิต\"}}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.answers.field_1").value("สมชาย ใจดี"));
+                .andExpect(jsonPath("$.answers.field_1").value("A arizona"));
     }
 
     @Test
-    @DisplayName("U3-API-04 PUT form ไม่มีเบอร์โทร / อีเมล somchai@ ได้ 400 พร้อมรายชื่อช่องที่ผิด")
+    @DisplayName("U3-API-04 PUT form ไม่มีเบอร์โทร / อีเมล arizona@ ได้ 400 พร้อมรายชื่อช่องที่ผิด")
     void saveInvalidForm() throws Exception {
         when(requestService.saveAnswers(eq(100L), any(), eq(3L))).thenThrow(new FieldValidationException(List.of(
                 new FieldError("field_2", "เบอร์โทรศัพท์", "กรุณากรอกเบอร์โทรศัพท์"),
@@ -112,7 +112,7 @@ class RequestControllerTest {
 
         mvc.perform(put("/api/requests/100/form").header("X-User-Id", A)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"answers\":{\"field_1\":\"สมชาย ใจดี\",\"field_3\":\"somchai@\",\"field_4\":\"99\"}}"))
+                .content("{\"answers\":{\"field_1\":\"A arizona\",\"field_3\":\"arizona@\",\"field_4\":\"99\"}}"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
                 .andExpect(jsonPath("$.fields[*].field", hasItems("field_2", "field_3")));

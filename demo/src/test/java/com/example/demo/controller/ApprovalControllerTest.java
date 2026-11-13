@@ -41,7 +41,7 @@ class ApprovalControllerTest {
     @DisplayName("API-15 เจ้าหน้าที่อนุมัติ ได้ 200 และคำร้องเปลี่ยนเป็น UNDER_REVIEW")
     void staffApprove() throws Exception {
         when(service.decide(eq(50L), eq(1L), any(ApprovalRequest.class))).thenReturn(new ApprovalResponse(
-                900L, 50L, ApprovalLevel.STAFF, ApprovalDecision.APPROVE, "สมศรี ทำงานดี", null,
+                900L, 50L, ApprovalLevel.STAFF, ApprovalDecision.APPROVE, "S staff", null,
                 LocalDateTime.of(2026, 10, 16, 11, 0), ApplicationStatus.UNDER_REVIEW));
 
         mvc.perform(post("/api/approvals/50/decision").header("X-User-Id", "1")

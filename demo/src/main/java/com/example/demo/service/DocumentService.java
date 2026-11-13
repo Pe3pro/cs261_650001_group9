@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,18 +53,32 @@ public class DocumentService {
 
     /** POST /api/requests/{id}/documents: แนบ Transcript (แทนที่ไฟล์เดิมของคำร้อง ให้เหลือฉบับล่าสุดฉบับเดียว) */
     public DocumentResponse upload(Long applicationId, MultipartFile file, Long userId) {
+        return upload(applicationId, file, null, userId);
+    }
+
+    /**
+     * U5: แนบไฟล์ให้ช่องชนิดไฟล์ที่ระบุ (fieldId) · แทนที่เฉพาะไฟล์เดิมของช่องเดียวกัน
+     * fieldId = null คือไฟล์ Transcript แบบเดิม (แทนที่ไฟล์เดิมที่ไม่ได้ระบุช่อง)
+     */
+    public DocumentResponse upload(Long applicationId, MultipartFile file, Long fieldId, Long userId) {
         Student student = requestService.currentStudent(userId);
         Application app = requestService.ownedApplication(applicationId, student);
         RequestService.requireEditable(app);
+        if (fieldId != null) {
+            requestService.fileField(app, fieldId);
+        }
         byte[] content = readValidPdf(file);
         String fileName = safeName(file.getOriginalFilename());
 
-        List<Document> previous = documentRepository.findByApplicationId(app.getId());
+        List<Document> previous = documentRepository.findByApplicationId(app.getId()).stream()
+                .filter(d -> Objects.equals(d.getFormFieldId(), fieldId))
+                .toList();
         String key = fileStorage.store(fileName, content); // ล้มเหลว → StorageException → ไม่มี metadata ค้าง
         Document saved;
         try {
             documentRepository.deleteAll(previous);
-            saved = documentRepository.saveAndFlush(new Document(app.getId(), fileName, key, (long) content.length));
+            saved = documentRepository.saveAndFlush(
+                    new Document(app.getId(), fileName, key, (long) content.length, fieldId));
         } catch (RuntimeException e) {
             fileStorage.delete(key);
             throw e;

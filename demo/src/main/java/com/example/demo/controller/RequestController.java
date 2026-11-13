@@ -60,8 +60,12 @@ public class RequestController {
     @PostMapping("/api/requests/{id}/documents")
     public ResponseEntity<DocumentResponse> upload(@PathVariable Long id,
             @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "fieldId", required = false) Long fieldId,
             @RequestHeader(value = USER, required = false) Long userId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(documentService.upload(id, file, userId));
+        DocumentResponse saved = fieldId == null
+                ? documentService.upload(id, file, userId) // ระบบเดิม: Transcript
+                : documentService.upload(id, file, fieldId, userId); // U5: ช่องแนบไฟล์อื่นในแบบฟอร์ม
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PostMapping("/api/requests/{id}/submit")

@@ -2,9 +2,6 @@ package com.example.demo.entity;
 
 import java.time.LocalDateTime;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,10 +31,13 @@ public class Notification {
     @Column(length = 1000)
     private String message;
 
-    /** เก็บเป็น VARCHAR (ไม่ใช่ ENUM ของ MySQL) เพื่อให้เพิ่มค่า NotificationType ใหม่ได้โดยไม่ต้องแก้ schema */
+    /**
+     * U8: Hibernate สร้างคอลัมน์เป็น ENUM ของ MySQL (ค่าตาม NotificationType ตอนสร้าง) ซึ่งเพิ่มค่าใหม่ไม่ได้
+     * จึงให้ LegacySchemaFixer เปลี่ยนเป็น VARCHAR(50) ตอนเริ่มระบบ (เฉพาะ MySQL)
+     * ไม่ใช้ @JdbcTypeCode(VARCHAR) เพราะ Hibernate จะสร้าง CHECK (type in ...) ซึ่ง H2 2.4 ใน @DataJpaTest
+     * ตรวจไม่ได้ (Check constraint invalid / The database has been closed)
+     */
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(length = 50)
     private NotificationType type;
 
     /** คำร้องที่เกี่ยวข้อง (ถ้ามี) */

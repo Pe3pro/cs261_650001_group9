@@ -43,6 +43,10 @@ public class Document {
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
+    /** U5: ช่องชนิดไฟล์ในแบบฟอร์มที่ไฟล์นี้ตอบ (null = ไฟล์ Transcript แบบเดิมที่ไม่ได้ระบุช่อง) */
+    @Column(name = "form_field_id")
+    private Long formFieldId;
+
     protected Document() {
         // สำหรับ JPA
     }
@@ -54,6 +58,11 @@ public class Document {
         this.fileSize = fileSize;
         this.contentType = "application/pdf";
         this.status = DocumentStatus.UPLOADED;
+    }
+
+    public Document(Long applicationId, String fileName, String storageKey, Long fileSize, Long formFieldId) {
+        this(applicationId, fileName, storageKey, fileSize);
+        this.formFieldId = formFieldId;
     }
 
     @PrePersist
@@ -70,4 +79,5 @@ public class Document {
     public DocumentStatus getStatus() { return status; }
     public void setStatus(DocumentStatus status) { this.status = status; }
     public LocalDateTime getUploadedAt() { return uploadedAt; }
+    public Long getFormFieldId() { return formFieldId; }
 }

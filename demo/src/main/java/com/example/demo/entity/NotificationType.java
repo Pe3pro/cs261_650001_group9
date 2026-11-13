@@ -6,6 +6,16 @@ public enum NotificationType {
     APPLICATION_APPROVED,
     APPLICATION_RETURNED,
     APPLICATION_REJECTED,
+    /** U5: แจ้งเจ้าหน้าที่ว่ามีคำร้องใหม่ หรือคำร้องที่แก้แล้วส่งกลับมา */
+    APPLICATION_SUBMITTED,
+    /** U5: เตือนนักศึกษาที่ถูกตีกลับแต่ยังไม่ส่งใหม่ ก่อนแบบฟอร์มหมดเขต */
+    CORRECTION_REMINDER,
+    /** U6: ประกาศผลการจับคู่ */
+    MATCH_ANNOUNCED,
+    /** U6: นักศึกษายืนยัน / สละสิทธิ์ (แจ้งเจ้าหน้าที่) */
+    MATCH_RESPONDED,
+    /** U6: เจ้าหน้าที่ยกเลิกผลจับคู่ */
+    MATCH_CANCELLED,
     /** U8: นักศึกษาส่งบันทึกการทำงาน (แจ้งอาจารย์ที่ปรึกษา) */
     WORK_LOG_SUBMITTED,
     /** U8: อาจารย์ตรวจบันทึกการทำงานแล้ว (แจ้งนักศึกษา) */

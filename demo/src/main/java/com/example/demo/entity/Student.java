@@ -32,6 +32,10 @@ public class Student {
     @Column(name = "total_credits")
     private Integer totalCredits;
 
+    /** U5: id ของอาจารย์ที่ปรึกษา (users.id ที่ role = ADVISOR) · null = ยังไม่ได้กำหนด */
+    @Column(name = "advisor_id")
+    private Long advisorId;
+
     protected Student() {
         // สำหรับ JPA
     }
@@ -52,4 +56,6 @@ public class Student {
     public Double getGpa() { return gpa; }
     public Integer getTotalCredits() { return totalCredits; }
     public void setTotalCredits(Integer totalCredits) { this.totalCredits = totalCredits; }
+    public Long getAdvisorId() { return advisorId; }
+    public void setAdvisorId(Long advisorId) { this.advisorId = advisorId; }
 }
