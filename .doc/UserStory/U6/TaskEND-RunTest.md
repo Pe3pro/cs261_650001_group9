@@ -223,21 +223,201 @@ Test cases
 
 Artefact: รายงานผล Integration Test · อ้างอิง test cases: ส่วน "Design Integration Test UI–API" ในไฟล์นี้
 
-> ยังไม่ได้รัน
+สภาพแวดล้อม
+-
+- วันที่รัน: 14 พ.ย. 2569 เวลา 00:20–00:37 น. · branch `Develop` (`06c385f`) · เริ่มจาก `docker compose down -v` แล้ว `up -d --build`
+- เปิดหน้าเว็บผ่าน container ทดสอบชั่วคราว `cs261-u6-proxy` (nginx พอร์ต 8082) ที่เสิร์ฟไฟล์ `frontend/` ชุดเดียวกับพอร์ต 8081 และส่ง `/api/` ต่อไปที่ backend พอร์ต 8080 เพราะ browser ที่ใช้ทดสอบไม่ยอมให้หน้า 8081 เรียก 8080 ข้ามพอร์ต โค้ดหน้าเว็บและ backend ไม่ได้แก้ (ตั้งค่าไว้ใน `u6-test-proxy.conf` นอก repo)
+- ตรวจ request / response จากแท็บ Network และข้อความบนหน้าจอ
+
+ผลการรัน
+-
+| TC ID | Request / Response ที่เห็น | ผลบนหน้าเว็บ | ผล |
+|---|---|---|---|
+| IT-UA-01 | GET rounds/current 404 · GET /api/companies 200 · GET /api/companies/{1–6} 200 | "ยังไม่มีรอบการจับคู่ เปิดรอบแรกได้ด้านล่าง" · ปุ่มจับคู่ / ประกาศผลซ่อน · บริษัท 6 แห่งพร้อม "ว่าง x/y" | ✅ |
+| IT-UA-02 | POST /api/companies 201 · POST /api/companies/8/positions 201 | "เพิ่มบริษัท IT Test Co. แล้ว" → "เพิ่มตำแหน่ง Tester แล้ว" · Tester ว่าง 2/2 | ✅ |
+| IT-UA-03 | ไม่ใส่วันหมดเขต: ไม่มี request → POST /api/matching/rounds 201 | "กรุณากำหนดวันหมดเขตยืนยันสิทธิ์" → "เปิดรอบที่ 1 แล้ว" · "รอบที่ 1 เปิดจับคู่" ปุ่มจับคู่อัตโนมัติขึ้น ² | ✅ |
+| IT-UA-04 | POST /api/matching/auto 200 | "จับคู่ได้ 3 คน · จับไม่ได้ 1 คน" · "ณัฐพล เลือกงาน: ยังไม่ได้เลือกอันดับ" · พิมพ์ชนก SCB Backend อันดับ 1 · ธนกร LINE MAN อันดับ 2 · กมลชนก Bitkub อันดับ 1 | ✅ |
+| IT-UA-05 | GET /api/requests/me 200 (ไม่มี GET /api/companies) | "ยังไม่มีใบสมัครที่ได้รับการอนุมัติ" | ✅ |
+| IT-UA-06 | GET requests/me 200 · GET companies 200 · GET matches/me/summary 404 · GET applications/3/preferences 200 | dropdown 5 อันดับ จัดกลุ่มตามบริษัท 7 กลุ่ม · ไม่มี PTT Digital · ไม่แสดงผลจับคู่ | ✅ |
+| IT-UA-07 | PUT /api/applications/3/preferences ด้วยตำแหน่งที่เต็ม → 400 INVALID_PREFERENCE | "Backend Developer (โควตาเต็ม 0/1)" เลือกไม่ได้ (LINE MAN, Bitkub ที่จับคู่แล้วก็ขึ้นโควตาเต็มเช่นกัน) | ✅ |
+| IT-UA-08 | ไม่มี request | "เลือกตำแหน่งเดียวกันซ้ำหลายอันดับไม่ได้" / "กรุณาเลือกอันดับให้ต่อเนื่อง เริ่มจากอันดับ 1" | ✅ |
+| IT-UA-09 | PUT /api/applications/3/preferences 200 | "บันทึก 2 อันดับแล้ว" · โหลดหน้าใหม่ยังเป็น Tester, QA Engineer | ✅ |
+| IT-UA-10 | POST /api/matches (ณัฐพล → SCB Backend) 409 QUOTA_FULL | – | ✅ |
+| IT-UA-11 | GET /api/matching/candidates?positionId=8 200 · POST /api/matches 201 | รายชื่อผู้เลือก Tester มีณัฐพล → "จับคู่ ณัฐพล เลือกงาน กับ Tester แล้ว" · ตารางผลเพิ่มณัฐพล · Tester ว่าง 1/2 | ✅ |
+| IT-UA-12 | DELETE /api/matches/3 200 | "ยกเลิกผลการจับคู่แล้ว คืนโควตาให้ตำแหน่งแล้ว" · สถานะ "ยกเลิก" · Bitkub ว่าง 1/1 | ✅ |
+| IT-UA-13 | PUT preferences (กมลชนก) 200 · POST /api/matches 201 · PUT /api/positions/8 400 | "ลดโควตาต่ำกว่าจำนวนที่จับคู่แล้ว (2 คน) ไม่ได้" ³ | ✅ |
+| IT-UA-14 | GET /api/matches/me/summary 404 | ไม่แสดงผลจับคู่ แสดงเฉพาะส่วนเลือกอันดับ | ✅ |
+| IT-UA-15 | POST /api/matching/rounds/1/announce 200 | "ประกาศผลรอบที่ 1 แล้ว ระบบแจ้งเตือนนักศึกษาในรอบนี้แล้ว" · ปุ่มจับคู่ / ประกาศหาย · "รอบที่ 1 ประกาศผลแล้ว" | ✅ |
+| IT-UA-16 | GET /api/matches/me/summary 200 · GET /api/notifications 200 | "คุณได้รับการจับคู่กับ ตำแหน่ง Backend Developer บริษัท SCB TechX (อันดับ 1)" · อันดับ 1 "ได้อันดับนี้" อันดับอื่น "ไม่ได้อันดับนี้" · ปุ่มยืนยัน / สละ · แจ้งเตือน "ประกาศผลการจับคู่ รอบที่ 1" ² | ✅ |
+| IT-UA-17 | POST /api/matches/1/respond 200 CONFIRMED | "ยืนยันสิทธิ์เรียบร้อยแล้ว" · staff01 ได้แจ้งเตือน "นักศึกษายืนยันสิทธิ์" | ✅ |
+| IT-UA-18 | ไม่ใส่เหตุผล: ไม่มี request → POST /api/matches/2/respond 200 DECLINED | "กรุณากรอกเหตุผลที่สละสิทธิ์" → "สละสิทธิ์เรียบร้อยแล้ว คุณแก้อันดับเพื่อรอรอบถัดไปได้" · LINE MAN ว่าง 1/1 · staff01 ได้แจ้งเตือน "นักศึกษาสละสิทธิ์" | ✅ |
+| IT-UA-19 | POST /api/matching/rounds 409 | "รอบที่ 1 ยังไม่จบ (ต้องประกาศผลและเลยวันหมดเขตยืนยันสิทธิ์ก่อน)" | ✅ |
+| IT-UA-20 | POST respond 409 DEADLINE_PASSED (ณัฐพล หลังหมดเขต) | "เลยกำหนดยืนยันสิทธิ์แล้ว" | ✅ |
+| IT-UA-21 | POST /api/matching/rounds 201 | "เปิดรอบที่ 2 แล้ว" · ผลของณัฐพลและกมลชนกเป็น DECLINED "ไม่ตอบภายในกำหนด" · แต่รายการบริษัทยังแสดง Tester "ว่าง 0" ต้องโหลดหน้าใหม่จึงเป็น 2/2 (API ตอบ 2/2 ถูกต้อง) · **Bug B2** | ⚠️ ผ่านเมื่อโหลดหน้าใหม่ |
+| IT-UA-22 | POST /api/matching/auto (X-User-Id นักศึกษา) 403 | ธนกรเปิด `staff-matching.html` ขึ้น "หน้านี้สำหรับเจ้าหน้าที่เท่านั้น" | ✅ |
+| IT-UA-23 | หยุด container `app` → ผ่าน proxy ทดสอบได้ 502 (ไม่ใช่ network error) | "เกิดข้อผิดพลาด (502)" หน้าไม่ค้าง · กรณี network error จริง (8081 → 8080) ยังไม่ได้ตรวจในรอบนี้ ⁴ | ⚠️ ตรวจได้บางส่วน |
+
+**สรุป: ผ่าน 21 / 23 ข้อ · ผ่านเมื่อโหลดหน้าใหม่ 1 ข้อ (IT-UA-21) · ตรวจได้บางส่วน 1 ข้อ (IT-UA-23)**
+
+Bug / ข้อสังเกตที่พบ
+-
+| ID | ระดับ | รายละเอียด | ทางแก้ที่เสนอ |
+|---|---|---|---|
+| B1 | สูง | **เขตเวลาไม่ตรงกัน:** container `app` ใช้เวลา UTC แต่หน้าเว็บส่งวันหมดเขตจากช่อง `datetime-local` เป็นเวลาไทย และแสดงเวลาที่ได้จาก server ตรง ๆ เช่น เจ้าหน้าที่กรอกหมดเขต 18:00 น. ระบบจะนับเป็น 18:00 UTC (= 01:00 น. วันถัดไป) · เวลาบนหน้าแจ้งเตือน / ใบสมัครเร็วกว่าเวลาจริง 7 ชั่วโมง (แจ้งเตือนที่สร้างตอน 00:24 น. แสดง 17:24) | ตั้ง `TZ: Asia/Bangkok` ใน environment ของ service `app` ใน `docker-compose.yml` (หรือ `-Duser.timezone=Asia/Bangkok`) |
+| B2 | ต่ำ | หลังเปิดรอบใหม่ หน้า `staff-matching.html` ไม่โหลดรายการบริษัทใหม่ ที่ว่างที่คืนจากผลที่ไม่ตอบจึงยังไม่ขึ้นจนกว่าจะโหลดหน้าใหม่ | ใน `openRound()` ของ `u6.js` เรียก `loadCompanies()` ต่อจาก `loadRound()` |
+| O1 | ข้อสังเกต | IT-UA-13: บันทึกโควตาไม่สำเร็จแล้ว ช่องโควตายังแสดงค่าที่พิมพ์ (1) ไม่กลับเป็นค่าจริง (2) | ตั้งค่าช่องกลับเมื่อ API ตอบ error |
+
+² เพราะ B1 ตอนทดสอบจึงกรอกวันหมดเขตเป็นเวลา UTC (+12 นาที) เพื่อให้หมดเขตจริงภายในรอบทดสอบ · หน้าเว็บจึงแสดง "หมดเขตยืนยันสิทธิ์ 13 พ.ย. 2569 17:33" (= 00:33 น. เวลาไทย)
+³ ก่อนแก้โควตา กมลชนกบันทึกอันดับเป็น Tester แล้วเจ้าหน้าที่จับคู่เข้า Tester (Tester ว่าง 0/2)
+⁴ proxy ทดสอบตอบ 502 เมื่อ backend ไม่ทำงาน หน้าเว็บจึงขึ้น "เกิดข้อผิดพลาด (502)" แทน "ไม่สามารถเชื่อมต่อระบบได้…" ควรตรวจซ้ำที่ `localhost:8081` (หยุด `app` แล้วเปิดหน้า) · ข้อสังเกตเพิ่ม: ตอน backend ไม่ทำงาน หน้าเจ้าหน้าที่ยังแสดง "ยังไม่มีรอบการจับคู่ เปิดรอบแรกได้ด้านล่าง" ซึ่งอาจทำให้เข้าใจผิด
 
 
 # ส่วนที่ 6 · ผล Integration Test API–DAO
 
 Artefact: รายงานผล Integration Test · อ้างอิง test cases: ส่วน "Design Integration Test API–DAO" ในไฟล์นี้
 
-> ยังไม่ได้รัน
+สภาพแวดล้อม
+-
+- วันที่รัน: 13 พ.ย. 2569 เวลา 23:48–00:01 น. · branch `Develop` (`06c385f`)
+- `docker compose down -v` แล้ว `docker compose up -d --build` (MySQL 8.4 + `MatchingDemoSeeder`)
+- ส่ง request ตรงไปที่ `http://localhost:8080` พร้อม header `X-User-Id` (staff01 = 1 · 6609650001 = 3 · 6609650011–14 = 11–14) · ตรวจข้อมูลหลังทุกข้อด้วย GET API ของระบบ แล้วยืนยันด้วย SQL ท้ายส่วนนี้
+- เวลาในฐานข้อมูลเป็น UTC (เวลาไทย = UTC + 7)
+
+ผลการรัน
+-
+| TC ID | Actual response | Actual ในฐานข้อมูล | ผล |
+|---|---|---|---|
+| IT-AD-01 | 201 `status` OPEN (id 8 "IT Test Co.") | `companies` 6 → 7 แถว | ✅ ผ่าน |
+| IT-AD-02 | 201 Tester โควตา 2 | `quota` = 2 · `available_slots` = 2 | ✅ ผ่าน |
+| IT-AD-03 | 400 VALIDATION_ERROR "โควตาต้องเป็นจำนวนเต็ม 1–999" | ตำแหน่งของบริษัท 1 → 1 (ไม่มีแถวใหม่) | ✅ ผ่าน |
+| IT-AD-04 | 201 รอบ 1 OPEN | `matching_rounds` round_no 1 OPEN · `confirm_deadline` 2026-11-13 16:56:42 UTC (23:56 น.) | ✅ ผ่าน |
+| IT-AD-05 | 404 NOT_FOUND "ยังไม่ประกาศผลการจับคู่" | – | ✅ ผ่าน |
+| IT-AD-06 | 200 matched 3 · unmatched 1 (ณัฐพล: ยังไม่ได้เลือกอันดับ) | `matches` +3 PROPOSED: พิมพ์ชนก → SCB Backend `rank_no` 1 · ธนกร → LINE MAN `rank_no` 2 · กมลชนก → Bitkub `rank_no` 1 · `available_slots` SCB Backend / LINE MAN / Bitkub = 0 / 0 / 0 | ✅ ผ่าน |
+| IT-AD-07 | 409 QUOTA_FULL "ตำแหน่งนี้เต็มหรือปิดรับแล้ว" | `matches` 3 → 3 | ✅ ผ่าน |
+| IT-AD-08 | 200 CANCELLED | Bitkub `available_slots` 0 → 1 | ✅ ผ่าน |
+| IT-AD-09 | 200 ANNOUNCED | `announced_at` มีค่า · แจ้งเตือน "ประกาศผลการจับคู่ รอบที่ 1" พิมพ์ชนก 1 · ธนกร 1 · กมลชนก 1 ("รอบนี้คุณยังไม่ได้รับการจับคู่") · ณัฐพล 0 | ✅ ผ่าน |
+| IT-AD-10 | announce ซ้ำ 409 INVALID_STATUS · auto 409 NO_OPEN_ROUND | แจ้งเตือนและ `matches` ไม่เพิ่ม | ✅ ผ่าน |
+| IT-AD-11 | 200 · 200 | `company_preferences` ของใบ 3: [Tester, SCB Data Analyst] → [Tester] | ✅ ผ่าน |
+| IT-AD-12 | 400 INVALID_PREFERENCE ทั้ง 4 แบบ: เต็ม "ตำแหน่ง Backend Developer โควตาเต็มแล้ว เลือกไม่ได้" · ปิดรับ "ตำแหน่ง Closed Role ปิดรับแล้ว" · ซ้ำ "เลือกตำแหน่งเดียวกันซ้ำหลายอันดับไม่ได้" · 6 อันดับ "กรุณาเลือกตำแหน่ง 1–5 อันดับ" | อันดับเดิม [Tester] ไม่เปลี่ยน | ✅ ผ่าน |
+| IT-AD-13 | 6609650001: 409 APPLICATION_NOT_APPROVED · พิมพ์ชนก: 409 ALREADY_MATCHED | ไม่เปลี่ยน | ✅ ผ่าน |
+| IT-AD-14 | 403 FORBIDDEN | อันดับของณัฐพลยังเป็น [Tester] | ✅ ผ่าน |
+| IT-AD-15 | 200 CONFIRMED | `responded_at` มีค่า · แจ้งเตือนของ staff01 0 → 1 | ✅ ผ่าน |
+| IT-AD-16 | ไม่มีเหตุผล 400 REASON_REQUIRED → มีเหตุผล 200 DECLINED | `decline_reason` = "ได้ที่ฝึกงานที่อื่นแล้ว" · LINE MAN `available_slots` 0 → 1 | ✅ ผ่าน |
+| IT-AD-17 | 403 FORBIDDEN | ไม่เปลี่ยน | ✅ ผ่าน |
+| IT-AD-18 | 403 FORBIDDEN | `matches` 3 → 3 | ✅ ผ่าน |
+| IT-AD-19 | 409 ROUND_NOT_CLOSED "รอบที่ 1 ยังไม่จบ (ต้องประกาศผลและเลยวันหมดเขตยืนยันสิทธิ์ก่อน)" | ยังเป็นรอบ 1 ANNOUNCED | ✅ ผ่าน |
+| IT-AD-20 | 409 DEADLINE_PASSED "เลยกำหนดยืนยันสิทธิ์แล้ว" (ณัฐพลยืนยันผลรอบ 2 หลัง 17:00:12 UTC) ¹ | ไม่เปลี่ยน | ✅ ผ่าน |
+| IT-AD-21 | 201 · 201 ¹ | เปิดรอบ 2 หลังรอบ 1 หมดเขต: รอบ 2 OPEN · เปิดรอบ 3 หลังรอบ 2 หมดเขต: ผลรอบ 2 ที่ยัง PROPOSED (ณัฐพล, กมลชนก) เป็น DECLINED `decline_reason` = "ไม่ตอบภายในกำหนด" · Tester `available_slots` 0 → 2 · รอบ 3 OPEN | ✅ ผ่าน |
+| IT-AD-22 | 400 QUOTA_BELOW_MATCHED "ลดโควตาต่ำกว่าจำนวนที่จับคู่แล้ว (2 คน) ไม่ได้" | รอบ 2 จับคู่ 2 คนเข้า Tester แล้ว `quota` ยังเป็น 2 | ✅ ผ่าน |
+
+**สรุป: ผ่าน 22 / 22 ข้อ · ไม่พบ bug**
+
+หมายเหตุ / สิ่งที่ต่างจากที่ออกแบบไว้
+-
+- IT-AD-04 ตั้ง `confirm_deadline` +8 นาที (แทน +20 นาที) เพื่อลดเวลารอ IT-AD-19 ยังรันก่อนหมดเขต และ IT-AD-20, 21 รันหลังหมดเขตตามลำดับเดิม
+- IT-AD-12 กรณี "ปิดรับ": PTT Digital ไม่มีตำแหน่งให้เลือก จึงสร้างตำแหน่ง "Closed Role" สถานะ CLOSED ใน IT Test Co. แล้วใช้ทดสอบแทน
+- ¹ IT-AD-20, 21: ในรอบ 1 ไม่มีผล PROPOSED เหลือ (หลัง IT-AD-15 / 16: พิมพ์ชนก CONFIRMED · ธนกร DECLINED · กมลชนก CANCELLED) การตอบผลรอบ 1 หลังหมดเขตได้ 409 INVALID_STATUS เพราะระบบตรวจสถานะก่อนวันหมดเขต จึงทดสอบเพิ่มในรอบ 2 ที่มีผล PROPOSED ค้างอยู่ (ณัฐพลและกมลชนกจาก IT-AD-22) และให้รอบ 2 หมดเขต 17:00:12 UTC · ควรปรับ Design ของ IT-AD-20 / 21 ให้มีผลที่ไม่ตอบค้างอยู่ในรอบ 1
+
+ข้อมูลในฐานข้อมูลหลังรันครบ (SQL ในส่วนที่ 2)
+-
+รันเมื่อ 14 พ.ย. 2569 00:03 น. หลังรันครบ 22 ข้อ (ข้อความภาษาไทยขึ้นเป็น `?` เพราะ console ของ mysql ไม่ได้ตั้ง charset ข้อมูลจริงเป็นภาษาไทยปกติ ตามที่ API ตอบกลับในตารางผลข้างบน)
+
+```text
+id      position_name   quota   available_slots status
+1       Backend Developer       1       0       OPEN
+2       Data Analyst    2       2       OPEN
+3       Software Engineer       2       2       OPEN
+4       QA Engineer     1       1       OPEN
+5       Frontend Developer      1       1       OPEN
+6       Blockchain Developer Intern     1       1       OPEN
+7       Data Engineer   2       2       OPEN
+8       Tester  2       2       OPEN
+9       Closed Role     1       1       CLOSED
+
+application_id  position_id     rank_no
+3       8       1
+4       1       1
+4       3       2
+4       4       3
+5       1       1
+5       5       2
+6       6       1
+6       7       2
+
+id      round_no        status  confirm_deadline        announced_at
+1       1       CLOSED  2026-11-13 16:56:42.000000      2026-11-13 16:49:01.244435
+2       2       CLOSED  2026-11-13 17:00:12.000000      2026-11-13 16:57:12.580432
+3       3       OPEN    2026-11-13 18:00:29.000000      NULL
+
+id      application_id  position_id     round_id        rank_no status  decline_reason
+1       4       1       1       1       CONFIRMED       NULL
+2       5       5       1       2       DECLINED        (ได้ที่ฝึกงานที่อื่นแล้ว)
+3       6       6       1       1       CANCELLED       NULL
+4       3       8       2       1       DECLINED        (ไม่ตอบภายในกำหนด)
+5       6       8       2       NULL    DECLINED        (ไม่ตอบภายในกำหนด)
+
+user_id type    title
+12      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 1)
+13      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 1)
+14      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 1)
+1       MATCH_RESPONDED (นักศึกษายืนยันสิทธิ์)
+1       MATCH_RESPONDED (นักศึกษาสละสิทธิ์)
+11      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 2)
+14      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 2)
+13      MATCH_ANNOUNCED (ประกาศผลการจับคู่ รอบที่ 2)
+```
+
+ตรวจกับผลที่คาดไว้
+-
+- `company_positions`: ทุกตำแหน่งได้โควตาคืนครบ ยกเว้น SCB Backend (`available_slots` 0) ที่พิมพ์ชนก CONFIRMED · Tester `quota` ยัง 2 (IT-AD-22) · Closed Role เป็น CLOSED
+- `company_preferences`: ใบ 3 (ณัฐพล) เหลือ 1 อันดับ (IT-AD-11 · 12 · 14 ไม่ทำให้เปลี่ยน) · ใบ 4 (พิมพ์ชนก) ไม่ถูกแก้ (IT-AD-13)
+- `matching_rounds`: รอบ 1, 2 CLOSED มี `announced_at` · รอบ 3 OPEN (IT-AD-04, 09, 21)
+- `matches`: 1 CONFIRMED (IT-AD-15) · 2 DECLINED พร้อมเหตุผล (IT-AD-16) · 3 CANCELLED (IT-AD-08) · 4, 5 DECLINED "ไม่ตอบภายในกำหนด" (IT-AD-21) · `rank_no` ของ 5 เป็น NULL เพราะเจ้าหน้าที่จับคู่เองกับตำแหน่งที่กมลชนกไม่ได้เลือกไว้
+- `notifications`: รอบ 1 แจ้ง 3 คน ณัฐพลไม่ได้แจ้งเพราะไม่ได้เลือกอันดับ (IT-AD-09) · staff01 ได้ MATCH_RESPONDED 2 ครั้ง (IT-AD-15, 16) · รอบ 2 แจ้ง 3 คนที่มีผลหรือเลือกอันดับไว้
+
+> ข้อความใน ( ) คือค่าที่ API ตอบกลับ แทนตัว `?` ที่ console แสดง · ครั้งต่อไปเพิ่ม `--default-character-set=utf8mb4` ในคำสั่ง `mysql` จะเห็นภาษาไทย
 
 
 # ส่วนที่ 7 · ผล System Test
 
 Artefact: รายงานผล System Test · อ้างอิง test cases: ส่วน "Design System Test" ในไฟล์นี้
 
-> ยังไม่ได้รัน
+สภาพแวดล้อม
+-
+- วันที่รัน: 14 พ.ย. 2569 เวลา 00:38–00:54 น. · branch `Develop` (`06c385f`) · เริ่มจาก `docker compose down -v` แล้ว `up -d --build` อีกครั้ง (แยกจากส่วนที่ 5)
+- หน้าเว็บผ่าน container ทดสอบ `cs261-u6-proxy` (พอร์ต 8082) แบบเดียวกับส่วนที่ 5 · ตรวจ 3 จุด: ข้อความบนหน้าจอ · แท็บ Network · ข้อมูลในระบบผ่าน GET API · อีเมลดูที่ Mailpit (`localhost:8025`)
+- ลบ container `cs261-u6-proxy` แล้วหลังรันเสร็จ
+
+ผลการรัน
+-
+| TC ID | หน้าจอ | API (Network) | ข้อมูลในระบบ | ผล |
+|---|---|---|---|---|
+| ST-U6-01 | "เพิ่มบริษัท IT Test Co. แล้ว" · "เพิ่มตำแหน่ง Tester แล้ว" | POST /api/companies 201 · POST /api/companies/8/positions 201 | Tester 2/2 | ✅ |
+| ST-U6-02 | "เปิดรอบที่ 1 แล้ว" · "รอบที่ 1 เปิดจับคู่" · ปุ่มจับคู่อัตโนมัติขึ้น | POST /api/matching/rounds 201 | รอบ 1 OPEN หมดเขต 17:51 UTC ² | ✅ |
+| ST-U6-03 | "จับคู่ได้ 3 คน · จับไม่ได้ 1 คน" · "ณัฐพล เลือกงาน: ยังไม่ได้เลือกอันดับ" · ธนกรได้ LINE MAN อันดับ 2 | POST /api/matching/auto 200 | PROPOSED 3 แถว · SCB Backend / LINE MAN / Bitkub ว่าง 0/1 | ✅ |
+| ST-U6-04 | ไม่แสดงผลจับคู่ · กดบันทึกอันดับขึ้น "คุณได้รับการจับคู่แล้ว แก้อันดับไม่ได้" | GET /api/matches/me/summary 404 · PUT preferences 409 ALREADY_MATCHED | – | ✅ |
+| ST-U6-05 | "ยกเลิกผลการจับคู่แล้ว คืนโควตาให้ตำแหน่งแล้ว" · Bitkub ว่าง 1 → "จับคู่ได้ 1 คน · จับไม่ได้ 1 คน" (ณัฐพล) | DELETE /api/matches/3 200 · POST /api/matching/auto 200 | แถวเดิม CANCELLED · กมลชนก → Bitkub PROPOSED แถวใหม่ | ✅ |
+| ST-U6-06 | "ประกาศผลรอบที่ 1 แล้ว ระบบแจ้งเตือนนักศึกษาในรอบนี้แล้ว" | POST /api/matching/rounds/1/announce 200 | แจ้งเตือน "ประกาศผลการจับคู่ รอบที่ 1" ของพิมพ์ชนก ธนกร กมลชนก (ณัฐพลไม่มี) · Mailpit ได้อีเมล 3 ฉบับ (pimchanok@, thanakorn@, kamonchanok@) | ✅ |
+| ST-U6-07 | "คุณได้รับการจับคู่กับ ตำแหน่ง Backend Developer บริษัท SCB TechX (อันดับ 1)" · อันดับ 1 "ได้อันดับนี้" อันดับ 2–3 "ไม่ได้อันดับนี้" · ปุ่มยืนยัน / สละ | GET /api/matches/me/summary 200 · GET /api/notifications 200 | แจ้งเตือนบนสุด "ประกาศผลการจับคู่ รอบที่ 1" | ✅ |
+| ST-U6-08 | "ยืนยันสิทธิ์เรียบร้อยแล้ว" | POST /api/matches/1/respond 200 | CONFIRMED · staff01 ได้แจ้งเตือน "นักศึกษายืนยันสิทธิ์" | ✅ |
+| ST-U6-09 | "กรุณากรอกเหตุผลที่สละสิทธิ์" → "สละสิทธิ์เรียบร้อยแล้ว คุณแก้อันดับเพื่อรอรอบถัดไปได้" | ครั้งแรกไม่มี request · POST /api/matches/2/respond 200 | DECLINED · LINE MAN 1/1 · staff01 ได้แจ้งเตือน "…เหตุผล: ได้ที่ฝึกงานอื่นแล้ว" | ✅ |
+| ST-U6-10 | Backend Developer "(โควตาเต็ม 0/1)" เลือกไม่ได้ · "บันทึก 2 อันดับแล้ว" | PUT /api/applications/3/preferences 200 | อันดับ 1 Tester · 2 QA Engineer | ✅ |
+| ST-U6-11 | "รอบที่ 1 ยังไม่จบ (ต้องประกาศผลและเลยวันหมดเขตยืนยันสิทธิ์ก่อน)" | POST /api/matching/rounds 409 | ยังเป็นรอบ 1 | ✅ |
+| ST-U6-12 | "เลยกำหนดยืนยันสิทธิ์แล้ว" | POST /api/matches/4/respond 409 | ไม่เปลี่ยน | ✅ |
+| ST-U6-13 | "เปิดรอบที่ 2 แล้ว" | POST /api/matching/rounds 201 | รอบ 1 ปิด · กมลชนก DECLINED "ไม่ตอบภายในกำหนด" · Bitkub คืนเป็น 1/1 · รอบ 2 OPEN | ✅ |
+| ST-U6-14 | auto รอบ 2: "จับคู่ได้ 3 คน · จับไม่ได้ 0 คน" (ณัฐพล → Tester อันดับ 1) · candidates ของ Tester มีกมลชนกอันดับ 1 → "จับคู่ กมลชนก ใฝ่รู้ กับ Tester แล้ว" ⁵ | POST /api/matching/auto 200 · GET candidates 200 · POST /api/matches 201 | Tester 0/2 | ⚠️ ผ่านเมื่อปรับขั้นตอน |
+| ST-U6-15 | "ลดโควตาต่ำกว่าจำนวนที่จับคู่แล้ว (2 คน) ไม่ได้" | PUT /api/positions/8 400 | `quota` ยังเป็น 2 | ✅ |
+| ST-U6-16 | ณัฐพลเปิด `staff-matching.html` ขึ้น "หน้านี้สำหรับเจ้าหน้าที่เท่านั้น" | POST /api/matching/auto (X-User-Id นักศึกษา) 403 | ไม่มีแถวใหม่ | ✅ |
+| ST-U6-17 | "เกิดข้อผิดพลาด (502)" หน้าไม่ค้าง ⁴ | proxy ทดสอบตอบ 502 | – | ⚠️ ตรวจได้บางส่วน |
+
+**สรุป: ผ่าน 15 / 17 ข้อ · ผ่านเมื่อปรับขั้นตอน 1 ข้อ (ST-U6-14) · ตรวจได้บางส่วน 1 ข้อ (ST-U6-17)** · Bug ที่พบซ้ำกับส่วนที่ 5: B1 (เขตเวลา)
+
+⁵ จับคู่อัตโนมัติรอบ 2 จับกมลชนกเข้า Bitkub อีกครั้ง (อันดับเดิมของเธอ) จึงบันทึกอันดับเป็น Tester ไม่ได้ (409 ALREADY_MATCHED) ตามที่ Design คาด · ปรับขั้นตอนโดยให้เจ้าหน้าที่ยกเลิกผล Bitkub ของกมลชนกก่อน แล้วจึงบันทึกอันดับ Tester และจับคู่เอง · ควรแก้ Design ST-U6-14 ให้ตรงกับพฤติกรรมนี้
+
+ข้อสังเกต
+-
+- **O2:** รอบ 2 จับคู่อัตโนมัติให้ธนกรกลับไป LINE MAN Frontend ตำแหน่งเดิมที่เพิ่งสละสิทธิ์ไปพร้อมเหตุผล "ได้ที่ฝึกงานอื่นแล้ว" เพราะอันดับเดิมยังอยู่ · ควรตกลงกับทีม / PO ว่าคนที่สละสิทธิ์ควรถูกข้าม หรือต้องเลือกอันดับใหม่ก่อนจึงจะจับคู่ได้อีก
+- ข้อจำกัดที่ทีมรับรู้แล้ว: ก่อนประกาศผล นักศึกษาที่ถูกจับคู่แล้วกดบันทึกอันดับจะเห็น "คุณได้รับการจับคู่แล้ว แก้อันดับไม่ได้" (ST-U6-04)
 
 
 # ส่วนที่ 8 · ผล UAT
