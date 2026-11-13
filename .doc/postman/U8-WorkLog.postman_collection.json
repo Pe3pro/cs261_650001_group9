@@ -9,19 +9,19 @@
       "name": "00 เตรียมข้อมูล: หา userId จาก username",
       "item": [
         {
-          "name": "00 นักศึกษา A ฝึกงานอยู่ (GET /api/users/6609650001)",
+          "name": "00 นักศึกษา A ฝึกงานอยู่ (GET /api/users/6609650031)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/users/6609650001",
+              "raw": "{{baseUrl}}/api/users/6609650031",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "users",
-                "6609650001"
+                "6609650031"
               ]
             }
           },
@@ -40,19 +40,19 @@
           ]
         },
         {
-          "name": "00 นักศึกษา C (ไม่ใช่เจ้าของการฝึกงาน) (GET /api/users/6609650003)",
+          "name": "00 นักศึกษา C (ไม่ใช่เจ้าของการฝึกงาน) (GET /api/users/6609650033)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/users/6609650003",
+              "raw": "{{baseUrl}}/api/users/6609650033",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "users",
-                "6609650003"
+                "6609650033"
               ]
             }
           },
