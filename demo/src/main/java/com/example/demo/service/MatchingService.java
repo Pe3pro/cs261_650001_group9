@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ import com.example.demo.entity.Role;
 import com.example.demo.entity.RoundStatus;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
+import com.example.demo.event.MatchConfirmedEvent;
 import com.example.demo.repository.CompanyPositionRepository;
 import com.example.demo.repository.CompanyRepository;
 
@@ -65,12 +67,14 @@ public class MatchingService {
     private final MatchViews views;
     private final AccessGuard guard;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MatchingService(ApplicationRepository applicationRepository, StudentRepository studentRepository,
             CompanyPreferenceRepository preferenceRepository, CompanyPositionRepository positionRepository,
             CompanyRepository companyRepository, MatchRepository matchRepository,
             MatchingRoundRepository roundRepository, PreferenceService preferenceService,
-            NotificationService notificationService, MatchViews views, AccessGuard guard, Clock clock) {
+            NotificationService notificationService, MatchViews views, AccessGuard guard, Clock clock,
+            ApplicationEventPublisher eventPublisher) {
         this.applicationRepository = applicationRepository;
         this.studentRepository = studentRepository;
         this.preferenceRepository = preferenceRepository;
@@ -83,6 +87,7 @@ public class MatchingService {
         this.views = views;
         this.guard = guard;
         this.clock = clock;
+        this.eventPublisher = eventPublisher;
     }
 
     /* ===================== เจ้าหน้าที่ ===================== */
@@ -337,7 +342,20 @@ public class MatchingService {
             releaseSlot(match.getPositionId());
         }
         matchRepository.save(match);
-        notificationService.notifyMatchResponded(match, views.studentOf(app)[1], views.placeOf(match.getPositionId()));
+
+        if (match.getStatus() == MatchStatus.CONFIRMED) {
+            eventPublisher.publishEvent(
+                    new MatchConfirmedEvent(
+                            match.getId(),
+                            match.getApplicationId(),
+                            match.getPositionId(),
+                            match.getRoundId()));
+        }
+
+        notificationService.notifyMatchResponded(
+                match,
+                views.studentOf(app)[1],
+                views.placeOf(match.getPositionId()));
         return views.toResponse(match, app);
     }
 

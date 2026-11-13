@@ -1,0 +1,182 @@
+newman
+
+U8 WorkLog — บันทึกการทำงาน
+
+❏ 00 เตรียมข้อมูล: หา userId จาก username
+↳ 00 นักศึกษา A ฝึกงานอยู่ (GET /api/users/6609650001)
+  GET http://host.docker.internal:8080/api/users/6609650001 [200 OK, 332B, 222ms]
+  ✓  status 200
+  ┌
+  │ 'studentA = 3'
+  └
+
+↳ 00 นักศึกษา C (ไม่ใช่เจ้าของการฝึกงาน) (GET /api/users/6609650003)
+  GET http://host.docker.internal:8080/api/users/6609650003 [200 OK, 338B, 16ms]
+  ✓  status 200
+  ┌
+  │ 'studentC = 5'
+  └
+
+↳ 00 อาจารย์ที่ปรึกษา (GET /api/users/advisor01)
+  GET http://host.docker.internal:8080/api/users/advisor01 [200 OK, 346B, 13ms]
+  ✓  status 200
+  ┌
+  │ 'advisorId = 2'
+  └
+
+↳ 00 เจ้าหน้าที่ (GET /api/users/staff01)
+  GET http://host.docker.internal:8080/api/users/staff01 [200 OK, 336B, 12ms]
+  ✓  status 200
+  ┌
+  │ 'staffId = 1'
+  └
+
+❏ 01 นักศึกษาบันทึก แนบไฟล์ และส่งบันทึก
+↳ 01-1 หาการฝึกงานของตนเอง (GET /api/internships/me)
+  GET http://host.docker.internal:8080/api/internships/me [200 OK, 338B, 25ms]
+  ✓  status 200
+  ✓  IN_PROGRESS
+
+↳ 01-2 สรุปบันทึก + เลือกวันที่ยังไม่บันทึก (GET summary)
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/summary [200 OK, 699B, 58ms]
+  ✓  status 200
+  ✓  มี totalHours / workingDays / missingDates
+
+↳ 01-3 เวลาสิ้นสุดก่อนเวลาเริ่ม → 400 INVALID_WORK_LOG
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [400 Bad Request, 357B, 80ms]
+  ✓  status 400
+  ✓  code = INVALID_WORK_LOG
+
+↳ 01-4 วันที่ในอนาคต → 400 INVALID_WORK_LOG
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [400 Bad Request, 366B, 23ms]
+  ✓  status 400
+  ✓  code = INVALID_WORK_LOG
+
+↳ 01-5 นักศึกษาคนอื่นบันทึกในการฝึกงานนี้ → 403
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [403 Forbidden, 374B, 23ms]
+  ✓  status 403
+  ✓  code = FORBIDDEN
+
+↳ 01-6 สร้างบันทึกสำเร็จ → 201 DRAFT hours 3
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [201 Created, 537B, 84ms]
+  ✓  status 201
+  ✓  DRAFT, hours = 3
+
+↳ 01-7 บันทึกวันเดียวกันซ้ำ → 409 DUPLICATE_LOG_DATE
+  POST http://host.docker.internal:8080/api/internships/1/work-logs [409 Conflict, 373B, 22ms]
+  ✓  status 409
+  ✓  code = DUPLICATE_LOG_DATE
+
+↳ 01-8 แก้ไขเวลาสิ้นสุดเป็น 13:00 → 200 hours 4
+  PUT http://host.docker.internal:8080/api/work-logs/3 [200 OK, 525B, 40ms]
+  ✓  status 200
+  ✓  hours = 4
+
+↳ 01-9 แนบไฟล์ PDF → 201
+  POST http://host.docker.internal:8080/api/work-logs/3/attachments [201 Created, 381B, 50ms]
+  ✓  status 201
+  ✓  application/pdf
+
+↳ 01-10 แนบไฟล์ชนิดที่ไม่รองรับ → 400 INVALID_ATTACHMENT
+  POST http://host.docker.internal:8080/api/work-logs/3/attachments [400 Bad Request, 357B, 19ms]
+  ✓  status 400
+  ✓  code = INVALID_ATTACHMENT
+
+↳ 01-11 อาจารย์เปิดบันทึกที่ยังเป็นร่าง → 404
+  GET http://host.docker.internal:8080/api/work-logs/3 [404 Not Found, 350B, 24ms]
+  ✓  status 404
+
+↳ 01-12 ส่งให้อาจารย์ตรวจ → 200 SUBMITTED
+  POST http://host.docker.internal:8080/api/work-logs/3/submit [200 OK, 556B, 31ms]
+  ✓  status 200
+  ✓  SUBMITTED
+
+↳ 01-13 ลบบันทึกที่ส่งแล้ว → 409 INVALID_STATUS
+  DELETE http://host.docker.internal:8080/api/work-logs/3 [409 Conflict, 369B, 14ms]
+  ✓  status 409
+  ✓  code = INVALID_STATUS
+
+↳ 01-14 รายการบันทึกกรองสถานะ SUBMITTED → 200
+  GET http://host.docker.internal:8080/api/internships/1/work-logs?status=SUBMITTED [200 OK, 555B, 29ms]
+  ✓  status 200
+  ✓  มีบันทึกที่เพิ่งส่ง
+
+❏ 02 อาจารย์ตรวจบันทึก
+↳ 02-1 บันทึกรอตรวจ (GET /api/work-logs/pending-review)
+  GET http://host.docker.internal:8080/api/work-logs/pending-review [200 OK, 555B, 25ms]
+  ✓  status 200
+  ✓  มีบันทึกที่นักศึกษาส่ง
+
+↳ 02-2 นักศึกษาเรียก pending-review → 403
+  GET http://host.docker.internal:8080/api/work-logs/pending-review [403 Forbidden, 374B, 12ms]
+  ✓  status 403
+
+↳ 02-3 ส่งกลับแก้ไขไม่มีความเห็น → 400 COMMENT_REQUIRED
+  POST http://host.docker.internal:8080/api/work-logs/3/review [400 Bad Request, 375B, 23ms]
+  ✓  status 400
+  ✓  code = COMMENT_REQUIRED
+
+↳ 02-4 ส่งกลับแก้ไขพร้อมความเห็น → 200 NEED_REVISION
+  POST http://host.docker.internal:8080/api/work-logs/3/review [200 OK, 584B, 31ms]
+  ✓  status 200
+  ✓  NEED_REVISION
+
+↳ 02-5 ตรวจซ้ำบันทึกที่ไม่ได้รอตรวจ → 409 WORK_LOG_NOT_PENDING
+  POST http://host.docker.internal:8080/api/work-logs/3/review [409 Conflict, 399B, 15ms]
+  ✓  status 409
+  ✓  code = WORK_LOG_NOT_PENDING
+
+↳ 02-6 นักศึกษาดูความเห็นอาจารย์ (GET /api/work-logs/{id})
+  GET http://host.docker.internal:8080/api/work-logs/3 [200 OK, 987B, 26ms]
+  ✓  status 200
+  ✓  มีความเห็นอาจารย์และไฟล์แนบ
+
+↳ 02-7 นักศึกษาแก้แล้วส่งใหม่ → 200 SUBMITTED
+  POST http://host.docker.internal:8080/api/work-logs/3/submit [200 OK, 580B, 23ms]
+  ✓  status 200
+  ✓  SUBMITTED
+
+↳ 02-8 อนุมัติหลายบันทึก (มี id ที่ไม่มีอยู่) → approved + skipped
+  POST http://host.docker.internal:8080/api/work-logs/review-bulk [200 OK, 339B, 40ms]
+  ✓  status 200
+  ✓  อนุมัติบันทึกที่ส่ง
+  ✓  id ที่ไม่มีอยู่ถูกข้าม
+
+❏ 03 สรุปและส่งออก
+↳ 03-1 อาจารย์ส่งออก CSV → 200 text/csv
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/export [200 OK, 793B, 24ms]
+  ✓  status 200
+  ✓  text/csv
+
+↳ 03-2 นักศึกษาส่งออก CSV → 403
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/export [403 Forbidden, 374B, 12ms]
+  ✓  status 403
+
+↳ 03-3 เจ้าหน้าที่ดูสรุป → 200
+  GET http://host.docker.internal:8080/api/internships/1/work-logs/summary [200 OK, 686B, 22ms]
+  ✓  status 200
+  ✓  มีบันทึกที่อนุมัติแล้ว
+
+↳ 03-4 ไม่ส่ง X-User-Id → 401
+  GET http://host.docker.internal:8080/api/internships/1/work-logs [401 Unauthorized, 377B, 10ms]
+  ✓  status 401
+
+┌─────────────────────────┬───────────────────┬───────────────────┐
+│                         │          executed │            failed │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              iterations │                 1 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│                requests │                30 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│            test-scripts │                30 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│      prerequest-scripts │                 0 │                 0 │
+├─────────────────────────┼───────────────────┼───────────────────┤
+│              assertions │                53 │                 0 │
+├─────────────────────────┴───────────────────┴───────────────────┤
+│ total run duration: 1613ms                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ total data received: 6.39kB (approx)                            │
+├─────────────────────────────────────────────────────────────────┤
+│ average response time: 34ms [min: 10ms, max: 222ms, s.d.: 39ms] │
+└─────────────────────────────────────────────────────────────────┘

@@ -43,12 +43,16 @@ class EligibilityApiDaoIntegrationTest {
 
     private static final long PASS_USER_ID = 900001L;
     private static final long LOW_GPA_USER_ID = 900002L;
+    private static final long NO_GPA_USER_ID = 900003L;
 
     private static final String PASS_STUDENT_ID =
         "6410000001";
 
     private static final String LOW_GPA_STUDENT_ID =
         "6410000002";
+
+    private static final String NO_GPA_STUDENT_ID =
+        "6410000003";
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,6 +74,9 @@ class EligibilityApiDaoIntegrationTest {
         studentRepository.findByUserId(LOW_GPA_USER_ID)
             .ifPresent(studentRepository::delete);
 
+        studentRepository.findByUserId(NO_GPA_USER_ID)
+            .ifPresent(studentRepository::delete);
+
         studentRepository.flush();
 
         studentRepository.saveAll(
@@ -87,6 +94,14 @@ class EligibilityApiDaoIntegrationTest {
                     "วิทยาศาสตร์และเทคโนโลยี",
                     "วิทยาการคอมพิวเตอร์",
                     2.74
+                ),
+                // บัญชี มธ. จริงที่สร้างตอน login (U1) ยังไม่มี GPA
+                new Student(
+                    NO_GPA_USER_ID,
+                    NO_GPA_STUDENT_ID,
+                    "วิทยาศาสตร์และเทคโนโลยี",
+                    "วิทยาการคอมพิวเตอร์",
+                    null
                 )
             )
         );
@@ -390,6 +405,53 @@ class EligibilityApiDaoIntegrationTest {
             );
 
         assertThat(dao.count()).isZero();
+    }
+
+    @Test
+    void shouldAcceptAndStoreGpaWhenDatabaseGpaIsMissing()
+            throws Exception {
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", NO_GPA_USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            NO_GPA_STUDENT_ID,
+                            "3.10"
+                        )
+                    )
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.valid").value(true))
+            .andExpect(jsonPath("$.eligible").value(true));
+
+        assertThat(
+            studentRepository.findByUserId(NO_GPA_USER_ID)
+                .orElseThrow()
+                .getGpa()
+        ).isEqualTo(3.10);
+
+        mockMvc.perform(
+                post(ENDPOINT)
+                    .header("X-User-Id", NO_GPA_USER_ID)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        validRequest(
+                            NO_GPA_STUDENT_ID,
+                            "3.50"
+                        )
+                    )
+            )
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                jsonPath("$.errors")
+                    .value(
+                        hasItem(
+                            "GPA ไม่ตรงกับข้อมูลในฐานข้อมูล"
+                        )
+                    )
+            );
     }
 
     @Test

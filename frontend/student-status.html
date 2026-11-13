@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>สถานะนักศึกษา · ระบบสหกิจศึกษา</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/u7.css">
+</head>
+
+<body class="u7" data-page="student-status">
+
+    <header>
+        ระบบสหกิจศึกษา
+
+        <span>
+            <span id="who"></span> ·
+        <button id="logout" type="button">
+                ออกจากระบบ
+            </button>
+        </span>
+    </header>
+
+    <nav>
+        <a href="staff-review.html">
+            ตรวจใบสมัคร
+        </a>
+
+        <a href="staff-matching.html">
+            จับคู่บริษัท
+        </a>
+
+        <a href="student-status.html" class="on" aria-current="page">
+            สถานะนักศึกษา
+        </a>
+
+        <a href="notifications.html">
+            การแจ้งเตือน
+        </a>
+    </nav>
+
+    <main>
+
+        <!-- ไม่มีสิทธิ์ -->
+        <section id="vDenied" hidden>
+            <div class="card">
+                <div class="alert bad" role="alert">
+                    หน้านี้สำหรับเจ้าหน้าที่และอาจารย์เท่านั้น
+                </div>
+
+                <a class="btn" href="my-status.html">
+                    ดูสถานะของฉัน
+                </a>
+            </div>
+        </section>
+
+        <!-- หน้ารายการ -->
+        <section id="vList" hidden>
+
+            <h1>สถานะนักศึกษา</h1>
+
+            <p class="sub">
+                ตรวจสอบขั้นตอนตั้งแต่ยื่นใบสมัคร จับคู่บริษัท เริ่มฝึกงาน จนถึงเสร็จสิ้น
+            </p>
+
+            <div id="listLoading" class="card" role="status">
+                กำลังโหลดข้อมูลนักศึกษา...
+            </div>
+
+            <div id="listErr" class="alert bad" role="alert" hidden>
+            </div>
+
+            <div id="listMsg" class="alert ok" role="status" hidden>
+            </div>
+
+            <div id="listContent" hidden>
+
+                <div id="stageTabs" class="stage-tabs" role="tablist" aria-label="กรองตามขั้นตอน">
+
+                    <button class="stage-tab on" type="button" data-stage="">
+                        ทั้งหมด
+                        <span class="count"
+                              id="countAll">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="NOT_APPLIED">
+                        ยังไม่ยื่น
+                        <span class="count"
+                              data-count="NOT_APPLIED">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="APPLYING">
+                        กำลังยื่น
+                        <span class="count"
+                              data-count="APPLYING">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="WAITING_MATCH">
+                        รอจับคู่
+                        <span class="count"
+                              data-count="WAITING_MATCH">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="MATCHING">
+                        กำลังจับคู่
+                        <span class="count"
+                              data-count="MATCHING">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="READY">
+                        พร้อมฝึกงาน
+                        <span class="count"
+                              data-count="READY">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="IN_PROGRESS">
+                        กำลังฝึกงาน
+                        <span class="count"
+                              data-count="IN_PROGRESS">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="COMPLETED">
+                        เสร็จสิ้น
+                        <span class="count"
+                              data-count="COMPLETED">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="REJECTED">
+                        ไม่อนุมัติ
+                        <span class="count"
+                              data-count="REJECTED">0</span>
+                    </button>
+
+                    <button class="stage-tab" type="button" data-stage="TERMINATED">
+                        ยุติ
+                        <span class="count"
+                              data-count="TERMINATED">0</span>
+                    </button>
+                </div>
+
+                <div class="toolbar">
+
+                    <input id="search" class="search" type="search" placeholder="ค้นหาชื่อหรือรหัสนักศึกษา" aria-label="ค้นหาชื่อหรือรหัสนักศึกษา">
+
+                    <input id="companyFilter" type="number" min="1" placeholder="รหัสบริษัท" aria-label="กรองตามรหัสบริษัท" style="max-width:150px">
+
+                    <button class="btn ghost" id="btnSearch" type="button">
+                        ค้นหา
+                    </button>
+
+                    <button class="btn ghost" id="btnExport" type="button" title="ไฟล์ CSV เปิดด้วย Excel ได้">
+                        ดาวน์โหลด Excel
+                    </button>
+                </div>
+
+                <div class="card" style="padding:0">
+
+                    <div class="table-wrap">
+                        <table class="status-table">
+                            <thead>
+                                <tr>
+                                    <th>รหัสนักศึกษา</th>
+                                    <th>ชื่อ-นามสกุล</th>
+                                    <th>อาจารย์ที่ปรึกษา</th>
+                                    <th>บริษัท / ตำแหน่ง</th>
+                                    <th>ขั้นปัจจุบัน</th>
+                                    <th>วันอัปเดตล่าสุด</th>
+                                    <th>ป้ายเตือน</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="studentRows">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p id="emptyMsg" class="empty" hidden>
+                        ไม่พบนักศึกษาตามเงื่อนไข
+                    </p>
+                </div>
+
+                <div class="pager">
+                    <button class="btn ghost" id="btnPrev" type="button">
+                        ก่อนหน้า
+                    </button>
+
+                    <span id="pageText">
+                        หน้า 1 จาก 1
+                    </span>
+
+                    <button class="btn ghost" id="btnNext" type="button">
+                        ถัดไป
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- หน้ารายละเอียด -->
+        <section id="vDetail" hidden>
+
+            <div class="detail-head">
+                <div>
+                    <h1>รายละเอียดสถานะนักศึกษา</h1>
+
+                    <p class="sub">
+                        ข้อมูลคำร้อง ผลจับคู่ การฝึกงาน และประวัติ
+                    </p>
+                </div>
+
+                <button class="btn ghost" id="btnBack" type="button">
+                    กลับหน้ารายการ
+                </button>
+            </div>
+
+            <div id="detailLoading" class="card" role="status">
+                กำลังโหลดรายละเอียด...
+            </div>
+
+            <div id="detailErr" class="alert bad" role="alert" hidden>
+            </div>
+
+            <div id="detailMsg" class="alert ok" role="status" hidden>
+            </div>
+
+            <div id="detailContent" class="detail-grid" hidden>
+
+                <section class="card">
+                    <h2>ข้อมูลนักศึกษา</h2>
+                    <dl class="kv" id="dStudent"></dl>
+                </section>
+
+                <section class="card">
+                    <h2>สถานะปัจจุบัน</h2>
+
+                    <p>
+                        <span id="dStage" class="badge">
+                            -
+                        </span>
+                    </p>
+
+                    <p id="dAttention" class="attention" hidden>
+                    </p>
+                </section>
+
+                <section class="card">
+                    <h2>ใบสมัคร</h2>
+
+                    <div id="dApplication">
+                        ยังไม่ยื่นใบสมัคร
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>อันดับบริษัทที่เลือก</h2>
+
+                    <div id="dPreferences">
+                        ยังไม่มีอันดับที่เลือก
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>ผลการจับคู่</h2>
+
+                    <div id="dMatch">
+                        ยังไม่มีผลการจับคู่
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>ข้อมูลการฝึกงาน</h2>
+
+                    <div id="noInternship">
+                        ยังไม่มีข้อมูลการฝึกงาน
+                    </div>
+
+                    <div id="internshipPanel" hidden>
+
+                        <p class="readonly-note" id="readonlyNote" hidden>
+                            อาจารย์สามารถดูข้อมูลได้อย่างเดียว
+                        </p>
+
+                        <p>
+                            สถานะ:
+                            <span id="internshipStatus" class="badge">
+                                -
+                            </span>
+                        </p>
+
+                        <div class="internship-form">
+
+                            <div>
+                                <label for="iStartDate">
+                                    วันเริ่มฝึกงาน
+                                </label>
+
+                                <input id="iStartDate" type="date">
+                            </div>
+
+                            <div>
+                                <label for="iEndDate">
+                                    วันสิ้นสุด
+                                </label>
+
+                                <input id="iEndDate" type="date">
+
+                                <div id="dateError" class="field-error" hidden>
+                                    วันสิ้นสุดต้องหลังวันเริ่ม
+                                </div>
+                            </div>
+
+                            <div class="wide">
+                                <label for="iSupervisorName">
+                                    ชื่อผู้ดูแลที่บริษัท
+                                </label>
+
+                                <input id="iSupervisorName" type="text" maxlength="150">
+                            </div>
+
+                            <div>
+                                <label for="iSupervisorEmail">
+                                    อีเมลผู้ดูแล
+                                </label>
+
+                                <input id="iSupervisorEmail" type="email" maxlength="150">
+                            </div>
+
+                            <div>
+                                <label for="iSupervisorPhone">
+                                    เบอร์โทรผู้ดูแล
+                                </label>
+
+                                <input id="iSupervisorPhone" type="tel" maxlength="30">
+                            </div>
+                        </div>
+
+                        <div id="internshipActions" class="internship-actions">
+
+                            <button class="btn" id="btnSaveInternship" type="button">
+                                บันทึกข้อมูล
+                            </button>
+
+                            <button class="btn" id="btnStartInternship" type="button">
+                                เริ่มฝึกงาน
+                            </button>
+
+                            <button class="btn" id="btnCompleteInternship" type="button">
+                                เสร็จสิ้นการฝึกงาน
+                            </button>
+
+                            <button class="btn danger" id="btnShowTerminate" type="button">
+                                ยุติการฝึกงาน
+                            </button>
+                        </div>
+
+                        <div id="terminateBox" class="card" hidden style="margin-top:14px">
+
+                            <label for="terminateReason">
+                                เหตุผลที่ยุติการฝึกงาน
+                            </label>
+
+                            <textarea id="terminateReason" rows="3" maxlength="500" placeholder="กรุณากรอกเหตุผล"></textarea>
+
+                            <div id="terminateError" class="field-error" hidden>
+                                กรุณากรอกเหตุผล
+                            </div>
+
+                            <div class="internship-actions">
+                                <button class="btn danger" id="btnTerminateInternship" type="button">
+                                    ยืนยันยุติการฝึกงาน
+                                </button>
+
+                                <button class="btn ghost" id="btnCancelTerminate" type="button">
+                                    ยกเลิก
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card wide">
+                    <h2>ประวัติสถานะ</h2>
+
+                    <ol id="timeline" class="timeline">
+                    </ol>
+
+                    <p id="timelineEmpty" class="empty">
+                        ยังไม่มีประวัติการเปลี่ยนสถานะ
+                    </p>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="js/u7.js"></script>
+</body>
+
+</html>

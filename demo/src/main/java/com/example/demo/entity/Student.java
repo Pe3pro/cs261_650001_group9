@@ -54,6 +54,7 @@ public class Student {
     public String getFaculty() { return faculty; }
     public String getMajor() { return major; }
     public Double getGpa() { return gpa; }
+    public void setGpa(Double gpa) { this.gpa = gpa; }
     public Integer getTotalCredits() { return totalCredits; }
     public void setTotalCredits(Integer totalCredits) { this.totalCredits = totalCredits; }
     public Long getAdvisorId() { return advisorId; }
