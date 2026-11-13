@@ -23,7 +23,7 @@ User story U7: เจ้าหน้าที่และอาจารย์�
 | `6609650026` (S6) | นักศึกษา | advisor02 | internship IN_PROGRESS | IN_PROGRESS | null |
 | `6609650027` (S7) | นักศึกษา | advisor02 | internship COMPLETED | COMPLETED | null |
 
-- ข้อมูลชุดนี้สร้างโดย `U7DemoSeeder` (Task4) · S4–S7 จับคู่กับตำแหน่งจาก `MatchingDemoSeeder` (บริษัทของแต่ละคนดูได้จากหน้ารายละเอียด)
+- ข้อมูลชุดนี้สร้างโดย `U7DemoSeeder` (Task4) · S4–S7 จับคู่กับตำแหน่งจาก `MatchingDemoSeeder` (บริษัทของแต่ละคนดูได้จากหน้ารายละเอียด) · ต้องเปิด `APP_SEED_U7_DATA: "true"` ใน `docker-compose.yml` ก่อน (ค่าเริ่มต้นปิดไว้ เพื่อไม่ให้กระทบ U5/U6)
 - ป้ายเตือน NO_MATCH / NOT_CONFIRMED ไม่เกิดจาก seeder (วันที่ยังไม่เกินกำหนด) ก่อนทดสอบป้ายเตือนให้เตรียมข้อมูลด้วย SQL:
   - ก. S3 อนุมัติเกิน 14 วัน: `UPDATE applications SET updated_at = NOW() - INTERVAL 15 DAY WHERE student_id = <S3>`
   - ข. รอบของ S4 เลยกำหนดยืนยัน: `UPDATE matching_rounds SET confirm_deadline = NOW() - INTERVAL 1 DAY WHERE id = <รอบของ S4>`
@@ -149,7 +149,7 @@ Sequence Diagram 3 รูปจาก Task2
 
 เตรียมก่อนทดสอบ
 -
-1. `docker compose down -v` แล้ว `docker compose up -d --build` (ได้ข้อมูลตั้งต้นจาก `DemoDataSeeder` + `MatchingDemoSeeder` + `U7DemoSeeder`)
+1. ใน `docker-compose.yml` เปลี่ยน `APP_SEED_U7_DATA: "false"` เป็น `"true"` แล้ว `docker compose down -v` และ `docker compose up -d --build` (ได้ข้อมูลตั้งต้นจาก `DemoDataSeeder` + `MatchingDemoSeeder` + `U7DemoSeeder`) · เทสเสร็จเปลี่ยนกลับเป็น `"false"`
 2. บัญชี รหัสผ่าน `1234`: `staff01` · `advisor01` · `advisor02` · `6609650021`–`6609650027` (S1–S7)
 3. ดูข้อมูลใน MySQL: `docker exec -it cs261-db mysql -uroot -proot1234 cs261db`
 
@@ -203,7 +203,7 @@ Test cases
 -
 - ผู้รับบทอาจารย์ 1–2 คน (`advisor01`, `advisor02`) · เจ้าหน้าที่ 1 คน (`staff01`) · นักศึกษา 2 คน (`6609650024`, `6609650025`) รหัสผ่าน `1234`
 - ทีมอธิบายแค่สถานการณ์ (Given) **ไม่บอกว่าต้องกดปุ่มไหน** แล้วสังเกตว่าผู้ทดสอบทำได้เองหรือไม่ จับเวลา และจดคำพูด / ปัญหาที่เจอ
-- เริ่มทุกรอบด้วย `docker compose down -v` แล้ว `docker compose up -d --build`
+- เริ่มทุกรอบด้วยการตั้ง `APP_SEED_U7_DATA: "true"` แล้ว `docker compose down -v` และ `docker compose up -d --build`
 
 Test cases
 -
