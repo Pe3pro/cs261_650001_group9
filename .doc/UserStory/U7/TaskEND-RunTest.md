@@ -232,9 +232,10 @@ Test cases
 -
 - รวมทั้งหมด 71 test case: Integration UI–API 19 · Integration API–DAO 22 · System Test 18 · UAT 12
 - ปรับตามข้อตกลงกับ U6 (T2 ของ U6 และ T3 ของ U7 ฉบับ 13 พ.ย.): S8 · ยืนยันสิทธิ์แล้ว U6 ส่ง `MatchConfirmedEvent` ให้ U7 สร้าง internship ใน transaction เดียวกัน (IT-AD-13, 21, 22 · ST-U7-10) · S9 · ป้าย `NOT_CONFIRMED` ดูจาก `confirmDeadline` ของรอบ ไม่นับ 7 วัน (S4, IT-UA-06, IT-AD-07)
+- หน้าเว็บของ U7 คือ `student-status.html` (เจ้าหน้าที่ / อาจารย์) และ `my-status.html` (นักศึกษา) · หน้า `status.html` + `js/status.js` ชุดเก่าจาก Task4 รอบแรกลบออกแล้ว
 - ชื่อตารางการฝึกงานใช้ `internships` ตามโค้ด Task4 และ ER ของ U6 (T2 ของ U7 เขียนเป็น `internship`)
 - ออกแบบตาม Task2/Task3 (11 endpoint) · โค้ด Task4 อยู่ใน branch `Feature-/-U7-Status-Check` (รวม Develop และ U6 แล้ว) · ข้อมูลตัวอย่างตาม `U7DemoSeeder`
-- สถานะ match ใช้ตามโค้ด U6: `PROPOSED`, `CONFIRMED`, `DECLINED`, `CANCELLED` (Task3 DAO-L02 เขียนว่า REJECTED ควรแก้เป็น DECLINED / CANCELLED)
+- สถานะ match ใช้ตามโค้ด U6: `PROPOSED`, `CONFIRMED`, `DECLINED`, `CANCELLED`
 - role เจ้าหน้าที่ใช้ `STAFF` ตามโค้ด (ER Diagram และ Sequence ① ใน Task2 ใช้ `OFFICER`)
 - อาจารย์ที่ปรึกษาอยู่ที่ `students.advisor_id` ตามโค้ด (ER Diagram วางไว้ที่ `users.advisor_id`)
 - ER Diagram ใช้ชื่อตารางเดิมแบบเอกพจน์ (application, position, company, notification) แต่ตารางจริงในโค้ดคือ `applications`, `company_positions`, `companies`, `notifications`
@@ -292,6 +293,18 @@ Artefact: รายงานผล Integration Test · อ้างอิง tes
 สรุป: **19/19 ผ่าน** (IT-UA-05 ใช้ผล unit test)
 
 
+หลักฐาน (โฟลเดอร์ `evidence/`)
+-
+| ไฟล์ | TC ID |
+|---|---|
+| [U7-IT-UA-06-attention.png](<evidence/U7-IT-UA-06-attention.png>) | IT-UA-06 ป้ายเตือน S3 / S4 |
+| [U7-IT-UA-16-403.png](<evidence/U7-IT-UA-16-403.png>) | IT-UA-16 อาจารย์ขอนักศึกษาคนอื่น → 403 |
+
+![IT-UA-06](<evidence/U7-IT-UA-06-attention.png>)
+
+![IT-UA-16](<evidence/U7-IT-UA-16-403.png>)
+
+
 # ส่วนที่ 6 · ผล Integration Test API–DAO
 
 Artefact: รายงานผล Integration Test · อ้างอิง test cases: ส่วน "Design Integration Test API–DAO" ในไฟล์นี้
@@ -332,6 +345,16 @@ Artefact: รายงานผล Integration Test · อ้างอิง tes
 สรุป: **22/22 ผ่าน** (ระบบจริง 15 ข้อ · unit test 7 ข้อ) · IT-AD-13 ผ่านหลังแก้ bug #1
 
 
+หลักฐาน (โฟลเดอร์ `evidence/`)
+-
+| ไฟล์ | TC ID |
+|---|---|
+| [U7-IT-AD-sql.png](<evidence/U7-IT-AD-sql.png>) | IT-AD-13, 14, 16 ผล SQL `internships` · `status_history` · `notifications` |
+| [T4-u7-backend-unit-test-output.txt](<evidence/T4-u7-backend-unit-test-output.txt>) · [T4-api-dao-test-output.txt](<evidence/T4-api-dao-test-output.txt>) | ข้อที่ใช้ผล unit test (Task4) |
+
+![IT-AD SQL](<evidence/U7-IT-AD-sql.png>)
+
+
 # ส่วนที่ 7 · ผล System Test
 
 Artefact: รายงานผล System Test · อ้างอิง test cases: ส่วน "Design System Test" ในไฟล์นี้ · สภาพแวดล้อมเดียวกับส่วนที่ 5
@@ -360,6 +383,24 @@ Artefact: รายงานผล System Test · อ้างอิง test cas
 | ST-U7-18 | – | `docker compose stop app` → "ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง" ไม่ค้าง (IT-UA-19) | ✅ |
 
 สรุป: **17/18 ผ่าน · 1 ไม่ได้รัน (ST-U7-17)** · ST-U7-10 ผ่านหลังแก้ bug #1
+
+
+หลักฐาน (โฟลเดอร์ `evidence/`)
+-
+| ไฟล์ | TC ID |
+|---|---|
+| [U7-ST-10-before-500.png](<evidence/U7-ST-10-before-500.png>) | ST-U7-10 รอบแรก respond 500 (bug #1) |
+| [U7-ST-10-after-200.png](<evidence/U7-ST-10-after-200.png>) | ST-U7-10 หลังแก้ respond 200 ยืนยันแล้ว |
+| [U7-ST-13-completed.png](<evidence/U7-ST-13-completed.png>) | ST-U7-11, 13 บันทึก → start → complete |
+| [U7-ST-15-16-console.png](<evidence/U7-ST-15-16-console.png>) | ST-U7-15 (409) · ST-U7-16 (403 × 4) |
+
+![ST-U7-10 ก่อนแก้](<evidence/U7-ST-10-before-500.png>)
+
+![ST-U7-10 หลังแก้](<evidence/U7-ST-10-after-200.png>)
+
+![ST-U7-13](<evidence/U7-ST-13-completed.png>)
+
+![ST-U7-15, 16](<evidence/U7-ST-15-16-console.png>)
 
 Bug ที่พบระหว่างรันและแก้แล้ว (commit `79e1420`)
 -
