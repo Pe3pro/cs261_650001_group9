@@ -20,6 +20,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import com.example.demo.dao.ApplicationRepository;
@@ -45,6 +46,7 @@ import com.example.demo.entity.Role;
 import com.example.demo.entity.RoundStatus;
 import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
+import com.example.demo.event.MatchConfirmedEvent;
 import com.example.demo.repository.CompanyPositionRepository;
 import com.example.demo.repository.CompanyRepository;
 
@@ -64,6 +66,7 @@ class MatchingServiceTest {
     private NotificationService notifications;
     private MatchViews views;
     private AccessGuard guard;
+    private ApplicationEventPublisher eventPublisher;
     private MatchingService service;
 
     private final User staff = user(1L, Role.STAFF);
@@ -81,10 +84,11 @@ class MatchingServiceTest {
         notifications = mock(NotificationService.class);
         views = mock(MatchViews.class);
         guard = mock(AccessGuard.class);
+        eventPublisher = mock(ApplicationEventPublisher.class);
         Clock clock = Clock.fixed(Instant.parse("2026-11-10T03:00:00Z"), ZoneId.of("Asia/Bangkok"));
         PreferenceService preferenceService = mock(PreferenceService.class);
         service = new MatchingService(applications, students, preferences, positions, companies, matches, rounds,
-                preferenceService, notifications, views, guard, clock);
+                preferenceService, notifications, views, guard, clock, eventPublisher);
 
         when(guard.require(1L, Role.STAFF)).thenReturn(staff);
         when(guard.require(9L, Role.STUDENT)).thenReturn(studentUser);
@@ -317,7 +321,12 @@ class MatchingServiceTest {
         service.respond(9L, 70L, new MatchDecisionRequest(true, null));
 
         assertThat(m.getStatus()).isEqualTo(MatchStatus.CONFIRMED);
-        verify(notifications).notifyMatchResponded(any(), anyString(), anyString());
+        verify(eventPublisher).publishEvent(
+                any(MatchConfirmedEvent.class));
+        verify(notifications).notifyMatchResponded(
+                any(),
+                anyString(),
+                anyString());
     }
 
     @Test
