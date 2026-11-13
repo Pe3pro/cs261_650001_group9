@@ -242,19 +242,149 @@ Test cases
 
 # ส่วนที่ 5 · ผล Integration Test UI–API
 
-Artefact: รายงานผล Integration Test
+Artefact: รายงานผล Integration Test · อ้างอิง test cases: ส่วน "Design Integration Test UI–API" ในไฟล์นี้
+
+สภาพแวดล้อมที่ใช้รัน
+-
+| รายการ | ค่า |
+|---|---|
+| วันที่รัน | 14 พ.ย. 2569 00:54–02:03 |
+| ผู้รัน | Sintawee (รันเองผ่านหน้าเว็บ + Chrome DevTools) |
+| Branch / commit | `Feature-/-U7-Status-Check` เริ่มจาก `c230d15` (= Develop หลัง PR #47) · แก้ bug ระหว่างรัน แล้ว push เป็น `79e1420` |
+| Backend | Spring Boot (docker compose) http://localhost:8080 · `APP_SEED_U7_DATA: "true"` |
+| ฐานข้อมูล | MySQL 8.4 (docker compose) เริ่มจาก `docker compose down -v` |
+| Frontend | nginx (docker compose) http://localhost:8081 |
+| บัญชี | `staff01`, `advisor01`, `advisor02`, `6609650021`–`6609650027` รหัสผ่าน `1234` |
+| เบราว์เซอร์ | Google Chrome 157 |
+
+ขั้นตอนการรัน
+-
+1. Unit test ทั้งโปรเจกต์ก่อน: `mvn test` (ผ่าน Docker image `maven:3.9-eclipse-temurin-21`) → **444 tests, Failures 0, Errors 0, BUILD SUCCESS**
+2. ตั้ง `APP_SEED_U7_DATA: "true"` แล้ว `docker compose down -v` และ `docker compose up -d --build`
+3. login ตามผู้ใช้ที่ test case กำหนด เปิด DevTools แท็บ Network ดู method, URL, status, response
+4. ข้อที่ต้องยิง request ตรง (แทน Postman) ใช้ `fetch` ใน DevTools Console
+5. บันทึกผล ✅ ผ่าน / ❌ ไม่ผ่าน / ⚠️ ผ่านบางส่วน
+
+รายงานผล
+-
+| TC ID | Scenario | Expected | Actual | ผล |
+|---|---|---|---|---|
+| IT-UA-01 | รายการนักศึกษา | `status?page=0` + `summary` 200 · S1–S7 อยู่ในรายการ | `GET /api/students/status?page=0` 200 · `summary` 200 · ตารางครบทุกคอลัมน์ · S1–S7 ขั้นตรงตามตารางข้อมูลตัวอย่าง | ✅ |
+| IT-UA-02 | ตัวเลขแต่ละขั้น | ตัวเลขตรง response · ขั้นที่เป็น 0 ไม่มีตัวเลข | ตัวเลขรวม 7+3+5+1+1+1+1 = 19 ตรงกับ "ทั้งหมด" · ขั้นที่เป็น 0 แสดงเลข 0 (unit test UI-02 กำหนดให้แสดง 0) | ✅ |
+| IT-UA-03 | กรองขั้น + ค้นหา | `stage=MATCHING&q=6609650024` · เหลือ S4 | `status?stage=MATCHING&q=6609650024&page=0` 200 · เหลือแถว S4 · หน้า 1 จาก 1 | ✅ |
+| IT-UA-04 | กรองบริษัท | `companyId={บริษัทของ S6}` · เห็น S6 | `status?companyId=2&page=0` 200 (Agoda Services id 2) · เหลือ S6 แถวเดียว | ✅ |
+| IT-UA-05 | แบ่งหน้า | `page=1` · "หน้า 2 จาก N" | ข้อมูลในระบบมี 19 คน (< 20 ต่อหน้า) จึงไม่มีหน้า 2 · ใช้ผล unit test UI-04 (แบ่งหน้าและกดหน้าถัดไป) ผ่าน | ✅ (unit test) |
+| IT-UA-06 | ป้ายเตือน | S3 NO_MATCH · S4 NOT_CONFIRMED · แถวอื่นไม่มีป้าย | หลังเตรียมข้อมูลข้อ ก, ข: S3 "อนุมัติเกิน 14 วัน แต่ยังไม่ได้จับคู่" · S4 "ยังไม่ยืนยันผลจับคู่" · ทั้งสองแถวไฮไลต์ · แถวอื่นไม่มีป้าย | ✅ |
+| IT-UA-07 | อาจารย์เห็นเฉพาะของตน | advisor02 เห็น S1–S7 · advisor01 ไม่เห็น | advisor02 เห็น 7 คน (21–27) ตัวเลขแท็บนับเฉพาะของตน ไม่มีตัวกรองอาจารย์/ปุ่มแก้ไข · advisor01 เห็น 8 คนของตน (01–08) ไม่เห็น 21–27 | ✅ |
+| IT-UA-08 | ดาวน์โหลด Excel | `export?stage=IN_PROGRESS` 200 · ไฟล์ .csv ภาษาไทยอ่านได้ มี S6 | `export?stage=IN_PROGRESS` 200 · ไฟล์ `student-status-in_progress.csv` เป็น UTF-8 with BOM · หัวตารางภาษาไทยอ่านได้ · มีแถว 6609650026 แถวเดียว | ✅ |
+| IT-UA-09 | หน้ารายละเอียด + timeline | ครบทุกส่วน · timeline เก่า → ใหม่ พร้อมชื่อผู้เปลี่ยน | `GET /api/students/18/status` 200 · เห็นข้อมูลนักศึกษา ใบสมัคร ผลจับคู่ (Agoda) ข้อมูลฝึกงาน · timeline มีชื่อ "S staff" · ส่วน "อันดับที่เลือก" ว่างเพราะ seeder ไม่ได้สร้างอันดับ | ✅ |
+| IT-UA-10 | นักศึกษายังไม่ยื่น | "ยังไม่ยื่นใบสมัคร" · ไม่มี error | 200 stage NOT_APPLIED · "ยังไม่ยื่นใบสมัคร" · ส่วนผลจับคู่/ฝึกงานแสดงข้อความ "ยังไม่มี…" แทนการซ่อน | ✅ |
+| IT-UA-11 | แก้ข้อมูลการฝึกงาน | `PUT /api/internships/{id}` 200 · ค่าใหม่บนหน้า | `PUT /api/internships/1` 200 · "บันทึกข้อมูลการฝึกงานแล้ว" · 01/12/2026–31/03/2027 · คุณสมศรี ใจดี · สถานะยัง NOT_STARTED | ✅ |
+| IT-UA-12 | วันที่ผิดหลุดไปถึง server | 400 INVALID_DATE_RANGE · ข้อมูลไม่เปลี่ยน | `fetch PUT` endDate < startDate → 400 `{code: 'INVALID_DATE_RANGE', message: 'วันสิ้นสุดต้องหลังวันเริ่ม'}` · โหลดใหม่ข้อมูลยังเหมือนเดิม | ✅ |
+| IT-UA-13 | เริ่มฝึกงาน | `start` 1 ครั้ง 200 · ป้าย "กำลังฝึกงาน" · timeline +1 | `POST /api/internships/1/start` 1 ครั้ง 200 · "เริ่มฝึกงานเรียบร้อยแล้ว" · ป้าย "กำลังฝึกงาน" · timeline เพิ่ม NOT_STARTED → IN_PROGRESS | ✅ |
+| IT-UA-14 | เริ่มฝึกงานแต่ข้อมูลไม่ครบ | 400 MISSING_INFO · สถานะไม่เปลี่ยน | S4 (internship 4 ยังไม่มีวันที่/ผู้ดูแล) `start` → 400 · "กรุณากรอกข้อมูลการฝึกงานให้ครบก่อนเริ่มฝึกงาน" · สถานะยัง "ยังไม่เริ่ม" | ✅ |
+| IT-UA-15 | ยุติพร้อมเหตุผล | ครั้งแรกไม่มี request · ครั้งที่สอง 200 TERMINATED | ไม่กรอกเหตุผล: แจ้ง "กรุณากรอกเหตุผล" ไม่มี request · กรอก "บริษัทยกเลิกโครงการ": `terminate` 200 · ป้าย "ยุติการฝึกงาน" ช่องข้อมูลล็อก · timeline มีเหตุผล | ✅ |
+| IT-UA-16 | อาจารย์ขอนักศึกษาคนอื่น | 403 FORBIDDEN | `GET /api/students/18/status` (X-User-Id 2 = advisor01) → 403 `{code: 'FORBIDDEN', message: 'คุณไม่มีสิทธิ์ใช้งานส่วนนี้'}` ไม่มีข้อมูลนักศึกษา | ✅ |
+| IT-UA-17 | สถานะของฉัน | แถบขั้น · บริษัท วันเริ่ม ผู้ดูแล · ไม่มีปุ่มแก้ไข | `GET /api/students/me/status` 200 · แถบ 9 ขั้น ขั้นปัจจุบัน "กำลังฝึกงาน" (เริ่มไปแล้วใน IT-UA-13) · SCB TechX · 1 ธ.ค. 2569 · คุณสมศรี ใจดี · ไม่มีปุ่มแก้ไข | ✅ |
+| IT-UA-18 | นักศึกษาเปิดหน้าเจ้าหน้าที่ | ไม่มี request รายการ · หน้าไม่มีสิทธิ์ | "หน้านี้สำหรับเจ้าหน้าที่และอาจารย์เท่านั้น" + ปุ่ม "ดูสถานะของฉัน" · ไม่มี request `/api/students/status` | ✅ |
+| IT-UA-19 | server ไม่ทำงาน | "ไม่สามารถเชื่อมต่อระบบได้" ไม่ค้าง | `docker compose stop app` → request `(failed)` · "ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง" · หน้าไม่ค้าง | ✅ |
+
+สรุป: **19/19 ผ่าน** (IT-UA-05 ใช้ผล unit test)
 
 
 # ส่วนที่ 6 · ผล Integration Test API–DAO
 
-Artefact: รายงานผล Integration Test
+Artefact: รายงานผล Integration Test · อ้างอิง test cases: ส่วน "Design Integration Test API–DAO" ในไฟล์นี้
+
+วิธีรัน
+-
+- ข้อที่ทำได้กับระบบจริง: ยิง request ผ่านหน้าเว็บหรือ `fetch` ใน DevTools แล้วตรวจฐานข้อมูลด้วย `docker exec -it cs261-db mysql -uroot -proot1234 cs261db -e "..."`
+- ข้อที่ต้องควบคุมเวลา (Clock) หรือทำให้ฐานข้อมูลโยน error: ใช้ผล unit test ของ Task4 (`StudentStatusControllerTest`, `InternshipControllerTest`, `StudentStatusServiceTest`, `InternshipServiceTest`, `InternshipRepositoryTest` · รวมอยู่ใน 444 tests ที่ผ่าน)
+- ระบบจริงมีนักศึกษาของ Story อื่นอยู่ด้วย (19 คน) จึงตรวจเฉพาะ S1–S7 แทนการนับทั้งตาราง
+
+รายงานผล
+-
+| TC ID | วิธี | Actual | ผล |
+|---|---|---|---|
+| IT-AD-01 | ระบบจริง | `status?page=0` 200 · S1 มีแถวแม้ไม่มีใบสมัคร · บริษัทของ S4–S7 ตรงกับ match | ✅ |
+| IT-AD-02 | ระบบจริง | `stage=MATCHING` + `q=6609650024` เหลือ S4 · `companyId=2` เหลือ S6 | ✅ |
+| IT-AD-03 | unit test | ข้อมูลจริงไม่ถึง 2 หน้า ใช้ unit test แบ่งหน้า | ✅ (unit test) |
+| IT-AD-04 | ระบบจริง | advisor01 เห็นเฉพาะ 01–08 ไม่เห็น S1–S7 | ✅ |
+| IT-AD-05 | ระบบจริง + unit test | นักศึกษาเปิดหน้ารายการแล้วไม่มี request ออกไป · กรณี 403 / 401 จาก API ใช้ unit test | ✅ |
+| IT-AD-06 | ระบบจริง | stage ของ S1–S7 ตรงตาราง · S3 NO_MATCH · S4 NOT_CONFIRMED | ✅ |
+| IT-AD-07 | unit test | ขอบเขต 14 วัน / confirmDeadline ต้องใช้ Clock คงที่ | ✅ (unit test) |
+| IT-AD-08 | ระบบจริง | advisor02: ทุกขั้นที่ S1–S7 อยู่ = 1 · ไม่อนุมัติ/ยุติ = 0 | ✅ |
+| IT-AD-09 | ระบบจริง | `export?stage=IN_PROGRESS` 200 UTF-8 BOM · หัวตาราง + 1 แถว (S6) | ✅ |
+| IT-AD-10 | ระบบจริง | `GET /api/students/18/status` 200 ครบทุกส่วน · timeline เรียงเก่า → ใหม่ มีชื่อผู้เปลี่ยน | ✅ |
+| IT-AD-11 | unit test | ใบสมัครล่าสุดเมื่อมีหลายใบ | ✅ (unit test) |
+| IT-AD-12 | ระบบจริง | `GET /api/students/me/status` (S5) ได้ข้อมูลของ S5 เท่านั้น | ✅ |
+| IT-AD-13 | ระบบจริง | **รอบแรก ❌** `POST /api/matches/{id}/respond` → 500 (`Internship.updatedBy` เป็น null) · **หลังแก้ ✅** respond 200 · `internships` id 4 NOT_STARTED ผูก match · `status_history` INTERNSHIP NULL → NOT_STARTED changed_by 1 · stage S4 = READY | ✅ (หลังแก้ bug #1) |
+| IT-AD-14 | ระบบจริง | PUT 2 ครั้ง (S5, S4) → `notifications` INTERNSHIP_UPDATED = 4 (ครั้งละ 2 คน) · status ไม่เปลี่ยน · `status_history` ไม่เพิ่ม | ✅ |
+| IT-AD-15 | ระบบจริง + unit test | endDate < startDate → 400 INVALID_DATE_RANGE ข้อมูลไม่เปลี่ยน · อีเมลผิด / 409 INTERNSHIP_CLOSED ใช้ unit test | ✅ |
+| IT-AD-16 | ระบบจริง | S4: start 200 → complete 200 · `internships.status` COMPLETED updated_by 1 · `status_history` NOT_STARTED → IN_PROGRESS → COMPLETED changed_by 1 · INTERNSHIP_STATUS_CHANGED = 8 (เปลี่ยน 4 ครั้ง × 2 คน) | ✅ |
+| IT-AD-17 | ระบบจริง | S6 terminate 200 TERMINATED · timeline มีเหตุผล "บริษัทยกเลิกโครงการ" · reason ว่างถูกกันที่หน้าเว็บ (400 จาก API ใช้ unit test) | ✅ |
+| IT-AD-18 | ระบบจริง | start ของ COMPLETED (id 4) → 409 · start เมื่อไม่มีผู้ดูแล → 400 MISSING_INFO · ข้อมูลไม่เปลี่ยน | ✅ |
+| IT-AD-19 | ระบบจริง | advisor02 (id 15) และ S5 (id 20) เรียก PUT / POST → 403 ทั้ง 4 ครั้ง | ✅ |
+| IT-AD-20 | unit test | rollback เมื่อบันทึก history ไม่สำเร็จ | ✅ (unit test) |
+| IT-AD-21 | ระบบจริง (เกิดจริง) | ตอน bug #1 respond ได้ 500 → `matches` ยัง PROPOSED (หน้าเว็บ "รอยืนยัน") · ไม่มี internship ค้าง = rollback ทั้ง transaction ตามข้อตกลง S8 | ✅ |
+| IT-AD-22 | unit test | เรียก createFromMatch ซ้ำไม่สร้างแถวซ้ำ | ✅ (unit test) |
+
+สรุป: **22/22 ผ่าน** (ระบบจริง 15 ข้อ · unit test 7 ข้อ) · IT-AD-13 ผ่านหลังแก้ bug #1
 
 
 # ส่วนที่ 7 · ผล System Test
 
-Artefact: รายงานผล System Test
+Artefact: รายงานผล System Test · อ้างอิง test cases: ส่วน "Design System Test" ในไฟล์นี้ · สภาพแวดล้อมเดียวกับส่วนที่ 5
+
+รายงานผล
+-
+| TC ID | เคส | Actual | ผล |
+|---|---|---|---|
+| ST-U7-01 | TC1 | ค้น "660965002" เห็น S1–S7 · ป้ายขั้นตรงตาราง (ผลเดียวกับ IT-UA-01) | ✅ |
+| ST-U7-02 | TC1 | request มี `stage`, `q`, `companyId` ตามที่เลือก (IT-UA-03, 04) · แบ่งหน้าใช้ unit test | ✅ |
+| ST-U7-03 | TC3 | S3 NO_MATCH · S4 NOT_CONFIRMED (IT-UA-06) · START_OVERDUE แสดงจริงบน S5 ตอนวันเริ่มเป็นอดีต (เจอระหว่างรันก่อนแก้ seeder) | ✅ |
+| ST-U7-04 | TC8 | ตัวเลขแท็บรวม 19 ตรงตาราง · CSV เปิดใน Excel ภาษาไทยอ่านได้ (IT-UA-02, 08) | ✅ |
+| ST-U7-05 | TC2 | advisor02 เห็นเฉพาะ S1–S7 ไม่มีปุ่มแก้ไข · advisor01 ไม่เห็น S1–S7 (IT-UA-07) | ✅ |
+| ST-U7-06 | TC2 | API 403 ไม่มีชื่อ/รหัสนักศึกษาใน body (IT-UA-16) · หน้ารายละเอียดไม่มี URL ของตัวเองจึงทดสอบผ่าน API | ✅ |
+| ST-U7-07 | TC2 | นักศึกษาเปิด `student-status.html` ได้หน้าไม่มีสิทธิ์ (IT-UA-18) · 401 เมื่อไม่ส่ง `X-User-Id` ใช้ unit test | ✅ |
+| ST-U7-08 | TC4 | รายละเอียด S6 ครบ · timeline เรียงเก่า → ใหม่ ตรงกับ `status_history` (IT-UA-09) | ✅ |
+| ST-U7-09 | TC5 | `me/status` 200 · แถบขั้น · บริษัท วันเริ่ม ผู้ดูแล · ไม่มีปุ่มแก้ไข (IT-UA-17) | ✅ |
+| ST-U7-10 | TC7 | **รอบแรก ❌** respond 500 (bug #1) · **หลังแก้ ✅** respond 200 "ยืนยันสิทธิ์เรียบร้อยแล้ว" · `matches` CONFIRMED · internship NOT_STARTED ถูกสร้างทันที · S4 = "พร้อมฝึกงาน" + ป้าย "ข้อมูลการฝึกงานยังไม่ครบ" | ✅ (หลังแก้ bug #1) |
+| ST-U7-11 | TC6 | `PUT /api/internships/4` 200 · ป้ายข้อมูลไม่ครบหายไป · แจ้งเตือน INTERNSHIP_UPDATED +2 | ✅ |
+| ST-U7-12 | TC6 | `PUT` วันผิด → 400 INVALID_DATE_RANGE ข้อมูลไม่เปลี่ยน (IT-UA-12) · ช่องของ internship ที่ปิดแล้วถูกล็อกบนหน้าเว็บ · 409 INTERNSHIP_CLOSED จาก API ใช้ unit test | ✅ |
+| ST-U7-13 | TC7 | S4: start 200 → complete 200 · "บันทึกการฝึกงานเสร็จสิ้นแล้ว" · COMPLETED · `status_history` +2 · ช่องแก้ไขถูกล็อก | ✅ |
+| ST-U7-14 | TC7 | S6 terminate (IT-UA-15) · ครั้งแรกไม่มี request · ครั้งที่สอง 200 · เหตุผลอยู่ใน timeline | ✅ |
+| ST-U7-15 | TC7 | start ของ COMPLETED → 409 · start ตอนข้อมูลไม่ครบ → 400 MISSING_INFO · history ไม่เพิ่ม | ✅ |
+| ST-U7-16 | TC2 | advisor02 / 6609650025 เรียก PUT และ POST → 403 ทั้ง 4 ครั้ง | ✅ |
+| ST-U7-17 | TC1, TC4 | ไม่ได้รันทั้งเส้น U3 → U7 · ส่วน U6 → U7 ครอบคลุมใน ST-U7-10 และ 13 | ⏭ ไม่ได้รัน |
+| ST-U7-18 | – | `docker compose stop app` → "ไม่สามารถเชื่อมต่อระบบได้ กรุณาลองใหม่อีกครั้ง" ไม่ค้าง (IT-UA-19) | ✅ |
+
+สรุป: **17/18 ผ่าน · 1 ไม่ได้รัน (ST-U7-17)** · ST-U7-10 ผ่านหลังแก้ bug #1
+
+Bug ที่พบระหว่างรันและแก้แล้ว (commit `79e1420`)
+-
+| # | ความรุนแรง | อาการ | สาเหตุ | แก้ |
+|---|---|---|---|---|
+| 1 | สูง | นักศึกษากดยืนยันสิทธิ์ (U6) ได้ 500 · ยืนยันไม่ได้เลย | `InternshipService.createFromMatch` ส่ง `changedBy` (null) ให้ `Internship` และ `status_history` ทั้งที่ `updated_by` / `changed_by` เป็น NOT NULL · unit test ใช้ mock จึงจับไม่ได้ | ใช้ `effectiveChangedBy` (ผู้จับคู่) แทน 2 จุด |
+| 2 | กลาง | เมนูไม่มีลิงก์ไปหน้าของ U7 · ต้องพิมพ์ URL เอง | `u5.js`, `u6.js` และหน้าของนักศึกษาไม่ได้ใส่ลิงก์ | เพิ่ม "สถานะนักศึกษา" (STAFF/ADVISOR) และ "สถานะของฉัน" (STUDENT) |
+| 3 | กลาง | ปุ่ม "ยุติการฝึกงาน" มองไม่เห็นตัวหนังสือ | `.btn.danger` ใน `style.css` (U8) ให้ตัวหนังสือแดง ส่วน `u7.css` ให้พื้นแดง | `u7.css` เพิ่ม `color: #fff` |
+| 4 | ต่ำ | S5 ขึ้นป้าย START_OVERDUE ทั้งที่ควรไม่มีป้าย | `U7DemoSeeder` ตั้งวันเริ่มของทุกคนเป็นเมื่อวาน | NOT_STARTED เริ่มอีก 7 วัน |
+
+ข้อสังเกตที่ยังไม่ได้แก้
+-
+- `U7DemoSeeder` ทำงานทุกครั้งที่ app restart และเขียนทับวันที่ / ผู้ดูแลของ internship ที่มีอยู่แล้ว (เฉพาะตอนเปิด `APP_SEED_U7_DATA`)
+- U6 ไม่บันทึก `status_history` MATCH PROPOSED → CONFIRMED ตอนนักศึกษายืนยันสิทธิ์ · timeline จึงขาดขั้นนี้
+- เวลาบนหน้าเว็บเป็น UTC (ช้ากว่าเวลาไทย 7 ชม.) เพราะ container ไม่ได้ตั้ง timezone · เกิดทุก Story
+- เมนูของ `student-status.html` / `my-status.html` เขียนตายตัวใน HTML ไม่ตรงกับ role (อาจารย์และนักศึกษาเห็นเมนูเจ้าหน้าที่)
+- หน้ารายละเอียดไม่มี URL ของตัวเอง กด F5 แล้วกลับหน้ารายการ
+- หน้าตรวจสอบคุณสมบัติ (U1–U4) ไม่มีลิงก์ไปหน้า "เลือกตำแหน่ง / ผลจับคู่" (U6)
+- CSV ใช้ชื่อขั้นภาษาอังกฤษ (`IN_PROGRESS`) ไม่ใช่ภาษาไทยเหมือนหน้าเว็บ
+- `favicon.ico` 404 · login ด้วยชื่อที่ไม่อยู่ใน demo-users ได้ 502 (U1 ไม่มี TU API key)
 
 
 # ส่วนที่ 8 · ผล UAT
 
 Artefact: รายงานผล UAT พร้อม feedback
+
+- **ยังไม่ได้ทดสอบ** · ทีมตกลงรันเฉพาะ Integration Test และ System Test ในรอบนี้
+- test cases พร้อมใช้งานตามส่วนที่ 4 (UAT-U7-01 ถึง 12) · เตรียมระบบด้วย `APP_SEED_U7_DATA: "true"` แล้ว `docker compose down -v` และ `docker compose up -d --build`

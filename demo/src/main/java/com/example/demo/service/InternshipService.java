@@ -114,7 +114,7 @@ public class InternshipService {
         Internship internship = new Internship(
                 match.getId(),
                 application.getStudentId(),
-                changedBy,
+                effectiveChangedBy,
                 now);
 
         internship = internshipRepository.save(internship);
@@ -124,7 +124,7 @@ public class InternshipService {
                 HistoryType.INTERNSHIP,
                 null,
                 InternshipStatus.NOT_STARTED.name(),
-                changedBy,
+                effectiveChangedBy,
                 null,
                 now);
 

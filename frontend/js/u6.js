@@ -91,9 +91,9 @@
       $('#who').textContent = user ? ROLE_TH[user.role] + ' ' + user.name : 'ยังไม่ได้เข้าสู่ระบบ';
       $('#logout').onclick = logout;
       let links = [];
-      if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ'], ['submit.html', 'ยื่นคำร้อง'], ['ranking.html', 'จับคู่บริษัท'], ['matching.html', 'เลือกตำแหน่ง / ผลจับคู่', 'matching']];
-      if (user?.role === 'STAFF') links = [['staff-review.html', 'ตรวจใบสมัคร'], ['staff-forms.html', 'แบบฟอร์มคำร้อง'], ['staff-matching.html', 'จับคู่บริษัท', 'staff-matching']];
-      if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร']];
+      if (user?.role === 'STUDENT') links = [['check.html', 'ตรวจสอบคุณสมบัติ'], ['submit.html', 'ยื่นคำร้อง'], ['ranking.html', 'จับคู่บริษัท'], ['matching.html', 'เลือกตำแหน่ง / ผลจับคู่', 'matching'], ['my-status.html', 'สถานะของฉัน']];
+      if (user?.role === 'STAFF') links = [['staff-review.html', 'ตรวจใบสมัคร'], ['staff-forms.html', 'แบบฟอร์มคำร้อง'], ['staff-matching.html', 'จับคู่บริษัท', 'staff-matching'], ['student-status.html', 'สถานะนักศึกษา']];
+      if (user?.role === 'ADVISOR') links = [['staff-review.html', 'พิจารณาใบสมัคร'], ['student-status.html', 'สถานะนักศึกษา']];
       if (user) links.push(['notifications.html', 'การแจ้งเตือน']);
       $('#u6nav').innerHTML = links.map(([href, label, p]) =>
          `<a href="${href}"${p === page ? ' class="on" aria-current="page"' : ''}>${label}</a>`).join('');
