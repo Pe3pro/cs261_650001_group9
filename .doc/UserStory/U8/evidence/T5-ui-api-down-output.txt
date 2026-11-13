@@ -1,0 +1,4 @@
+❌ IT-UA-17
+     GET /api/work-logs/my-internship → FAILED (net::ERR_CONNECTION_REFUSED) err ""
+
+สรุป: ผ่าน 0 / 1

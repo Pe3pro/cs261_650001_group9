@@ -1,0 +1,4 @@
+✅ IT-UA-17 (เปิด app คืน)
+     docker compose start app แล้วโหลดหน้าใหม่: GET /api/work-logs/my-internship → 200 · GET /api/internships/1/work-logs → 200 · GET /api/internships/1/work-logs/summary → 200 · ประวัติกลับมาแสดง ("12 พ.ย. 2569อนุมัติแล้ว4 ชม.10 พ.ย. 2569...") ไม่มีข้อความ error
+
+สรุป: ผ่าน 1 / 1
