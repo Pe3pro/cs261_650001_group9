@@ -1,0 +1,10 @@
+ RUN  v3.2.7 /app
+
+ ✓ frontend/tests/u8.test.js (14 tests) 1018ms
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  15:31:43
+   Duration  1.94s (transform 67ms, setup 0ms, collect 418ms, tests 1.02s, environment 0ms, prepare 129ms)
+
+JSON report written to /app/.doc/UserStory/U8/test-results/ui.json

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>บันทึกการทำงาน · ระบบสหกิจศึกษา</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body data-page="worklog">
+    <header>ระบบสหกิจศึกษา<span><span id="who"></span> · <button id="logout" type="button">ออกจากระบบ</button></span>
+    </header>
+    <nav><a href="check.html">ตรวจสอบคุณสมบัติ</a><a href="submit.html">ยื่นคำร้อง</a><a
+            href="ranking.html">จับคู่บริษัท</a><a href="notifications.html" data-free>การแจ้งเตือน</a><a
+            href="worklog.html" class="on" aria-current="page" data-free>บันทึกการทำงาน</a></nav>
+    <main class="wide">
+        <span class="tag">US8 · Priority High</span>
+        <h1>บันทึกการทำงาน</h1>
+        <p class="sub">บันทึกการทำงานประจำวันระหว่างฝึกงาน แล้วส่งให้อาจารย์ที่ปรึกษาตรวจ เพื่อสะสมหลักฐานการฝึกงานและให้อาจารย์ติดตามความคืบหน้า</p>
+
+        <div class="alert warn box" id="wDue" role="note"><b id="wDueTitle">กำหนดส่งบันทึก</b><span>ส่งบันทึกภายใน 3
+                วันหลังวันที่ทำงาน ส่งหลังจากนั้นระบบจะแสดงสถานะ "ส่งล่าช้า" และอาจารย์จะเห็นสถานะนี้</span></div>
+        <div id="wState" class="alert bad" role="alert" hidden></div>
+
+        <div class="wl">
+            <div>
+                <section class="card wl-card" id="wForm">
+                    <div class="wl-head">
+                        <h2 id="wFormTitle">บันทึกประจำวัน</h2><button class="btn ghost sm" id="wNew"
+                            type="button">เพิ่มบันทึกใหม่</button>
+                    </div>
+                    <div id="wReview" class="alert bad box" role="status" hidden><b>อาจารย์ขอให้แก้ไข</b><span
+                            id="wReviewText"></span></div>
+                    <div class="g4">
+                        <div class="fld"><label for="wDate">วันที่</label><input id="wDate" type="date"></div>
+                        <div class="fld"><label for="wStart">เวลาเริ่ม</label><input id="wStart" type="time"></div>
+                        <div class="fld"><label for="wEnd">เวลาสิ้นสุด</label><input id="wEnd" type="time"></div>
+                        <div class="fld"><label for="wHours">จำนวนชั่วโมงทำงาน</label><input id="wHours" readonly
+                                placeholder="[ชั่วโมง]"></div>
+                    </div>
+                    <div class="fld"><label for="wTask">งานที่ได้รับมอบหมายและสิ่งที่ปฏิบัติ</label><textarea id="wTask"
+                            rows="4" maxlength="2000" placeholder="อธิบายงานที่ทำในวันนี้..."></textarea></div>
+                    <div class="fld"><label for="wSkill">ทักษะ / สิ่งที่ได้เรียนรู้</label><textarea id="wSkill"
+                            rows="3" maxlength="2000" placeholder="สรุปสิ่งที่ได้เรียนรู้..."></textarea></div>
+                    <div class="fld"><label for="wProb">ปัญหาและอุปสรรค (ถ้ามี)</label><textarea id="wProb" rows="2"
+                            maxlength="2000" placeholder="ระบุปัญหาที่พบ..."></textarea></div>
+                    <div class="fld"><label for="wFile">ไฟล์แนบ (ถ้ามี) · รูป JPG/PNG หรือ PDF ไม่เกิน 10 MB สูงสุด 5
+                            ไฟล์</label><input id="wFile" type="file" multiple
+                            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png">
+                        <ul id="wFiles" class="wl-files"></ul>
+                    </div>
+                    <div id="wErr" class="alert bad" role="alert" hidden></div>
+                    <div class="wl-acts"><button class="btn" id="wSend" type="button">ส่งบันทึก</button><button
+                            class="btn ghost" id="wDraft" type="button">บันทึกแบบร่าง</button><button
+                            class="btn ghost danger" id="wDelete" type="button" hidden>ลบบันทึกร่าง</button></div>
+                </section>
+            </div>
+
+            <aside>
+                <div id="wOk" class="alert ok box" role="status" hidden><b>ส่งบันทึกสำเร็จ</b><span>ระบบบันทึกข้อมูลแล้ว
+                        อาจารย์ที่ปรึกษาเปิดดูได้</span></div>
+                <div id="wLate" class="alert bad box" role="status" hidden><b>ส่งล่าช้า</b><span>ส่งบันทึกเลยกำหนด
+                        ระบบแจ้งเตือนว่าส่งล่าช้าและแสดงสถานะให้อาจารย์ทราบ</span></div>
+                <div id="wSaved" class="alert warn box" role="status" hidden><b>บันทึกฉบับร่างแล้ว</b><span>อาจารย์ยังไม่เห็นบันทึกนี้
+                        จนกว่าจะกดส่งบันทึก</span></div>
+                <section class="card wl-card">
+                    <h2>สรุปบันทึก</h2>
+                    <div class="wl-sum">
+                        <div><small>ชั่วโมงสะสม</small><b id="sumHours">-</b></div>
+                        <div><small>วันที่บันทึก / วันทำงาน</small><b id="sumDays">-</b></div>
+                        <div><small>วันที่ขาดบันทึก</small><b id="sumMissing">-</b></div>
+                    </div>
+                    <p id="sumMissingList" class="mute wl-note" hidden></p>
+                </section>
+                <section class="card wl-card">
+                    <h2>ประวัติการส่งบันทึก</h2>
+                    <div class="wl-hist head"><span>วันที่</span><span>สถานะ</span><span>ชั่วโมง</span></div>
+                    <div id="wHist"></div>
+                </section>
+            </aside>
+        </div>
+    </main>
+    <script src="js/script.js"></script>
+</body>
+
+</html>

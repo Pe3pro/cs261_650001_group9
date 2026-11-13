@@ -15,5 +15,9 @@ public enum NotificationType {
     /** U6: นักศึกษายืนยัน / สละสิทธิ์ (แจ้งเจ้าหน้าที่) */
     MATCH_RESPONDED,
     /** U6: เจ้าหน้าที่ยกเลิกผลจับคู่ */
-    MATCH_CANCELLED
+    MATCH_CANCELLED,
+    /** U8: นักศึกษาส่งบันทึกการทำงาน (แจ้งอาจารย์ที่ปรึกษา) */
+    WORK_LOG_SUBMITTED,
+    /** U8: อาจารย์ตรวจบันทึกการทำงานแล้ว (แจ้งนักศึกษา) */
+    WORK_LOG_REVIEWED
 }

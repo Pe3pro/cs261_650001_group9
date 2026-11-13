@@ -9,6 +9,14 @@ public interface FileStorage {
     /** บันทึกไฟล์ คืน storageKey สำหรับอ้างอิงภายหลัง · บันทึกไม่ได้ให้ throw StorageException */
     String store(String fileName, byte[] content);
 
+    /**
+     * U8: บันทึกไฟล์ลงโฟลเดอร์ที่กำหนด (เช่น work-logs/{id}) คืน storageKey
+     * ค่าเริ่มต้นใช้ store(fileName, content) เดิม ให้คลาสที่ implement เดิมยังใช้ได้
+     */
+    default String store(String folder, String fileName, byte[] content) {
+        return store(fileName, content);
+    }
+
     /** อ่านไฟล์ตาม storageKey */
     byte[] load(String storageKey);
 
