@@ -23,7 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.dao.InternshipDao;
+import com.example.demo.dao.InternshipRepository;
+import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.dao.WorkLogAttachmentDao;
 import com.example.demo.dao.WorkLogDao;
@@ -36,6 +37,7 @@ import com.example.demo.dto.WorkLogSummaryResponse;
 import com.example.demo.entity.Internship;
 import com.example.demo.entity.InternshipStatus;
 import com.example.demo.entity.Role;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
 import com.example.demo.entity.WorkLog;
 import com.example.demo.entity.WorkLogAttachment;
@@ -64,19 +66,21 @@ public class WorkLogService {
 
     private final WorkLogDao workLogDao;
     private final WorkLogAttachmentDao attachmentDao;
-    private final InternshipDao internshipDao;
+    private final InternshipRepository internshipDao;
+    private final StudentRepository studentDao;
     private final UserRepository userDao;
     private final FileStorage fileStorage;
     private final NotificationService notificationService;
     private final AccessGuard guard;
     private final Clock clock;
 
-    public WorkLogService(WorkLogDao workLogDao, WorkLogAttachmentDao attachmentDao, InternshipDao internshipDao,
-            UserRepository userDao, FileStorage fileStorage, NotificationService notificationService,
+    public WorkLogService(WorkLogDao workLogDao, WorkLogAttachmentDao attachmentDao, InternshipRepository internshipDao,
+            StudentRepository studentDao, UserRepository userDao, FileStorage fileStorage, NotificationService notificationService,
             AccessGuard guard, Clock clock) {
         this.workLogDao = workLogDao;
         this.attachmentDao = attachmentDao;
         this.internshipDao = internshipDao;
+        this.studentDao = studentDao;
         this.userDao = userDao;
         this.fileStorage = fileStorage;
         this.notificationService = notificationService;
@@ -94,7 +98,8 @@ public class WorkLogService {
     @Transactional(readOnly = true)
     public Internship myInternship(Long studentId) {
         User student = guard.require(studentId, Role.STUDENT);
-        return internshipDao.findByStudentId(student.getId())
+        return studentDao.findByUserId(student.getId())
+                .flatMap(s -> internshipDao.findByStudentId(s.getId()))
                 .orElseThrow(() -> ApiException.notFound("ยังไม่มีข้อมูลการฝึกงาน"));
     }
 
@@ -104,7 +109,7 @@ public class WorkLogService {
     public WorkLog create(Long studentId, Long internshipId, WorkLogRequest req) {
         User student = guard.require(studentId, Role.STUDENT);
         Internship internship = findInternship(internshipId);
-        if (!student.getId().equals(internship.getStudentId())) {
+        if (!isOwner(student, internship)) {
             throw ApiException.forbidden();
         }
         requireInProgress(internship);
@@ -294,8 +299,8 @@ public class WorkLogService {
     User checkAccess(Long userId, Internship internship) {
         User user = guard.require(userId);
         boolean allowed = switch (user.getRole()) {
-            case STUDENT -> user.getId().equals(internship.getStudentId());
-            case ADVISOR -> userDao.findById(internship.getStudentId())
+            case STUDENT -> isOwner(user, internship);
+            case ADVISOR -> studentDao.findById(internship.getStudentId())
                     .map(s -> user.getId().equals(s.getAdvisorId())).orElse(false);
             case STAFF, ADMIN -> true;
         };
@@ -325,7 +330,7 @@ public class WorkLogService {
         if (req.logDate().isAfter(LocalDate.now(clock))) {
             throw invalid("ไม่สามารถบันทึกวันที่ในอนาคตได้");
         }
-        if (req.logDate().isBefore(internship.getStartDate())
+        if (internship.getStartDate() == null || req.logDate().isBefore(internship.getStartDate())
                 || (internship.getEndDate() != null && req.logDate().isAfter(internship.getEndDate()))) {
             throw invalid("วันที่ต้องอยู่ในช่วงฝึกงาน");
         }
@@ -350,12 +355,23 @@ public class WorkLogService {
         LocalDate last = internship.getEndDate() != null && internship.getEndDate().isBefore(today)
                 ? internship.getEndDate() : today;
         List<LocalDate> days = new ArrayList<>();
+        if (internship.getStartDate() == null) {
+            return days;
+        }
         for (LocalDate d = internship.getStartDate(); !d.isAfter(last); d = d.plusDays(1)) {
             if (d.getDayOfWeek() != DayOfWeek.SATURDAY && d.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 days.add(d);
             }
         }
         return days;
+    }
+
+    /** internships.student_id อ้าง students.id (ตาม U7) · ผู้ใช้ที่ login เป็น users.id จึงต้องแปลงผ่าน students.user_id */
+    private boolean isOwner(User user, Internship internship) {
+        return studentDao.findByUserId(user.getId())
+                .map(Student::getId)
+                .filter(id -> id.equals(internship.getStudentId()))
+                .isPresent();
     }
 
     private Internship findInternship(Long internshipId) {

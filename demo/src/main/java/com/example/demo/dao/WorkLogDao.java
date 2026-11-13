@@ -40,7 +40,7 @@ public interface WorkLogDao extends JpaRepository<WorkLog, Long> {
 
     /** บันทึกสถานะที่กำหนดของนักศึกษาในที่ปรึกษา เรียงตามเวลาที่ส่ง */
     @Query("select w from WorkLog w where w.status = :status and w.studentId in "
-            + "(select u.id from User u where u.advisorId = :advisorId) order by w.submittedAt asc, w.id asc")
+            + "(select s.userId from Student s where s.advisorId = :advisorId) order by w.submittedAt asc, w.id asc")
     List<WorkLog> findByStatusAndAdvisorId(@Param("status") WorkLogStatus status,
             @Param("advisorId") Long advisorId);
 

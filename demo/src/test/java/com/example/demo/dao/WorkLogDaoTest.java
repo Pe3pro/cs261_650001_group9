@@ -19,6 +19,7 @@ import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import com.example.demo.entity.Role;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
 import com.example.demo.entity.WorkLog;
 import com.example.demo.entity.WorkLogAttachment;
@@ -47,6 +48,9 @@ class WorkLogDaoTest {
     @Autowired
     private UserRepository users;
 
+    @Autowired
+    private StudentRepository students;
+
     private User advisorX;
     private User advisorY;
     private User studentA;
@@ -73,8 +77,12 @@ class WorkLogDaoTest {
 
     private User student(String username, User advisor) {
         User s = new User(username, "IN_PROGRESS_" + username.substring(8), username + "@dome.tu.ac.th", Role.STUDENT);
-        s.setAdvisorId(advisor.getId());
-        return users.save(s);
+        User saved = users.save(s);
+        // อาจารย์ที่ปรึกษาเก็บใน students.advisor_id (ไม่ใช่ใน users)
+        Student st = new Student(saved.getId(), username, "Science and Technology", "Computer Science", 3.0);
+        st.setAdvisorId(advisor.getId());
+        students.save(st);
+        return saved;
     }
 
     private WorkLog save(Long internshipId, User student, LocalDate date, String start, String end, String hours,

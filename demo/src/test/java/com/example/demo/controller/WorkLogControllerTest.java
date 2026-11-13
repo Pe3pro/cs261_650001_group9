@@ -383,8 +383,11 @@ class WorkLogControllerTest {
     @Test
     @DisplayName("UT-API-21 การฝึกงานของนักศึกษาที่ login (GET /api/work-logs/my-internship) ได้ 200 · ยังไม่มีได้ 404")
     void myInternship() throws Exception {
-        Internship internship = new Internship(3L, LocalDate.of(2026, 11, 2), LocalDate.of(2027, 2, 19),
-                InternshipStatus.IN_PROGRESS);
+        // Internship ของ US7: สร้างจาก match → กรอกรายละเอียด → IN_PROGRESS
+        Internship internship = new Internship(70L, 30L, 1L, LocalDateTime.of(2026, 10, 26, 9, 0));
+        internship.updateDetails(LocalDate.of(2026, 11, 2), LocalDate.of(2027, 2, 19), "Supervisor",
+                "sup@example.com", "0812345678", 1L, LocalDateTime.of(2026, 11, 1, 9, 0));
+        internship.changeStatus(InternshipStatus.IN_PROGRESS, null, 1L, LocalDateTime.of(2026, 11, 2, 9, 0));
         ReflectionTestUtils.setField(internship, "id", 7L);
         when(service.myInternship(3L)).thenReturn(internship);
         when(service.myInternship(5L)).thenThrow(ApiException.notFound("ยังไม่มีข้อมูลการฝึกงาน"));

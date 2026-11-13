@@ -1,12 +1,30 @@
 package com.example.demo.entity;
 
-/**
- * สถานะการฝึกงาน ตามการออกแบบของ US7: NOT_STARTED → IN_PROGRESS → COMPLETED · ยุติก่อนกำหนด = TERMINATED
- * US8 บันทึกการทำงานได้เฉพาะ IN_PROGRESS
- */
 public enum InternshipStatus {
     NOT_STARTED,
     IN_PROGRESS,
     COMPLETED,
-    TERMINATED
+    TERMINATED;
+
+    public boolean canMoveTo(InternshipStatus target) {
+        if (target == null) {
+            return false;
+        }
+
+        return switch (this) {
+            case NOT_STARTED ->
+                    target == IN_PROGRESS ||
+                    target == TERMINATED;
+
+            case IN_PROGRESS ->
+                    target == COMPLETED ||
+                    target == TERMINATED;
+
+            case COMPLETED, TERMINATED -> false;
+        };
+    }
+
+    public boolean isClosed() {
+        return this == COMPLETED || this == TERMINATED;
+    }
 }

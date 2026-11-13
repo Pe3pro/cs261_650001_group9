@@ -86,11 +86,12 @@ public class NotificationService {
 
     /** U8: นักศึกษาส่งบันทึกการทำงาน → แจ้งอาจารย์ที่ปรึกษาของนักศึกษา */
     public void notifyWorkLogSubmitted(WorkLog log) {
-        userRepository.findById(log.getStudentId())
+        String name = userRepository.findById(log.getStudentId()).map(User::getFullName).orElse("นักศึกษา");
+        studentRepository.findByUserId(log.getStudentId())
                 .filter(student -> student.getAdvisorId() != null)
                 .ifPresent(student -> notificationRepository.save(new Notification(student.getAdvisorId(),
                         "มีบันทึกการทำงานรอตรวจ",
-                        student.getFullName() + " ส่งบันทึกการทำงานวันที่ " + log.getLogDate() + " รอตรวจ",
+                        name + " ส่งบันทึกการทำงานวันที่ " + log.getLogDate() + " รอตรวจ",
                         NotificationType.WORK_LOG_SUBMITTED, null)));
     }
 

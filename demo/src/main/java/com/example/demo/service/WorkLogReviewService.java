@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.dao.UserRepository;
+import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.WorkLogDao;
 import com.example.demo.dto.BulkWorkLogReviewResponse;
 import com.example.demo.dto.BulkWorkLogReviewResponse.SkippedItem;
@@ -29,15 +29,15 @@ public class WorkLogReviewService {
     public static final int MAX_BULK = 100;
 
     private final WorkLogDao workLogDao;
-    private final UserRepository userDao;
+    private final StudentRepository studentDao;
     private final NotificationService notificationService;
     private final AccessGuard guard;
     private final Clock clock;
 
-    public WorkLogReviewService(WorkLogDao workLogDao, UserRepository userDao,
+    public WorkLogReviewService(WorkLogDao workLogDao, StudentRepository studentDao,
             NotificationService notificationService, AccessGuard guard, Clock clock) {
         this.workLogDao = workLogDao;
-        this.userDao = userDao;
+        this.studentDao = studentDao;
         this.notificationService = notificationService;
         this.guard = guard;
         this.clock = clock;
@@ -110,7 +110,7 @@ public class WorkLogReviewService {
     }
 
     private boolean isAdvisorOf(User advisor, WorkLog log) {
-        return userDao.findById(log.getStudentId())
+        return studentDao.findByUserId(log.getStudentId())
                 .map(s -> advisor.getId().equals(s.getAdvisorId()))
                 .orElse(false);
     }

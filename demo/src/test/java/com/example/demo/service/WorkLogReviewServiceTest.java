@@ -24,12 +24,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.dao.WorkLogDao;
 import com.example.demo.dto.BulkWorkLogReviewResponse;
 import com.example.demo.dto.BulkWorkLogReviewResponse.SkippedItem;
 import com.example.demo.entity.ReviewDecision;
 import com.example.demo.entity.Role;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
 import com.example.demo.entity.WorkLog;
 import com.example.demo.entity.WorkLogStatus;
@@ -44,6 +46,7 @@ class WorkLogReviewServiceTest {
 
     private WorkLogDao workLogDao;
     private UserRepository userDao;
+    private StudentRepository studentDao;
     private NotificationService notificationService;
     private WorkLogReviewService service;
 
@@ -51,8 +54,9 @@ class WorkLogReviewServiceTest {
     void setUp() {
         workLogDao = mock(WorkLogDao.class);
         userDao = mock(UserRepository.class);
+        studentDao = mock(StudentRepository.class);
         notificationService = mock(NotificationService.class);
-        service = new WorkLogReviewService(workLogDao, userDao, notificationService, new AccessGuard(userDao), CLOCK);
+        service = new WorkLogReviewService(workLogDao, studentDao, notificationService, new AccessGuard(userDao), CLOCK);
 
         user(2L, Role.ADVISOR, null);
         user(3L, Role.STUDENT, 2L);
@@ -64,8 +68,14 @@ class WorkLogReviewServiceTest {
     private void user(Long id, Role role, Long advisorId) {
         User u = new User("u" + id, "ผู้ใช้ " + id, null, role);
         ReflectionTestUtils.setField(u, "id", id);
-        u.setAdvisorId(advisorId);
         when(userDao.findById(id)).thenReturn(Optional.of(u));
+        if (role == Role.STUDENT) {
+            // อาจารย์ที่ปรึกษาอยู่ใน Student (students.user_id = userId)
+            Student s = new Student(id, "66096500" + id, "Science and Technology", "Computer Science", 3.0);
+            ReflectionTestUtils.setField(s, "id", id * 10);
+            s.setAdvisorId(advisorId);
+            when(studentDao.findByUserId(id)).thenReturn(Optional.of(s));
+        }
     }
 
     private WorkLog log(Long id, Long studentId, WorkLogStatus status) {

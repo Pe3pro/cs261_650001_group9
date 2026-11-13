@@ -28,7 +28,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.example.demo.dao.InternshipDao;
+import com.example.demo.dao.InternshipRepository;
+import com.example.demo.dao.StudentRepository;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.dao.WorkLogAttachmentDao;
 import com.example.demo.dao.WorkLogDao;
@@ -37,6 +38,7 @@ import com.example.demo.dto.WorkLogSummaryResponse;
 import com.example.demo.entity.Internship;
 import com.example.demo.entity.InternshipStatus;
 import com.example.demo.entity.Role;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
 import com.example.demo.entity.WorkLog;
 import com.example.demo.entity.WorkLogAttachment;
@@ -44,12 +46,12 @@ import com.example.demo.entity.WorkLogStatus;
 
 /**
  * U8:T4 Unit test ส่วน Service: WorkLogService (กฎของบันทึกการทำงาน) · DAO ถูก mock
- * วันนี้ = อังคาร 2026-11-10 · internship 7 ของนักศึกษา A (userId 3) เริ่ม 2026-11-02 IN_PROGRESS
- * อาจารย์ที่ปรึกษาของ A = userId 2 · อาจารย์อื่น = 5 · นักศึกษา B = 4 · เจ้าหน้าที่ = 1
+ * วันนี้ = อังคาร 2026-11-10 · internship 7 ของนักศึกษา A (userId 3 / students.id 30) เริ่ม 2026-11-02 IN_PROGRESS
+ * อาจารย์ที่ปรึกษาของ A = userId 2 · อาจารย์อื่น = 5 · นักศึกษา B = userId 4 / students.id 40 · เจ้าหน้าที่ = 1
  *
- * หมายเหตุ: ข้อมูลการฝึกงาน (Internship) และสถานะ IN_PROGRESS เป็นข้อมูลจำลอง (mock InternshipDao)
- * เพราะ US7 ซึ่งเป็นเจ้าของการฝึกงาน (สร้าง / เริ่ม / ปิดการฝึกงาน) ยังไม่มีโค้ด
- * ทุก test จึงไม่ได้ทดสอบว่าการฝึกงานได้สถานะนั้นมาอย่างไร ทดสอบเฉพาะกฎของ US8 ที่ขึ้นกับสถานะ
+ * หมายเหตุ: Internship ใช้ entity ของ US7 (internships.student_id = students.id, มี match_id)
+ * InternshipRepository / StudentRepository ถูก mock · ทดสอบเฉพาะกฎของ US8 ที่ขึ้นกับสถานะการฝึกงาน
+ * (การสร้าง / เริ่ม / ปิดการฝึกงานเป็นของ US7)
  */
 class WorkLogServiceTest {
 
@@ -57,7 +59,8 @@ class WorkLogServiceTest {
 
     private WorkLogDao workLogDao;
     private WorkLogAttachmentDao attachmentDao;
-    private InternshipDao internshipDao;
+    private InternshipRepository internshipDao;
+    private StudentRepository studentDao;
     private UserRepository userDao;
     private FileStorage fileStorage;
     private NotificationService notificationService;
@@ -68,11 +71,12 @@ class WorkLogServiceTest {
     void setUp() {
         workLogDao = mock(WorkLogDao.class);
         attachmentDao = mock(WorkLogAttachmentDao.class);
-        internshipDao = mock(InternshipDao.class);
+        internshipDao = mock(InternshipRepository.class);
+        studentDao = mock(StudentRepository.class);
         userDao = mock(UserRepository.class);
         fileStorage = mock(FileStorage.class);
         notificationService = mock(NotificationService.class);
-        service = new WorkLogService(workLogDao, attachmentDao, internshipDao, userDao, fileStorage,
+        service = new WorkLogService(workLogDao, attachmentDao, internshipDao, studentDao, userDao, fileStorage,
                 notificationService, new AccessGuard(userDao), CLOCK);
 
         user(1L, Role.STAFF, null);
@@ -81,8 +85,7 @@ class WorkLogServiceTest {
         user(4L, Role.STUDENT, 5L);
         user(5L, Role.ADVISOR, null);
 
-        internship = new Internship(3L, LocalDate.of(2026, 11, 2), LocalDate.of(2027, 2, 19),
-                InternshipStatus.IN_PROGRESS);
+        internship = internship(30L, LocalDate.of(2026, 11, 2), LocalDate.of(2027, 2, 19));
         ReflectionTestUtils.setField(internship, "id", 7L);
         when(internshipDao.findById(7L)).thenReturn(Optional.of(internship));
         when(workLogDao.save(any(WorkLog.class))).thenAnswer(i -> i.getArgument(0));
@@ -91,8 +94,24 @@ class WorkLogServiceTest {
     private void user(Long id, Role role, Long advisorId) {
         User u = new User("u" + id, "ผู้ใช้ " + id, null, role);
         ReflectionTestUtils.setField(u, "id", id);
-        u.setAdvisorId(advisorId);
         when(userDao.findById(id)).thenReturn(Optional.of(u));
+        if (role == Role.STUDENT) {
+            // ข้อมูลนักศึกษา (students.id = userId × 10) และอาจารย์ที่ปรึกษาอยู่ใน Student
+            Student s = new Student(id, "66096500" + id, "Science and Technology", "Computer Science", 3.0);
+            ReflectionTestUtils.setField(s, "id", id * 10);
+            s.setAdvisorId(advisorId);
+            when(studentDao.findByUserId(id)).thenReturn(Optional.of(s));
+            when(studentDao.findById(id * 10)).thenReturn(Optional.of(s));
+        }
+    }
+
+    /** การฝึกงานตามขั้นตอนของ US7: สร้างจาก match (NOT_STARTED) → กรอกรายละเอียด → IN_PROGRESS */
+    static Internship internship(Long studentId, LocalDate start, LocalDate end) {
+        LocalDateTime t = start.atStartOfDay();
+        Internship i = new Internship(70L, studentId, 1L, t.minusDays(7));
+        i.updateDetails(start, end, "Supervisor", "sup@example.com", "0812345678", 1L, t.minusDays(1));
+        i.changeStatus(InternshipStatus.IN_PROGRESS, null, 1L, t);
+        return i;
     }
 
     private static WorkLogRequest req(String date, String start, String end) {
@@ -192,7 +211,7 @@ class WorkLogServiceTest {
         // สถานะการฝึกงานจำลองใน mock เพราะ US7 (เจ้าของการเปลี่ยนสถานะการฝึกงาน) ยังไม่มีโค้ด
         for (InternshipStatus status : new InternshipStatus[] { InternshipStatus.NOT_STARTED,
                 InternshipStatus.COMPLETED, InternshipStatus.TERMINATED }) {
-            internship.setStatus(status);
+            ReflectionTestUtils.setField(internship, "status", status);
 
             assertThatThrownBy(() -> service.create(3L, 7L, req("2026-11-09", "09:00", "12:00")))
                     .satisfies(e -> assertApiError(e, 409, "INTERNSHIP_NOT_IN_PROGRESS"));
@@ -337,8 +356,8 @@ class WorkLogServiceTest {
     @Test
     @DisplayName("UT-SV-17 myInternship: นักศึกษาได้การฝึกงานของตน · ยังไม่มี 404 · อาจารย์เรียก 403")
     void myInternship() {
-        when(internshipDao.findByStudentId(3L)).thenReturn(Optional.of(internship));
-        when(internshipDao.findByStudentId(4L)).thenReturn(Optional.empty());
+        when(internshipDao.findByStudentId(30L)).thenReturn(Optional.of(internship));
+        when(internshipDao.findByStudentId(40L)).thenReturn(Optional.empty());
 
         assertThat(service.myInternship(3L)).isSameAs(internship);
         assertThatThrownBy(() -> service.myInternship(4L)).satisfies(e -> assertApiError(e, 404, "NOT_FOUND"));
