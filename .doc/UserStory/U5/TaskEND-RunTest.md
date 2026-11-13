@@ -109,6 +109,20 @@ Sequence Diagram ที่ใช้
 -
 ![.doc/UserStory/U5/U5-T6 API Sequence diagram.png](<U5-T6 API Sequence diagram.png>)
 
+Sequence Diagram ส่วนที่เพิ่ม (13 ข้อของ US5)
+-
+![.doc/UserStory/U5/U5-T6 Sequence additions.png](<U5-T6 Sequence additions.png>)
+
+| ส่วนใน Sequence additions | ขั้น | จุดที่ใช้ตรวจ | ใช้กับ |
+|---|---|---|---|
+| ก. นักศึกษาส่งคำร้อง (U3) → แจ้งเจ้าหน้าที่ | 1–9 | ขั้น 5–6 ขาดไฟล์ช่องบังคับ → 400 MISSING_DOCUMENT · ขั้น 7–8 SUBMITTED + แจ้งเตือน APPLICATION_SUBMITTED ทุกเจ้าหน้าที่ | ST-U5-16, ST-U5-21 |
+| ข. ส่งกลับพร้อมช่องที่ต้องแก้ + เก็บค่าเดิม | 10–15 | ขั้น 12 ตรวจว่าช่องอยู่ในแบบฟอร์ม · ขั้น 13 comment มี "ช่องที่ต้องแก้" · ขั้น 14 answer_snapshots | ST-U5-19 |
+| ค. ฉบับแก้กลับมา → เห็นค่าเดิม | 16–19 | ขั้น 18–19 `answers[].previousValue` | ST-U5-19 |
+| ง. อนุมัติหลายใบ | 20–23 | ขั้น 22 ทีละใบ (transaction แยก) · ขั้น 23 `{approved, skipped}` | ST-U5-20 |
+| จ. งานเตือนก่อนหมดเขต (ทุกวัน 08:00) | 24–27 | ขั้น 25 หมดเขตภายใน 2 วัน · ขั้น 26–27 เตือนวันละครั้ง + Email | ST-U5-21 |
+
+ปิดรับก่อนกำหนด (ST-U5-15) และ summary / ป้ายเตือน / export (ST-U5-17, ST-U5-18) ใช้เส้นทาง ① และ ② ใน Sequence Diagram หลัก
+
 ทดสอบทั้งระบบตามเส้นทางใน Sequence Diagram: หน้าเว็บจริง + backend จริง + MySQL (`docker compose up -d --build` + Live Server) แล้วตรวจ 3 จุด คือ หน้าจอ, DevTools แท็บ Network และข้อมูลใน MySQL · TC1–TC5 ดู [Task1 · Requirement](T1.md)
 
 เตรียมก่อนทดสอบ
